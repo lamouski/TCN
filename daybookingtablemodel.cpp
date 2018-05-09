@@ -54,6 +54,7 @@ bool DayBookingTableModel::queryData() {
         qDebug() << "query day " << m_day.toString("yyyy-MM-dd") << " bookings error:  "
               << m_query.lastError();
     }
+    return false;
 }
 
 QVariant DayBookingTableModel::headerData(int section, Qt::Orientation orientation, int role) const

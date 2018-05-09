@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    DbManager* db = new DbManager("/home/lamouski/Projects/TCN2020/test_db/tcn2020.db");
+    DbManager* db = new DbManager("../test_db/tcn2020.db");
 
     db->checkDB();
 
