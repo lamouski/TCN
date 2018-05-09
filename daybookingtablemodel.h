@@ -2,6 +2,8 @@
 #define DAYBOOKINGTABLEMODEL_H
 
 #include <QAbstractTableModel>
+#include <QDate>
+#include <QSqlQuery>
 
 class DayBookingTableModel : public QAbstractTableModel
 {
@@ -27,7 +29,17 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+    QDate day() const;
+    void setDay(const QDate &day);
+
+protected slots:
+    bool queryData();
+
 private:
+    QSqlQuery m_query;
+    QDate m_day;
+
+    QMap<int, QString> m_fields;
 };
 
 #endif // DAYBOOKINGTABLEMODEL_H

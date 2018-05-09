@@ -2,6 +2,7 @@
 #define MEMBERSLISTDIALOG_H
 
 #include <QDialog>
+#include <QSqlTableModel>
 
 namespace Ui {
 class MembersListDialog;
@@ -17,6 +18,8 @@ public:
 
 private:
     Ui::MembersListDialog *ui;
+
+    QSqlTableModel* m_model;
 };
 
 #endif // MEMBERSLISTDIALOG_H

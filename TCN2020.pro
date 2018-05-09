@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql
 
 TARGET = TCN2020
 TEMPLATE = app
@@ -25,10 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    dbmanager.cpp \
+    memberslistdialog.cpp \
+    weekviewwidget.cpp \
+    daybookingtablemodel.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    dbmanager.h \
+    memberslistdialog.h \
+    weekviewwidget.h \
+    daybookingtablemodel.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    memberslistdialog.ui \
+    weekviewwidget.ui
