@@ -29,16 +29,19 @@ SOURCES += \
     dbmanager.cpp \
     memberslistdialog.cpp \
     weekviewwidget.cpp \
-    daybookingtablemodel.cpp
+    daybookingtablemodel.cpp \
+    fieldlistdialog.cpp
 
 HEADERS += \
         mainwindow.h \
     dbmanager.h \
     memberslistdialog.h \
     weekviewwidget.h \
-    daybookingtablemodel.h
+    daybookingtablemodel.h \
+    fieldlistdialog.h
 
 FORMS += \
         mainwindow.ui \
     memberslistdialog.ui \
-    weekviewwidget.ui
+    weekviewwidget.ui \
+    fieldlistdialog.ui

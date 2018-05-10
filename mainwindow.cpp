@@ -20,6 +20,8 @@
 #include "ui_mainwindow.h"
 
 #include "dbmanager.h"
+#include "memberslistdialog.h"
+#include "fieldlistdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -55,11 +57,21 @@ void MainWindow::on_m_button_members_clicked()
     m_members_list_dialog->show();
 }
 
-
+void MainWindow::on_m_button_fields_clicked()
+{
+    if(!m_fields_list_dialog)
+        m_fields_list_dialog = new FieldListDialog();
+    m_fields_list_dialog->show();
+}
 
 void MainWindow::on_delete_pushButton_clicked()
 {
     DbManager* db = DbManager::instance();
+
+    db->addField("Field 5", 127, 1);
+    db->addField("Field 6", 127, 1);
+    db->addField("Field 7", 127, 1);
+    db->addField("Field 1", 96, 1);
 
     db->addMember("Denis", "Lamouski");
     db->addMember("Natasha", "Lind");
@@ -69,4 +81,8 @@ void MainWindow::on_delete_pushButton_clicked()
 
 
 
+
+
 }
+
+

@@ -34,26 +34,23 @@ DayBookingTableModel::DayBookingTableModel(QObject *parent)
 {
     QSqlQueryModel model;
     model.setQuery("SELECT * FROM fields", DbManager::db());
+    qDebug() << model.lastError();
     for (int i = 0; i < model.rowCount(); ++i) {
         int id = model.record(i).value("id").toInt();
         m_fields[id]=model.record(i).value("name").toString();
         qDebug() << id << m_fields[id];
     }
-
-    m_query.prepare("SELECT * FROM :table WHERE date=':day'");
-    m_query.bindValue(":table", "bookings");
-
-
 }
 
 bool DayBookingTableModel::queryData() {
+    m_query.prepare("SELECT * FROM bookings WHERE date=':day'");
     m_query.bindValue(":day", m_day.toString("yyyy-MM-dd"));
-    if(m_query.exec())
-        return true;
-    else {
+    //if(m_query.exec())
+    //    return true;
+    //else {
         qDebug() << "query day " << m_day.toString("yyyy-MM-dd") << " bookings error:  "
               << m_query.lastError();
-    }
+    //}
     return false;
 }
 

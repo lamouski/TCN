@@ -63,13 +63,34 @@ bool DbManager::addMember(const QString &name, const QString &surname)
    return success;
 }
 
-bool DbManager::addBooking(const int memberID, const QDate& date, const int timeSlot, const int fieldID, const int priceID)
+bool DbManager::addField(const QString& name, const int days, const int seasons)
 {
-
    bool success = false;
    // you should check if args are ok first...
    QSqlQuery query;
-   query.prepare("INSERT INTO bookings "
+   query.prepare("INSERT INTO fields (name, days, seasons) "
+                 "VALUES (:name, :days, :seasons)");
+   query.bindValue(":name", name);
+   query.bindValue(":days", days);
+   query.bindValue(":seasons", seasons);
+   if(query.exec())
+   {
+       success = true;
+   }
+   else
+   {
+        qDebug() << "addBooking error:  "
+                 << query.lastError();
+   }
+   return success;
+}
+
+bool DbManager::addBooking(const int memberID, const QDate& date, const int timeSlot, const int fieldID, const int priceID)
+{
+   bool success = false;
+   // you should check if args are ok first...
+   QSqlQuery query;
+   query.prepare("INSERT INTO bookings (memberid, date, timeslot, fieldid, priceid)"
                  "VALUES (:memberid, :date, :timeslot, : fieldid, :priceid)");
    query.bindValue(":memberid", memberID);
    query.bindValue(":date", date.toString("yyyy-MM-dd"));
@@ -102,20 +123,15 @@ bool DbManager::checkDB()
      QSqlQuery query;
      query.exec("create table IF NOT EXISTS fields"
                 "(id integer primary key, "
-                "name vchar(25), "
-                "days set(1,2,3,4,5,6,7)"
-                "seasons set('Sommer','Winter')");
-     query.prepare("INSERT (name, days, seasons) INTO fields VALUES ('Field 5', '1,2,3,4,5,6,7', 'Sommer')");
-     query.prepare("INSERT (name, days, seasons) INTO fields VALUES ('Field 6', '1,2,3,4,5,6,7', 'Sommer')");
-     query.prepare("INSERT (name, days, seasons) INTO fields VALUES ('Field 7', '1,2,3,4,5,6,7', 'Sommer')");
-     query.prepare("INSERT (name, days, seasons) INTO fields VALUES ('Field 1', '6,7', 'Sommer')");
-
-
+                "name varchar(25), "
+                "days integer, " //set(1,2,3,4,5,6,7)
+                "seasons integer)"); //set('Sommer','Winter')
     }
     if ( !table_names.contains( QLatin1String("bookings") )) {
      QSqlQuery query;
      query.exec("create table IF NOT EXISTS bookings"
-                "(memberid integer, "
+                "(id integer primary key, "
+                "memberid integer, "
                 "date DATE(100), "
                 "timeslot integer,"
                 "fieldid integer,"
