@@ -19,6 +19,7 @@
 #ifndef WEEKVIEWWIDGET_H
 #define WEEKVIEWWIDGET_H
 
+#include <QObject>
 #include <QDate>
 #include <QLabel>
 #include <QPushButton>
@@ -26,6 +27,7 @@
 #include <QWidget>
 
 class DayBookingTableModel;
+class BookingDialog;
 
 namespace Ui {
 class WeekViewWidget;
@@ -53,15 +55,26 @@ public slots:
 protected slots:
     void updateGUI();
 
+     void processBooking(int day, const QModelIndex &index);
+
+private slots:
+     void on_m_button_previous_week_clicked();
+
+     void on_m_button_next_week_clicked();
+
 private:
     Ui::WeekViewWidget *ui;
 
     QVector<QLabel*> m_day_labels;
     QVector<QTableView*> m_booking_tables;
 
-    DayBookingTableModel* m_day_booking_models[7];
+    QVector<DayBookingTableModel*> m_day_booking_models;
     //currient data
     QDate m_date;
+
+    BookingDialog* m_booking_dialog;
+    void set_signal_slots_connections();
+
 };
 
 

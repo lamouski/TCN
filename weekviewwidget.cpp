@@ -19,21 +19,46 @@
 #include "weekviewwidget.h"
 #include "ui_weekviewwidget.h"
 #include "dbmanager.h"
+
+#include "bookingdialog.h"
 #include "daybookingtablemodel.h"
+
+#include <QTableWidget>
+#include <QDebug>
 
 WeekViewWidget::WeekViewWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::WeekViewWidget)
+    ui(new Ui::WeekViewWidget),
+    m_booking_dialog(nullptr)
 {
     ui->setupUi(this);
     m_day_labels = QVector<QLabel*>({ui->m_label_day1, ui->m_label_day2, ui->m_label_day3, ui->m_label_day4, ui->m_label_day5, ui->m_label_day6, ui->m_label_day7});
     m_booking_tables = QVector<QTableView*>({ui->m_table_booking_1,ui->m_table_booking_2,ui->m_table_booking_3,ui->m_table_booking_4,ui->m_table_booking_5,ui->m_table_booking_6,ui->m_table_booking_7});
+
+    m_day_booking_models.resize(7);
+    for(qint64 i = 0; i < 7; i++)
+        m_day_booking_models[i] = nullptr;
+
+    set_signal_slots_connections();
 }
+
 
 WeekViewWidget::~WeekViewWidget()
 {
     delete ui;
 }
+
+
+void WeekViewWidget::set_signal_slots_connections()
+{
+    for(int day = 0; day < 7; day++)
+    {
+        connect(m_booking_tables[day], &QTableView::doubleClicked, [this, day](const QModelIndex &index){ processBooking(day, index);});
+    }
+
+    connect(ui->m_date_edit_currient_day, &QDateEdit::dateChanged, [this](const QDate &date) { if(m_date != date) setCurrientDate(date); });
+}
+
 
 QPushButton *WeekViewWidget::getReturnButton() const
 {
@@ -41,19 +66,48 @@ QPushButton *WeekViewWidget::getReturnButton() const
 }
 
 
+void WeekViewWidget::processBooking(int day, const QModelIndex &index)
+{
+    if(!m_day_booking_models[day])
+        return;
+
+    if(!m_booking_dialog)
+        m_booking_dialog = new BookingDialog(this);
+    
+    m_booking_dialog->setField(m_day_booking_models[day]->fieldName(index.row()));
+    m_booking_dialog->setTimeslot(m_day_booking_models[day]->timeSlot(index.column()));
+    if(m_booking_dialog->exec() == QDialog::Accepted)
+    {
+        int selected_member_id = m_booking_dialog->selectedId();
+        qDebug() << "Selected member id " << selected_member_id;
+
+        m_day_booking_models[day]->setData(index, QVariant::fromValue(QPair<int, int>(selected_member_id, -1)), Qt::UserRole);
+    }
+
+}
+
+
 /*
  * Sets currient day
  */
 void WeekViewWidget::setCurrientDate(QDate date) {
-    m_date = date;
-    fillCurrientWeek();
-    updateGUI();
+    if(m_date.weekNumber() != date.weekNumber())
+    {
+        m_date = date;
+        fillCurrientWeek();
+        updateGUI();
+    }
+    else
+        m_date = date;
+    ui->m_date_edit_currient_day->setDate(m_date);
 }
+
 
 QDate  WeekViewWidget::currientDate() const
 {
     return m_date;
 }
+
 
 void WeekViewWidget::updateGUI()
 {
@@ -64,17 +118,19 @@ void WeekViewWidget::updateGUI()
                     .arg(m_date.toString("MMMM yyyy")));
 }
 
-//current week handling functions
 
+//current week handling functions
 inline QDate WeekViewWidget::firstDayOfCurrientWeek() const
 {
     return m_date.addDays(Qt::Monday - m_date.dayOfWeek());
 }
 
+
 inline QDate WeekViewWidget::lastDayOfCurrientWeek() const
 {
     return m_date.addDays(m_date.dayOfWeek() - Qt::Sunday);
 }
+
 
 void WeekViewWidget::fillCurrientWeek() { //on show
     DbManager* db = DbManager::instance();
@@ -82,14 +138,26 @@ void WeekViewWidget::fillCurrientWeek() { //on show
         return;
     QDate day = firstDayOfCurrientWeek();
     for(qint64 i = 0; i < 7; i ++) {
-        DayBookingTableModel* model = new DayBookingTableModel(this);
+        DayBookingTableModel* model = m_day_booking_models[i];
+        if(!model) {
+            model = new DayBookingTableModel(this);
+            m_day_booking_models[i] = model;
+        }
         model->setDay(day);
         m_booking_tables[i]->setModel(model);
-        m_booking_tables[i]->resizeColumnsToContents();
         m_booking_tables[i]->resizeRowsToContents();
-
-        m_day_booking_models[i] = model;
+        m_booking_tables[i]->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
         day = day.addDays(1);
     }
+}
+
+void WeekViewWidget::on_m_button_previous_week_clicked()
+{
+    setCurrientDate(m_date.addDays(-7));
+}
+
+void WeekViewWidget::on_m_button_next_week_clicked()
+{
+    setCurrientDate(m_date.addDays(7));
 }

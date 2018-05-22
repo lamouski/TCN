@@ -30,7 +30,8 @@ SOURCES += \
     memberslistdialog.cpp \
     weekviewwidget.cpp \
     daybookingtablemodel.cpp \
-    fieldlistdialog.cpp
+    fieldlistdialog.cpp \
+    bookingdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,10 +39,12 @@ HEADERS += \
     memberslistdialog.h \
     weekviewwidget.h \
     daybookingtablemodel.h \
-    fieldlistdialog.h
+    fieldlistdialog.h \
+    bookingdialog.h
 
 FORMS += \
         mainwindow.ui \
     memberslistdialog.ui \
     weekviewwidget.ui \
-    fieldlistdialog.ui
+    fieldlistdialog.ui \
+    bookingdialog.ui

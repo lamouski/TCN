@@ -91,9 +91,9 @@ bool DbManager::addBooking(const int memberID, const QDate& date, const int time
    // you should check if args are ok first...
    QSqlQuery query;
    query.prepare("INSERT INTO bookings (memberid, date, timeslot, fieldid, priceid)"
-                 "VALUES (:memberid, :date, :timeslot, : fieldid, :priceid)");
+                 "VALUES (:memberid, :date, :timeslot, :fieldid, :priceid) ;");
    query.bindValue(":memberid", memberID);
-   query.bindValue(":date", date.toString("yyyy-MM-dd"));
+   query.bindValue(":date", date.toJulianDay());
    query.bindValue(":timeslot", timeSlot);
    query.bindValue(":fieldid", fieldID);
    query.bindValue(":priceid", priceID);
@@ -112,14 +112,16 @@ bool DbManager::addBooking(const int memberID, const QDate& date, const int time
 bool DbManager::checkDB()
 {
     QStringList table_names = m_db.tables();
-    if ( !table_names.contains( QLatin1String("members") )) {
+    if ( !table_names.contains( QLatin1String("members") ))
+    {
          QSqlQuery query;
          query.exec("create table IF NOT EXISTS members"
                    "(id integer primary key, "
                    "firstname varchar(100), "
                    "surname varchar(100))");
     }
-    if ( !table_names.contains( QLatin1String("fields") )) {
+    if ( !table_names.contains( QLatin1String("fields") ))
+    {
      QSqlQuery query;
      query.exec("create table IF NOT EXISTS fields"
                 "(id integer primary key, "
@@ -127,12 +129,13 @@ bool DbManager::checkDB()
                 "days integer, " //set(1,2,3,4,5,6,7)
                 "seasons integer)"); //set('Sommer','Winter')
     }
-    if ( !table_names.contains( QLatin1String("bookings") )) {
+    if ( !table_names.contains( QLatin1String("bookings") ))
+    {
      QSqlQuery query;
      query.exec("create table IF NOT EXISTS bookings"
                 "(id integer primary key, "
                 "memberid integer, "
-                "date DATE(100), "
+                "date integer, "
                 "timeslot integer,"
                 "fieldid integer,"
                 "priceid integer)");

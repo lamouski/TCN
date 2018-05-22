@@ -48,16 +48,33 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     QDate day() const;
+    QString fieldName(int row) const;
+    int timeSlot(int column) const;
+
     void setDay(const QDate &day);
+
+    void setFirstTimeSlot(int first_time_slot);
+    void setNumOfTimeSlots(int num_of_time_slots);
+
+public slots:
+    void setPreviousWeek();
+    void setNextWeek();
 
 protected slots:
     bool queryData();
 
 private:
-    QSqlQuery m_query;
+    QSqlQuery m_query;    
+
     QDate m_day;
 
-    QMap<int, QString> m_fields;
+    QHash<QPair<int, int>, int> m_index_hash;
+
+    QVector<int> m_fields_IDis;
+    QStringList m_fields_names;
+
+    int m_first_time_slot;
+    int m_nr_time_slots;
 };
 
 #endif // DAYBOOKINGTABLEMODEL_H

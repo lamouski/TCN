@@ -1,4 +1,4 @@
-/*
+                                                          /*
  * TCN Field Booking Application
  * Copyright (C) 2018 Dzianis Lamouski
  *
@@ -31,27 +31,47 @@
 
 DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
+    , m_first_time_slot(9)
+    , m_nr_time_slots(13)
 {
-    QSqlQueryModel model;
-    model.setQuery("SELECT * FROM fields", DbManager::db());
-    qDebug() << model.lastError();
-    for (int i = 0; i < model.rowCount(); ++i) {
-        int id = model.record(i).value("id").toInt();
-        m_fields[id]=model.record(i).value("name").toString();
-        qDebug() << id << m_fields[id];
-    }
+
 }
 
 bool DayBookingTableModel::queryData() {
-    m_query.prepare("SELECT * FROM bookings WHERE date=':day'");
-    m_query.bindValue(":day", m_day.toString("yyyy-MM-dd"));
-    //if(m_query.exec())
-    //    return true;
-    //else {
+
+    int day_mask = 1 << (m_day.dayOfWeek() - 1);
+    QSqlQuery field_query(QString("SELECT id, name, days, seasons FROM fields WHERE (`days` & %1) = %1;").arg(day_mask));
+    m_fields_IDis.clear();
+    m_fields_names.clear();
+    while (field_query.next())
+    {
+        m_fields_IDis.push_back(field_query.value(0).toInt());
+        m_fields_names.push_back(field_query.value(1).toString());
+    }
+    m_query.prepare("SELECT (surname || ' ' || firstname), memberid, date, timeslot, fieldid, priceid "
+                    "FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
+                    "WHERE date = :day");
+    m_query.bindValue(":day", m_day.toJulianDay());
+    if(!m_query.exec())
+    {
         qDebug() << "query day " << m_day.toString("yyyy-MM-dd") << " bookings error:  "
               << m_query.lastError();
-    //}
-    return false;
+        return false;
+    }
+
+    m_index_hash.clear();
+    int ind = 0;
+    while(m_query.next()) {
+        //QString name = query.value(0).toString();
+        //int memberId = m_query.value(0).toInt();
+        int timeslot = m_query.value(3).toInt();
+        int fieldId = m_query.value(4).toInt();
+        //int priceId = m_query.value(4).toInt();
+        m_index_hash[QPair<int, int>(fieldId, timeslot)] = ind++;
+    }
+
+   //emit QAbstractListModel::dataChanged(index(0,0), index(0,0));
+    return true;
 }
 
 QVariant DayBookingTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -59,12 +79,12 @@ QVariant DayBookingTableModel::headerData(int section, Qt::Orientation orientati
     if (role == Qt::DisplayRole){
         switch(orientation) {
         case Qt::Horizontal: {
-            QTime time(section + 9, 0);
+            QTime time(section + m_first_time_slot, 0); //todo define start timeslot and number of timeslots
             return time.toString("hh:mm");
         }
             break;
         case Qt::Vertical:
-            return tr("Field %1").arg(section);
+            return m_fields_names[section];
         }
     }
     return QVariant();
@@ -84,9 +104,7 @@ int DayBookingTableModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    //if(m_query.isValid())
-    //    return 3; //number of available fields
-    return 3;
+    return m_fields_IDis.size();
 }
 
 int DayBookingTableModel::columnCount(const QModelIndex &parent) const
@@ -94,7 +112,7 @@ int DayBookingTableModel::columnCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return 13; // number of hours in the day
+    return m_nr_time_slots; // number of hours in the day
 }
 
 QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
@@ -105,52 +123,97 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
     int row = index.row();
     int col = index.column();
 
-    // generate a log message when this method gets called
-//    qDebug() << QString("row %1, col%2, role %3")
-//                .arg(row).arg(col).arg(role);
+    QPair<int, int> index_key(m_fields_IDis[row], m_first_time_slot + col);
 
-        switch(role){
+    switch(role)
+    {
         case Qt::DisplayRole:
-            return QString("name\n %1-%2")
-                    .arg(row + 1)
-                    .arg(col + 1);
+            if(m_index_hash.contains(index_key))
+            {
+                int index = m_index_hash[index_key];
+                const_cast<QSqlQuery&>(m_query).seek(index);
+                QString member_mame = m_query.record().value(0).toString();
+                int price_di = m_query.record().value(5).toInt();
+                return QString("%1 (%2)").arg(member_mame).arg(price_di);
+            }            
             break;
-        case Qt::FontRole:
+        case Qt::UserRole:
+            if(m_index_hash.contains(index_key))
+            {
+                int index = m_index_hash[index_key];
+                const_cast<QSqlQuery&>(m_query).seek(index);
+                int memberId = m_query.record().value(1).toInt();
+                int priceId = m_query.record().value(5).toInt();
+                QPair<int, int> member_price_pair(memberId, priceId);
+                return QVariant::fromValue(member_price_pair);
+            }
+            else
+                return QVariant::fromValue(QPair<int, int>(-1, -1));
+            break;
+
+/*        case Qt::FontRole:
             if (row == 0 && col == 0) //change font only for cell(0,0)
             {
                 QFont boldFont;
                 boldFont.setBold(true);
                 return boldFont;
             }
-            break;
+            break;*/
         case Qt::BackgroundRole:
-
-            if (row == 1 && col == 2)  //change background only for cell(1,2)
+            if(m_index_hash.contains(index_key))
             {
-                QBrush redBackground(Qt::red);
-                return redBackground;
+                QBrush background;
+                switch (index.row() % 3) {
+                case 0:
+                    background = QBrush(qRgb(174, 234, 174));
+                    break;
+                case 1:
+                    background = QBrush(qRgb(154, 229, 154));
+                    break;
+                case 2:
+                    background = QBrush(qRgb(133, 224, 133));
+                    break;
+                default:
+                    break;
+                }
+                return background;
+            }
+            else
+            {
+                int minute = (QDateTime(m_day, QTime(index.column() + m_first_time_slot, 0)).toSecsSinceEpoch() - QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
+                if(minute < 0)
+                    return QBrush(qRgb(242, 242, 242));
+                if(minute < 15)
+                    return QBrush(qRgb(255, 51, 0));
+                if(minute < 30)
+                    return QBrush(qRgb(255, 153, 0));
+                return QBrush(qRgb(255, 242, 230));
             }
             break;
         case Qt::TextAlignmentRole:
-
-            if (row == 1 && col == 1) //change text alignment only for cell(1,1)
+            if(m_index_hash.contains(index_key))
             {
-                return Qt::AlignRight + Qt::AlignVCenter;
+                return Qt::AlignLeft + Qt::AlignVCenter;
             }
             break;
-//        case Qt::CheckStateRole:
-//            if (row == 1 && col == 0) //add a checkbox to cell(1,0)
-//            {
-//                return Qt::Checked;
-//            }
         }
-        return QVariant();
+    return QVariant();
 }
 
 bool DayBookingTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (data(index, role) != value) {
-        // FIXME: Implement me!
+        switch (role) {
+        case Qt::UserRole:
+            QPair<int, int> member_price_pair = value.value<QPair<int, int> >();
+            DbManager::instance()->addBooking(member_price_pair.first,
+                                              m_day,
+                                              index.column() + m_first_time_slot,
+                                              m_fields_IDis[index.row()],
+                                              member_price_pair.second);
+            break;
+        }
+        queryData();
         emit dataChanged(index, index, QVector<int>() << role);
         return true;
     }
@@ -162,7 +225,7 @@ Qt::ItemFlags DayBookingTableModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    return Qt::ItemIsEditable; // FIXME: Implement me!
+    return Qt::ItemIsEnabled;
 }
 
 QDate DayBookingTableModel::day() const
@@ -170,10 +233,40 @@ QDate DayBookingTableModel::day() const
     return m_day;
 }
 
+
 void DayBookingTableModel::setDay(const QDate &day)
 {
     if(m_day != day) {
         m_day = day;
         queryData();
+        emit dataChanged(index(0, 0), index(rowCount()-1, columnCount()-1));
     };
+}
+
+void DayBookingTableModel::setPreviousWeek()
+{
+    setDay(m_day.addDays(-7));
+}
+
+void DayBookingTableModel::setNextWeek()
+{
+   setDay(m_day.addDays(7));
+}
+
+QString DayBookingTableModel::fieldName(int row) const
+{
+    if(row < m_fields_names.size())
+        return m_fields_names[row];
+    else
+        return QString();
+}
+
+int DayBookingTableModel::timeSlot(int column) const
+{
+    return column + m_first_time_slot;
+}
+
+void DayBookingTableModel::setFirstTimeSlot(int first_time_slot)
+{
+    m_first_time_slot = first_time_slot;
 }
