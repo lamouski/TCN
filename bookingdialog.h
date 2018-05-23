@@ -16,14 +16,20 @@ public:
     explicit BookingDialog(QWidget *parent = 0);
     ~BookingDialog();
 
+    void reset();
+
 public slots:
     void setField(const QString& fieldName);
     void setTimeslot(int timeSlot);
 
+    void setMemberId(int id);
+    void setPriceId(int id);
+
+    void updateQuery(const QString &find_string);
+
+public:
     int selectedId() const;
 
-
-protected slots:
 private slots:
     void on_m_line_edit_name_textEdited(const QString &arg1);
     //void on_m_list_view_members_doubleClicked(const QModelIndex &index);

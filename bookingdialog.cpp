@@ -26,6 +26,12 @@ BookingDialog::~BookingDialog()
     delete ui;
 }
 
+void BookingDialog::reset()
+{
+    ui->m_line_edit_name->clear();
+    updateQuery(ui->m_line_edit_name->text());
+}
+
 void BookingDialog::setField(const QString& fieldName)
 {
     ui->m_label_field->setText(fieldName);
@@ -36,6 +42,16 @@ void BookingDialog::setTimeslot(int timeSlot)
     ui->m_label_time->setText(QTime(timeSlot, 0).toString("HH:mm") + " - " + QTime(timeSlot+1, 0).toString("HH:mm"));
 }
 
+void BookingDialog::setMemberId(int id)
+{
+
+}
+
+void BookingDialog::setPriceId(int id)
+{
+
+}
+
 int BookingDialog::selectedId() const
 {
     return m_last_selected_id;
@@ -43,8 +59,6 @@ int BookingDialog::selectedId() const
 
 void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
-    //QSqlQuery q = m_model->query();
-    //q.seek(current.row());
     if(current.isValid())
     {
         ui->m_line_edit_name->setText(m_model->record(current.row()).value(0).toString());
@@ -52,18 +66,22 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
     }
 }
 
-void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
+
+void BookingDialog::updateQuery(const QString &find_string)
 {
-    if(arg1.isEmpty())
+    if(find_string.isEmpty())
         m_model->setQuery("SELECT (firstname || ' ' || surname) AS name, id FROM members");
     else
-        m_model->setQuery("SELECT (firstname || ' ' || surname) AS name, id FROM members WHERE name LIKE '%"+arg1+"%';");
+        m_model->setQuery("SELECT (firstname || ' ' || surname) AS name, id FROM members WHERE name LIKE '%"+find_string+"%';");
+}
+
+void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
+{
+    updateQuery(arg1);
 }
 
 void BookingDialog::selectCurrientId(const QModelIndex &index)
 {
-    //QSqlQuery q = m_model->query();
-    //q.seek(index.row());
     if(index.isValid())
         m_last_selected_id = m_model->record(index.row()).value(1).toInt();
 }

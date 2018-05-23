@@ -148,7 +148,7 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                 return QVariant::fromValue(member_price_pair);
             }
             else
-                return QVariant::fromValue(QPair<int, int>(-1, -1));
+                return QVariant();
             break;
 
 /*        case Qt::FontRole:

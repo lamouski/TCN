@@ -76,6 +76,15 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index)
     
     m_booking_dialog->setField(m_day_booking_models[day]->fieldName(index.row()));
     m_booking_dialog->setTimeslot(m_day_booking_models[day]->timeSlot(index.column()));
+    QVariant curr_data = m_day_booking_models[day]->data(m_day_booking_models[day]->index(index.row(), index.column()), Qt::UserRole);
+    if(!curr_data.isNull())
+    {
+        QPair<int, int> member_price_pair = curr_data.value<QPair<int, int> >();
+        m_booking_dialog->setMemberId(member_price_pair.first);
+        m_booking_dialog->setPriceId(member_price_pair.second);
+    }
+    else
+        m_booking_dialog->reset();
     if(m_booking_dialog->exec() == QDialog::Accepted)
     {
         int selected_member_id = m_booking_dialog->selectedId();
