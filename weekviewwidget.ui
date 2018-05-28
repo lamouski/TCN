@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>896</width>
+    <height>653</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -114,6 +114,11 @@
    </item>
    <item row="0" column="3">
     <widget class="QLabel" name="m_week_label">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Week</string>
      </property>
@@ -163,9 +168,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-211</y>
-        <width>777</width>
-        <height>775</height>
+        <y>0</y>
+        <width>873</width>
+        <height>789</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -192,8 +197,16 @@
        </property>
        <item>
         <widget class="QLabel" name="m_label_day1">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Monday</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -224,7 +237,7 @@
           <enum>QAbstractItemView::NoSelection</enum>
          </property>
          <property name="showGrid">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="wordWrap">
           <bool>false</bool>
@@ -236,8 +249,16 @@
        </item>
        <item>
         <widget class="QLabel" name="m_label_day2">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Tuesday</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -265,17 +286,25 @@
           <bool>false</bool>
          </property>
          <property name="showGrid">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
-         <property name="gridStyle">
-          <enum>Qt::DotLine</enum>
+         <property name="cornerButtonEnabled">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="m_label_day3">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Wednesday</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -297,14 +326,25 @@
           <enum>QAbstractScrollArea::AdjustToContents</enum>
          </property>
          <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <property name="cornerButtonEnabled">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="m_label_day4">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Thursday</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -326,14 +366,25 @@
           <enum>QAbstractScrollArea::AdjustToContents</enum>
          </property>
          <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <property name="cornerButtonEnabled">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="m_label_day5">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Friday</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -355,14 +406,25 @@
           <enum>QAbstractScrollArea::AdjustToContents</enum>
          </property>
          <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <property name="cornerButtonEnabled">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="m_label_day6">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Saturday</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -384,14 +446,25 @@
           <enum>QAbstractScrollArea::AdjustToContents</enum>
          </property>
          <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <property name="cornerButtonEnabled">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="m_label_day7">
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Sunday</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -413,6 +486,9 @@
           <enum>QAbstractScrollArea::AdjustToContents</enum>
          </property>
          <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <property name="cornerButtonEnabled">
           <bool>false</bool>
          </property>
         </widget>

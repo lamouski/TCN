@@ -115,37 +115,45 @@ bool DbManager::checkDB()
     if ( !table_names.contains( QLatin1String("members") ))
     {
          QSqlQuery query;
-         query.exec("create table IF NOT EXISTS members"
-                   "(id integer primary key, "
-                   "firstname varchar(100), "
-                   "surname varchar(100))");
+         query.exec("CREATE TABLE `members` ("
+                    "`id`	integer,"
+                    "`firstname`	varchar ( 100 ),"
+                    "`surname`	varchar ( 100 ),"
+                    "PRIMARY KEY(`id`));");
     }
     if ( !table_names.contains( QLatin1String("fields") ))
     {
      QSqlQuery query;
-     query.exec("create table IF NOT EXISTS fields"
-                "(id integer primary key, "
-                "name varchar(25), "
-                "days integer, " //set(1,2,3,4,5,6,7)
-                "seasons integer)"); //set('Sommer','Winter')
+     query.exec("CREATE TABLE `fields` ("
+                "`id`	integer,"
+                "`name`	varchar ( 25 ),"
+                "`days`	integer NOT NULL,"
+                "`seasons`	integer NOT NULL,"
+                "PRIMARY KEY(`id`));");
     }
     if ( !table_names.contains( QLatin1String("bookings") ))
     {
      QSqlQuery query;
-     query.exec("create table IF NOT EXISTS bookings"
-                "(id integer primary key, "
-                "memberid integer, "
-                "date integer, "
-                "timeslot integer,"
-                "fieldid integer,"
-                "priceid integer)");
-
+     query.exec("CREATE TABLE `bookings` ("
+                "`id`	INTEGER,"
+                "`memberid`	INTEGER,"
+                "`date`	INTEGER,"
+                "`timeslot`	INTEGER,"
+                "`fieldid`	INTEGER,"
+                "`priceid`	INTEGER,"
+                "FOREIGN KEY(`memberid`) REFERENCES `members`(`id`),"
+                "FOREIGN KEY(`fieldid`) REFERENCES `fields`(`id`),"
+                "PRIMARY KEY(`id`));");
     }
     if ( !table_names.contains( QLatin1String("prices") )) {
      QSqlQuery query;
-     query.exec("create table IF NOT EXISTS prices"
-                "(id integer primary key, "
-                "price smallmoney)");
+     query.exec("CREATE TABLE `prices` ("
+                "`id`	INTEGER,"
+                "`price`	REAL,"
+                "`start_time_slot`	INTEGER,"
+                "`end_time_slot`	INTEGER,"
+                "`flags`	INTEGER UNIQUE,"  //bit 1 - gast oder member, bit 2 - abo, bit 3 - winter oder sommer
+                "PRIMARY KEY(`id`));");
     }
 
     return true;

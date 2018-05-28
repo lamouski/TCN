@@ -156,7 +156,8 @@ void WeekViewWidget::fillCurrientWeek() { //on show
         m_booking_tables[i]->setModel(model);
         m_booking_tables[i]->resizeRowsToContents();
         m_booking_tables[i]->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
+        if(i)
+            m_booking_tables[i]->horizontalHeader()->hide();
         day = day.addDays(1);
     }
 }
