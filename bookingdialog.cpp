@@ -69,10 +69,20 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
 
 void BookingDialog::updateQuery(const QString &find_string)
 {
-    if(find_string.isEmpty())
+    QStringList key_words = find_string.split(" ", QString::SkipEmptyParts);
+    if(key_words.empty())
         m_model->setQuery("SELECT (firstname || ' ' || surname) AS name, id FROM members");
     else
-        m_model->setQuery("SELECT (firstname || ' ' || surname) AS name, id FROM members WHERE name LIKE '%"+find_string+"%';");
+    {
+        QString query_string = "SELECT (firstname || ' ' || surname) AS name, id FROM members ";
+        QString and_string("WHERE ");
+        foreach (QString key_word, key_words)
+        {
+            query_string += and_string + "name LIKE '%"+key_word+"%'";
+            and_string = QString(" AND ");
+        }
+        m_model->setQuery(query_string);
+    }
 }
 
 void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)

@@ -116,10 +116,21 @@ bool DbManager::checkDB()
     {
          QSqlQuery query;
          query.exec("CREATE TABLE `members` ("
-                    "`id`	integer,"
-                    "`firstname`	varchar ( 100 ),"
-                    "`surname`	varchar ( 100 ),"
-                    "PRIMARY KEY(`id`));");
+                    "`id`	INTEGER,"
+                    "`firstname`	TEXT,"
+                    "`surname`	TEXT,"
+                    "`phone1`	TEXT,"
+                    "`phone2`	TEXT,"
+                    "`employment`	TEXT,"
+                    "`info1`	TEXT,"
+                    "`info2`	TEXT,"
+                    "`info3`	TEXT,"
+                    "`membernumber`	TEXT,"
+                    "`debitentry`	INTEGER,"
+                    "`blockbooking`	INTEGER,"
+                    "`blockbookingnum`	TEXT,"
+                    "PRIMARY KEY(`id`)"
+                ");");
     }
     if ( !table_names.contains( QLatin1String("fields") ))
     {
