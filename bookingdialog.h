@@ -25,10 +25,12 @@ public slots:
     void setMemberId(int id);
     void setPriceId(int id);
 
-    void updateQuery(const QString &find_string);
+    void updateMembersQuery(const QString &find_string);
+    void updatePriceQuery();
 
 public:
-    int selectedId() const;
+    int selectedId() const;    
+    int selectedPrice() const;
 
 private slots:
     void on_m_line_edit_name_textEdited(const QString &arg1);
@@ -38,12 +40,21 @@ private slots:
 
     void handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &previous);
 
+    void on_m_combo_price_currentIndexChanged(int index);
+
 private:
     Ui::BookingDialog *ui;
 
-    QSqlQueryModel *m_model;
+    QSqlQueryModel *m_memberlist_model;
+    QString m_memberlist_base_query_string;
 
+    QSqlQueryModel *m_prices_model;
+    QString m_prices_base_query_string;
+
+    int m_timeslot;
     int m_last_selected_id;
+    int m_last_selected_member_number;
+    int m_last_selected_price_id;
 
     void selectCurrientId(const QModelIndex &index);
 };

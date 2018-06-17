@@ -31,8 +31,8 @@
 
 DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , m_first_time_slot(9)
-    , m_nr_time_slots(13)
+    , m_first_time_slot(8)
+    , m_nr_time_slots(15)
 {
 
 }
@@ -48,9 +48,10 @@ bool DayBookingTableModel::queryData() {
         m_fields_IDis.push_back(field_query.value(0).toInt());
         m_fields_names.push_back(field_query.value(1).toString());
     }
-    m_query.prepare("SELECT (surname || ' ' || firstname), memberid, date, timeslot, fieldid, priceid "
-                    "FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
-                    "WHERE date = :day");
+    m_query.prepare("SELECT (surname || ' ' || firstname), date, timeslot, fieldid, sum, memberid, priceid "
+                    " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
+                    " LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
+                    " WHERE date = :day ");
     m_query.bindValue(":day", m_day.toJulianDay());
     if(!m_query.exec())
     {
@@ -62,11 +63,8 @@ bool DayBookingTableModel::queryData() {
     m_index_hash.clear();
     int ind = 0;
     while(m_query.next()) {
-        //QString name = query.value(0).toString();
-        //int memberId = m_query.value(0).toInt();
-        int timeslot = m_query.value(3).toInt();
-        int fieldId = m_query.value(4).toInt();
-        //int priceId = m_query.value(4).toInt();
+        int timeslot = m_query.value(2).toInt();
+        int fieldId = m_query.value(3).toInt();
         m_index_hash[QPair<int, int>(fieldId, timeslot)] = ind++;
     }
 
@@ -133,8 +131,9 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                 int index = m_index_hash[index_key];
                 const_cast<QSqlQuery&>(m_query).seek(index);
                 QString member_mame = m_query.record().value(0).toString();
-                int price_di = m_query.record().value(5).toInt();
-                return QString("%1 (%2)").arg(member_mame).arg(price_di);
+                QVariant price_variant =m_query.record().value(4);
+                double price = price_variant.toDouble();
+                return QString("%1 (%2)").arg(member_mame).arg(price);
             }            
             break;
         case Qt::UserRole:
@@ -142,8 +141,8 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             {
                 int index = m_index_hash[index_key];
                 const_cast<QSqlQuery&>(m_query).seek(index);
-                int memberId = m_query.record().value(1).toInt();
-                int priceId = m_query.record().value(5).toInt();
+                int memberId = m_query.record().value(5).toInt();
+                int priceId = m_query.record().value(6).toInt();
                 QPair<int, int> member_price_pair(memberId, priceId);
                 return QVariant::fromValue(member_price_pair);
             }

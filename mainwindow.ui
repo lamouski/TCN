@@ -116,7 +116,7 @@ QPushButton:pressed {
          </widget>
         </item>
         <item row="6" column="0">
-         <widget class="QPushButton" name="delete_pushButton">
+         <widget class="QPushButton" name="m_button_settings">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -236,7 +236,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
