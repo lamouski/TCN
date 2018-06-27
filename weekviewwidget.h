@@ -44,7 +44,10 @@ public:
     inline QDate firstDayOfCurrientWeek() const;
     inline QDate lastDayOfCurrientWeek() const;
 
-    inline QDate currientDate() const;
+    inline QDate currientDate() const
+    {
+        return m_date;
+    };
 
     QPushButton *getReturnButton() const;
 

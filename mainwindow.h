@@ -40,9 +40,6 @@ public:
 private slots:
     void on_m_button_members_clicked();
     void on_m_button_fields_clicked();
-
-    void on_delete_pushButton_clicked();
-
 private:
     Ui::MainWindow *ui;
 

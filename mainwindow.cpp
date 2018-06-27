@@ -28,7 +28,8 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_members_list_dialog(nullptr)
+    m_members_list_dialog(nullptr),
+    m_fields_list_dialog(nullptr)
 {
     ui->setupUi(this);
 
@@ -42,6 +43,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->m_button_bookings, &QPushButton::clicked,
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_week_view);});
     connect(ui->m_week_view->getReturnButton(), &QPushButton::clicked,
+            [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
+    connect(ui->m_button_day_report, &QPushButton::clicked,
+            [this](){
+                ui->m_day_report_view->setCurrientDate(ui->m_week_view->currientDate());
+                ui->m_stacked_widget->setCurrentWidget(ui->m_day_report_view);
+            });
+    connect(ui->m_day_report_view->getReturnButton(), &QPushButton::clicked,
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
 
 }
@@ -67,7 +75,7 @@ void MainWindow::on_m_button_fields_clicked()
     m_fields_list_dialog->show();
 }
 
-void MainWindow::on_delete_pushButton_clicked()
+/*void MainWindow::on_delete_pushButton_clicked()
 {
     DbManager* db = DbManager::instance();
 
@@ -81,11 +89,4 @@ void MainWindow::on_delete_pushButton_clicked()
     db->addMember("Peter", "Mayer");
     db->addMember("Viktor", "Stadtler");
     db->addMember("Hans", "Koch");
-
-
-
-
-
-}
-
-
+}*/

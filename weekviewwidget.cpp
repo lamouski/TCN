@@ -113,12 +113,6 @@ void WeekViewWidget::setCurrientDate(QDate date) {
 }
 
 
-QDate  WeekViewWidget::currientDate() const
-{
-    return m_date;
-}
-
-
 void WeekViewWidget::updateGUI()
 {
     ui->m_week_label->setText(
