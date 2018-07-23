@@ -1,3 +1,4 @@
+#include "fielddelegate.h"
 #include "fieldlistdialog.h"
 #include "ui_fieldlistdialog.h"
 
@@ -20,6 +21,9 @@ FieldListDialog::FieldListDialog(QWidget *parent) :
 
     ui->m_view_fields->setModel(m_model);
     ui->m_view_fields->resizeColumnsToContents();
+    ui->m_view_fields->setItemDelegate(new FieldDelegate(ui->m_view_fields));
+    ui->m_view_fields->setColumnHidden(m_model->fieldIndex("id"), true);
+    ui->m_view_fields->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 FieldListDialog::~FieldListDialog()

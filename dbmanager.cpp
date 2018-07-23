@@ -167,6 +167,13 @@ bool DbManager::checkDB()
                 "PRIMARY KEY(`id`));");
     }
 
+    if ( !table_names.contains( QLatin1String("settings") )) {
+     QSqlQuery query;
+     query.exec("CREATE TABLE `settings` ("
+                "`name`	TEXT NOT NULL UNIQUE,"
+                "`val`	NUMERIC );");
+    }
+
     return true;
 }
 

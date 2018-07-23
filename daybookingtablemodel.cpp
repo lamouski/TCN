@@ -33,6 +33,7 @@ DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
     , m_first_time_slot(8)
     , m_nr_time_slots(15)
+    , m_season(2)
 {
 
 }
@@ -40,7 +41,10 @@ DayBookingTableModel::DayBookingTableModel(QObject *parent)
 bool DayBookingTableModel::queryData() {
 
     int day_mask = 1 << (m_day.dayOfWeek() - 1);
-    QSqlQuery field_query(QString("SELECT id, name, days, seasons FROM fields WHERE (`days` & %1) = %1;").arg(day_mask));
+    int season_mask = 1 << (m_season - 1);
+    QSqlQuery field_query(QString("SELECT id, name, days, seasons FROM fields "
+                                  "WHERE (`days` & %1) = %1 "
+                                  "AND (`seasons` & %2) = %2;").arg(day_mask).arg(season_mask));
     m_fields_IDis.clear();
     m_fields_names.clear();
     while (field_query.next())

@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>Resources/images/sunday_d.png</file>
+        <file>Resources/images/saturday_d.png</file>
+        <file>Resources/images/friday_d.png</file>
+        <file>Resources/images/thrusday_d.png</file>
+        <file>Resources/images/wednesday_d.png</file>
+        <file>Resources/images/tuesday_d.png</file>
+        <file>Resources/images/monday_d.png</file>
+        <file>Resources/images/sunday.png</file>
+        <file>Resources/images/saturday.png</file>
+        <file>Resources/images/friday.png</file>
+        <file>Resources/images/thrusday.png</file>
+        <file>Resources/images/wednesday.png</file>
+        <file>Resources/images/monday.png</file>
+        <file>Resources/images/tuesday.png</file>
+    </qresource>
+</RCC>
