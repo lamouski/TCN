@@ -96,7 +96,7 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
     else
     {
         QString query_string = m_memberlist_base_query_string;
-        QString and_string("WHERE ");
+        QString and_string(" WHERE ");
         foreach (QString key_word, key_words)
         {
             query_string += and_string + "name LIKE '%"+key_word+"%'";

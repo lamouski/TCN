@@ -115,11 +115,17 @@ void WeekViewWidget::setCurrientDate(QDate date) {
 
 void WeekViewWidget::updateGUI()
 {
-    ui->m_week_label->setText(
-                QString("%1 - %2 %3")
-                    .arg(firstDayOfCurrientWeek().day())
-                    .arg(lastDayOfCurrientWeek().day())
+    QDate first_day = firstDayOfCurrientWeek();
+    QDate last_day = lastDayOfCurrientWeek();
+    if(first_day.month() == last_day.month())
+        ui->m_week_label->setText( QString("%1 - %2 %3")
+                    .arg(first_day.day())
+                    .arg(last_day.day())
                     .arg(m_date.toString("MMMM yyyy")));
+    else
+        ui->m_week_label->setText( QString("%1 - %2")
+                    .arg(first_day.toString("dd MMMM"))
+                    .arg(last_day.toString("dd MMMM yyyy")));
 }
 
 
@@ -132,7 +138,7 @@ inline QDate WeekViewWidget::firstDayOfCurrientWeek() const
 
 inline QDate WeekViewWidget::lastDayOfCurrientWeek() const
 {
-    return m_date.addDays(m_date.dayOfWeek() - Qt::Sunday);
+    return m_date.addDays(Qt::Sunday - m_date.dayOfWeek());
 }
 
 
