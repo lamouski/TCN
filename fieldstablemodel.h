@@ -16,23 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DAYBOOKINGTABLEMODEL_H
-#define DAYBOOKINGTABLEMODEL_H
+#ifndef FIELDSTABLEMODEL_H
+#define FIELDSTABLEMODEL_H
 
 #include <QAbstractTableModel>
-#include <QDate>
+#include <QObject>
 #include <QSqlQuery>
 
-class DayBookingTableModel : public QAbstractTableModel
+class FieldsTableModel : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
-    explicit DayBookingTableModel(QObject *parent = nullptr);
+    FieldsTableModel(QObject *parent = nullptr);
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role = Qt::EditRole) override;
 
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -44,38 +41,17 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value,
                  int role = Qt::EditRole) override;
 
-    Qt::ItemFlags flags(const QModelIndex& index) const override;
-
-    QDate day() const;
-    QString fieldName(int row) const;
-    int timeSlot(int column) const;
-
-    void setDay(const QDate &day);
-
-    void setFirstTimeSlot(int first_time_slot);
-    void setNumOfTimeSlots(int num_of_time_slots);
-
-public slots:
-    void setPreviousWeek();
-    void setNextWeek();
+    //Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 protected slots:
     bool queryData();
 
 private:
-    QSqlQuery m_query;    
+    QSqlQuery m_query;
 
-    QDate m_day;
-    int m_season; // 2 - Sommer, 1 - Winter
+    //QHash<QPair<int, int>, int> m_index_hash;
 
-    QHash<QPair<int, int>, int> m_index_hash;
-
-    QVector<int> m_fields_IDis;
-    QStringList m_fields_names;
-    QVector<int> m_fields_time_masks;
-
-    int m_first_time_slot;
-    int m_nr_time_slots;
+    QVector<int> m_days_masks;
 };
 
-#endif // DAYBOOKINGTABLEMODEL_H
+#endif // FIELDSTABLEMODEL_H

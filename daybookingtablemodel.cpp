@@ -40,17 +40,25 @@ DayBookingTableModel::DayBookingTableModel(QObject *parent)
 
 bool DayBookingTableModel::queryData() {
 
-    int day_mask = 1 << (m_day.dayOfWeek() - 1);
+    //int day_mask = 1 << (m_day.dayOfWeek() - 1);
     int season_mask = 1 << (m_season - 1);
-    QSqlQuery field_query(QString("SELECT id, name, days, seasons FROM fields "
-                                  "WHERE (`days` & %1) = %1 "
-                                  "AND (`seasons` & %2) = %2;").arg(day_mask).arg(season_mask));
+    QSqlQuery field_query(QString("SELECT id, name, day%1, seasons FROM fields "
+                                  "WHERE (`day%1` & 33554432) = 33554432 " //25-th bit is set to 1
+                                  "AND (`seasons` & %2) = %2;").arg(m_day.dayOfWeek() - 1).arg(season_mask));
     m_fields_IDis.clear();
     m_fields_names.clear();
+    m_fields_time_masks.clear();
     while (field_query.next())
     {
         m_fields_IDis.push_back(field_query.value(0).toInt());
         m_fields_names.push_back(field_query.value(1).toString());
+        int time_mask = field_query.value(2).toInt() & 33554431; // we mask the 25-th bit
+        m_fields_time_masks.push_back(time_mask);
+        int strange_number = time_mask & (~time_mask + 1);
+        int first_time_slot = (int) log2((float)strange_number);
+        m_first_time_slot = std::min(m_first_time_slot, first_time_slot);
+        int last_time_slot = (int) log2((float)time_mask);
+        m_nr_time_slots = std::max(m_first_time_slot + m_nr_time_slots, last_time_slot) - m_first_time_slot;
     }
     m_query.prepare("SELECT (surname || ' ' || firstname), date, timeslot, fieldid, sum, memberid, priceid "
                     " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
@@ -127,6 +135,9 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
 
     QPair<int, int> index_key(m_fields_IDis[row], m_first_time_slot + col);
 
+    int time_mask = m_fields_time_masks[row];
+    bool time_slot_is_active = (time_mask & (1 << (m_first_time_slot + col))) != 0;
+
     switch(role)
     {
         case Qt::DisplayRole:
@@ -163,7 +174,11 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             }
             break;*/
         case Qt::BackgroundRole:
-            if(m_index_hash.contains(index_key))
+            if(!time_slot_is_active)
+            {
+                return QBrush(qRgb(242, 242, 242));
+            }
+            else if(m_index_hash.contains(index_key))
             {
                 QBrush background;
                 switch (index.row() % 3) {
@@ -228,7 +243,14 @@ Qt::ItemFlags DayBookingTableModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    return Qt::ItemIsEnabled;
+    const int row = index.row();
+    const int col = index.column();
+    const int time_mask = m_fields_time_masks[row];
+    const bool time_slot_is_active = (time_mask & (1 << (m_first_time_slot + col))) != 0;
+    if(time_slot_is_active)
+        return Qt::ItemIsEnabled;
+    else
+        return Qt::NoItemFlags;
 }
 
 QDate DayBookingTableModel::day() const

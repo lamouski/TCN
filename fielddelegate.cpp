@@ -6,6 +6,9 @@
 #include <QPainter>
 #include <QSqlRelationalDelegate>
 
+#define DAYS_MASK_COLUMN 1
+#define SEASONS_MASK_COLUMN 2
+
 FieldDelegate::FieldDelegate(QObject *parent)
     : QSqlRelationalDelegate(parent)
 {
@@ -34,7 +37,7 @@ void FieldDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled) ?
         (option.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive : QPalette::Disabled;
 
-    if (index.column() == 2) {
+    if (index.column() == DAYS_MASK_COLUMN) {
         /*
         if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
@@ -69,7 +72,7 @@ void FieldDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         drawFocus(painter, option, option.rect.adjusted(0, 0, -1, -1)); // since we draw the grid ourselves
     }
     else
-        if (index.column() == 3)
+        if (index.column() == SEASONS_MASK_COLUMN)
         {
             int seasons = model->data(index, Qt::DisplayRole).toInt();
             int width = 20;
@@ -103,10 +106,10 @@ void FieldDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 QSize FieldDelegate::sizeHint(const QStyleOptionViewItem &option,
                                  const QModelIndex &index) const
 {
-    if (index.column() == 2)
-        return QSize(8 * m_days_pixmaps[0].width() + 2, m_days_pixmaps[0].height() + 2) + QSize(1, 1);
+    if (index.column() == DAYS_MASK_COLUMN)
+        return QSize(8 * 22, 22) + QSize(1, 1);
 
-    if (index.column() == 3)
+    if (index.column() == SEASONS_MASK_COLUMN)
         return QSize(2 * 22, 22) + QSize(1, 1);
 
     return QSqlRelationalDelegate::sizeHint(option, index) + QSize(1, 1); // since we draw the grid ourselves
@@ -119,12 +122,12 @@ bool FieldDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
     switch(index.column()) {
         default:
             return QSqlRelationalDelegate::editorEvent(event, model, option, index);
-        case 2:
+        case DAYS_MASK_COLUMN:
             if (event->type() == QEvent::MouseButtonPress) {
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
                 int days = model->data(index, Qt::DisplayRole).toInt();
                 int day = qBound(0, int(qreal(mouseEvent->pos().x()
-                             - option.rect.x()) / (m_days_pixmaps[0].width() + 2)), 7);
+                             - option.rect.x()) / 22), 7);
                 if(days & (1 << day))
                 {
                     days = days & ~(1 << day);
@@ -133,10 +136,10 @@ bool FieldDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
                 {
                     days = days | (1 << day);
                 }
-                model->setData(index, QVariant(days));
+                model->setData(index, QVariant(days), Qt::EditRole);
                 return false; //so that the selection can change
             }
-        case 3:
+        case SEASONS_MASK_COLUMN:
             if (event->type() == QEvent::MouseButtonPress) {
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
                 int seasons = model->data(index, Qt::DisplayRole).toInt();
@@ -146,7 +149,7 @@ bool FieldDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
                     seasons = seasons & ~(1 << season);
                 else
                     seasons = seasons | (1 << season);
-                model->setData(index, QVariant(seasons));
+                model->setData(index, QVariant(seasons), Qt::EditRole);
                 return false; //so that the selection can change
             }
     }

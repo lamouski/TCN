@@ -2,7 +2,7 @@
 #include "fieldlistdialog.h"
 #include "ui_fieldlistdialog.h"
 
-#include <QSqlTableModel>
+#include "fieldstablemodel.h"
 
 FieldListDialog::FieldListDialog(QWidget *parent) :
     QDialog(parent),
@@ -10,20 +10,14 @@ FieldListDialog::FieldListDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_model = new QSqlTableModel(this);
-    m_model->setTable("fields");
-    m_model->select();
-
-    m_model->setHeaderData(0, Qt::Horizontal, tr("ID"));
-    m_model->setHeaderData(1, Qt::Horizontal, tr("Name"));
-    m_model->setHeaderData(2, Qt::Horizontal, tr("Days"));
-    m_model->setHeaderData(3, Qt::Horizontal, tr("Season"));
+    m_model = new FieldsTableModel(this);
 
     ui->m_view_fields->setModel(m_model);
-    ui->m_view_fields->resizeColumnsToContents();
+    //ui->m_view_fields->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->m_view_fields->setItemDelegate(new FieldDelegate(ui->m_view_fields));
-    ui->m_view_fields->setColumnHidden(m_model->fieldIndex("id"), true);
+    //ui->m_view_fields->setColumnHidden(m_model->fieldIndex("id"), true);
     ui->m_view_fields->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->m_view_fields->resizeColumnsToContents();
 }
 
 FieldListDialog::~FieldListDialog()

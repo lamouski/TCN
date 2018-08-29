@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-class QSqlTableModel;
+class FieldsTableModel;
 
 namespace Ui {
 class FieldListDialog;
@@ -20,7 +20,7 @@ public:
 private:
     Ui::FieldListDialog *ui;
 
-    QSqlTableModel *m_model;
+    FieldsTableModel *m_model;
 };
 
 #endif // FIELDLISTDIALOG_H

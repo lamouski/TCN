@@ -28,7 +28,12 @@ class DbManager
 public:
     DbManager(const QString& path);
     bool addMember(const QString &name, const QString &surname);
-    bool addField(const QString& name, const int days, const int seasons);
+
+    bool addField(const QString& name, const int time_masks[7], const int seasons) const;
+    bool updateFieldName(const int id, const QString& name) const;
+    bool updateFieldTimeMask(const int id, const int day_index, const int time_mask) const;
+    bool updateFieldSeasons(const int id, const int seasons) const;
+
     bool addBooking(const int memberID, const QDate &date, const int tymeslot, const int fieldid, const int priceid);
 
     bool checkDB();

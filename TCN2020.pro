@@ -34,7 +34,8 @@ SOURCES += \
     bookingdialog.cpp \
     dayreportwidget.cpp \
     documentwidget.cpp \
-    fielddelegate.cpp
+    fielddelegate.cpp \
+    fieldstablemodel.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,7 +47,8 @@ HEADERS += \
     bookingdialog.h \
     dayreportwidget.h \
     documentwidget.h \
-    fielddelegate.h
+    fielddelegate.h \
+    fieldstablemodel.h
 
 FORMS += \
         mainwindow.ui \
