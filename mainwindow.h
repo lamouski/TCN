@@ -24,6 +24,7 @@
 
 class MembersListDialog;
 class FieldListDialog;
+class PriceListDialog;
 
 namespace Ui {
 class MainWindow;
@@ -40,12 +41,14 @@ public:
 private slots:
     void on_m_button_members_clicked();
     void on_m_button_fields_clicked();
+    void on_m_button_prices_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     MembersListDialog* m_members_list_dialog;
     FieldListDialog* m_fields_list_dialog;
-
+    PriceListDialog* m_prices_list_dialog;
 };
 
 #endif // MAINWINDOW_H

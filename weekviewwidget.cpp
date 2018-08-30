@@ -25,6 +25,7 @@
 
 #include <QTableWidget>
 #include <QDebug>
+#include <QMessageBox>
 
 WeekViewWidget::WeekViewWidget(QWidget *parent) :
     QWidget(parent),
@@ -72,20 +73,39 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index)
     if(!m_day_booking_models[day])
         return;
 
+    QVariant curr_data = m_day_booking_models[day]->data(m_day_booking_models[day]->index(index.row(), index.column()), Qt::UserRole);
+
+    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(), QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
+                  QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
+
+    if(rest_minutes < 0)
+    {
+        //if(!curr_data.isNull())
+        {
+            QMessageBox::information(this, QString(), QString("This time interval is in the past. It can't be booked."));
+            return;
+        }
+    }
+
     if(!m_booking_dialog)
         m_booking_dialog = new BookingDialog(this);
-    
+
     m_booking_dialog->setField(m_day_booking_models[day]->fieldName(index.row()));
     m_booking_dialog->setTimeslot(m_day_booking_models[day]->timeSlot(index.column()));
-    QVariant curr_data = m_day_booking_models[day]->data(m_day_booking_models[day]->index(index.row(), index.column()), Qt::UserRole);
+
     if(!curr_data.isNull())
     {
         QPair<int, int> member_price_pair = curr_data.value<QPair<int, int> >();
         m_booking_dialog->setMemberId(member_price_pair.first);
         m_booking_dialog->setPriceId(member_price_pair.second);
+
+
     }
     else
+    {
         m_booking_dialog->reset();
+    }
+
     if(m_booking_dialog->exec() == QDialog::Accepted)
     {
         int selected_member_id = m_booking_dialog->selectedId();

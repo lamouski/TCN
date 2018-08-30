@@ -31,10 +31,10 @@
 
 DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
+    , m_season(2)
     , m_first_time_slot(8)
     , m_nr_time_slots(15)
-    , m_season(2)
-{
+    {
 
 }
 

@@ -22,6 +22,7 @@
 #include "dbmanager.h"
 #include "memberslistdialog.h"
 #include "fieldlistdialog.h"
+#include "pricelistdialog.h"
 
 #include <QDir>
 
@@ -29,7 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_members_list_dialog(nullptr),
-    m_fields_list_dialog(nullptr)
+    m_fields_list_dialog(nullptr),
+    m_prices_list_dialog(nullptr)
 {
     ui->setupUi(this);
 
@@ -75,18 +77,9 @@ void MainWindow::on_m_button_fields_clicked()
     m_fields_list_dialog->show();
 }
 
-/*void MainWindow::on_delete_pushButton_clicked()
+void MainWindow::on_m_button_prices_clicked()
 {
-    DbManager* db = DbManager::instance();
-
-    db->addField("Field 5", 127, 1);
-    db->addField("Field 6", 127, 1);
-    db->addField("Field 7", 127, 1);
-    db->addField("Field 1", 96, 1);
-
-    db->addMember("Denis", "Lamouski");
-    db->addMember("Natasha", "Lind");
-    db->addMember("Peter", "Mayer");
-    db->addMember("Viktor", "Stadtler");
-    db->addMember("Hans", "Koch");
-}*/
+    if(!m_prices_list_dialog)
+        m_prices_list_dialog = new PriceListDialog();
+    m_prices_list_dialog->show();
+}

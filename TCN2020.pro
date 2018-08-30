@@ -35,7 +35,8 @@ SOURCES += \
     dayreportwidget.cpp \
     documentwidget.cpp \
     fielddelegate.cpp \
-    fieldstablemodel.cpp
+    fieldstablemodel.cpp \
+    pricelistdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -48,7 +49,8 @@ HEADERS += \
     dayreportwidget.h \
     documentwidget.h \
     fielddelegate.h \
-    fieldstablemodel.h
+    fieldstablemodel.h \
+    pricelistdialog.h
 
 FORMS += \
         mainwindow.ui \
@@ -56,7 +58,8 @@ FORMS += \
     weekviewwidget.ui \
     fieldlistdialog.ui \
     bookingdialog.ui \
-    dayreportwidget.ui
+    dayreportwidget.ui \
+    pricelistdialog.ui
 
 RESOURCES += \
     tcn2020.qrc
