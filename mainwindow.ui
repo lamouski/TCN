@@ -227,6 +227,7 @@ QPushButton:pressed {
       </widget>
       <widget class="WeekViewWidget" name="m_week_view"/>
       <widget class="DayReportWidget" name="m_day_report_view"/>
+      <widget class="WeekReportWidget" name="m_week_report_view"/>
      </widget>
     </item>
    </layout>
@@ -263,6 +264,12 @@ QPushButton:pressed {
    <class>DayReportWidget</class>
    <extends>QWidget</extends>
    <header>dayreportwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WeekReportWidget</class>
+   <extends>QWidget</extends>
+   <header>weekreportwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

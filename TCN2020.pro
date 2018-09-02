@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport
 
 TARGET = TCN2020
 TEMPLATE = app
@@ -36,7 +36,9 @@ SOURCES += \
     documentwidget.cpp \
     fielddelegate.cpp \
     fieldstablemodel.cpp \
-    pricelistdialog.cpp
+    pricelistdialog.cpp \
+    texteditor.cpp \
+    weekreportwidget.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -50,7 +52,9 @@ HEADERS += \
     documentwidget.h \
     fielddelegate.h \
     fieldstablemodel.h \
-    pricelistdialog.h
+    pricelistdialog.h \
+    texteditor.h \
+    weekreportwidget.h
 
 FORMS += \
         mainwindow.ui \
@@ -59,7 +63,9 @@ FORMS += \
     fieldlistdialog.ui \
     bookingdialog.ui \
     dayreportwidget.ui \
-    pricelistdialog.ui
+    pricelistdialog.ui \
+    texteditor.ui \
+    weekreportwidget.ui
 
 RESOURCES += \
     tcn2020.qrc

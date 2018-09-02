@@ -53,6 +53,13 @@ MainWindow::MainWindow(QWidget *parent) :
             });
     connect(ui->m_day_report_view->getReturnButton(), &QPushButton::clicked,
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
+    connect(ui->m_button_week_report, &QPushButton::clicked,
+            [this](){
+                ui->m_week_report_view->setCurrientDate(ui->m_week_view->currientDate());
+                ui->m_stacked_widget->setCurrentWidget(ui->m_week_report_view);
+            });
+    connect(ui->m_week_report_view->getReturnButton(), &QPushButton::clicked,
+            [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
 
 }
 

@@ -5,19 +5,19 @@
 #include <QTextCodec>
 #include <QDir>
 
-#include "dayreportwidget.h"
-#include "ui_dayreportwidget.h"
+#include "weekreportwidget.h"
+#include "ui_weekreportwidget.h"
 
-DayReportWidget::DayReportWidget(QWidget *parent) :
+WeekReportWidget::WeekReportWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::DayReportWidget)
+    ui(new Ui::WeekReportWidget)
 {
     ui->setupUi(this);
 
     QString curr_dir = QDir::currentPath();
-    QFile file(curr_dir+"/test_db/day_report_template.htm");
+    QFile file(curr_dir+"/test_db/week_report_template.htm");
     if (!file.open(QFile::ReadOnly))
-        m_template_str = "day_report_template.htm is not found";
+        m_template_str = "week_report_template.htm is not found";
 
     QByteArray data = file.readAll();
     QTextCodec *codec = QTextCodec::codecForHtml(data);
@@ -25,12 +25,12 @@ DayReportWidget::DayReportWidget(QWidget *parent) :
 
 }
 
-DayReportWidget::~DayReportWidget()
+WeekReportWidget::~WeekReportWidget()
 {
     delete ui;
 }
 
-QPushButton *DayReportWidget::getReturnButton() const
+QPushButton *WeekReportWidget::getReturnButton() const
 {
     return ui->m_button_back_to_main_menu;
 }
@@ -38,7 +38,7 @@ QPushButton *DayReportWidget::getReturnButton() const
 /*
  * Sets currient day
  */
-void DayReportWidget::setCurrientDate(QDate date) {
+void WeekReportWidget::setCurrientDate(QDate date) {
     if(m_date != date)
     {
         m_date = date;
@@ -47,21 +47,25 @@ void DayReportWidget::setCurrientDate(QDate date) {
 }
 
 
-QDate DayReportWidget::currientDate() const
+QDate WeekReportWidget::currientDate() const
 {
     return m_date;
 }
 
-void DayReportWidget::update()
+void WeekReportWidget::update()
 {
+    //current week handling functions
+    const QDate firstDayOfCurrientWeek = m_date.addDays(Qt::Monday - m_date.dayOfWeek());
+    const QDate lastDayOfCurrientWeek = m_date.addDays(Qt::Sunday - m_date.dayOfWeek());
+
     QSqlQuery query;
-    query.prepare("SELECT (surname || ' ' || firstname), account_name, account, sum, name, timeslot FROM bookings "
-                  "LEFT OUTER JOIN members ON bookings.memberid = members.id "
-                  "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
+    query.prepare("SELECT account_name, account, TOTAL(sum), date FROM bookings "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "LEFT OUTER JOIN accounts ON prices.account = accounts.number "
-                  "WHERE date = :day ");
-    query.bindValue(":day", m_date.toJulianDay());
+                  "WHERE date between :from_day AND :till_day "
+                  "GROUP BY account, date "                  );
+    query.bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
+    query.bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
     if(!query.exec())
     {
         qDebug() << "query day " << m_date.toString("yyyy-MM-dd") << " bookings error:  "
@@ -71,7 +75,9 @@ void DayReportWidget::update()
 
 
     QString html_text = m_template_str;
-    html_text.replace("%datum%", m_date.toString("dd.MM.yyyy"));
+    html_text.replace("%from_datum%", firstDayOfCurrientWeek.toString("dd.MM.yyyy"));
+    html_text.replace("%till_datum%", lastDayOfCurrientWeek.toString("dd.MM.yyyy"));
+
     const QString table_row_start_tag("%table_row_start%");
     int position = html_text.indexOf(table_row_start_tag);
     const QString table_row_end_tag("%table_row_end%");
@@ -81,12 +87,10 @@ void DayReportWidget::update()
     while(query.next())
     {
         QString tmp_string = row_string;
-        tmp_string.replace("%full_name%", query.value(0).toString());
-        tmp_string.replace("%account_name%", query.value(1).toString());
-        tmp_string.replace("%account%", query.value(2).toString());
-        tmp_string.replace("%price%", query.value(3).toString() + "€");
-        tmp_string.replace("%field_name%", query.value(4).toString());
-        tmp_string.replace("%time_slot%", query.value(5).toString());
+        tmp_string.replace("%account_name%", query.value(0).toString());
+        tmp_string.replace("%account%", query.value(1).toString());
+        tmp_string.replace("%price%", query.value(2).toString() + "€");
+        tmp_string.replace("%date%", QDate::fromJulianDay(query.value(3).toInt()).toString("dd.MM.yyyy"));
         html_text.insert(position,tmp_string); position += tmp_string.length();
     }
     ui->m_text_editor->setHtml(html_text);

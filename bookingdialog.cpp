@@ -24,10 +24,11 @@ BookingDialog::BookingDialog(QWidget *parent) :
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentMemberChanged);
 
     m_prices_model = new QSqlQueryModel(this);
-    m_prices_base_query_string = QString("SELECT "
-                                         "replace(case Mitglied when 'true' then 'Mitglied ' else '' end || "
-                                         "case Gast when 'true' then 'Gast ' else '' end || "
-                                         "case Abo when 'true' then 'Abo ' else '' end, ' ', ' - ') || sum "
+    m_prices_base_query_string = QString("SELECT (price_name || ' - ' || "
+//                                         "replace( case Mitglied when 'true' then 'Mitglied ' else '' end || "
+//                                         "case Gast when 'true' then 'Gast ' else '' end || "
+//                                         "case Abo when 'true' then 'Abo ' else '' end, ' ', ' - ') || "
+                                         "sum) "
                                          " AS info, sum, id FROM prices");
     m_prices_model->setQuery(m_prices_base_query_string);
     ui->m_combo_price->setModel(m_prices_model);

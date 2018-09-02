@@ -1,21 +1,21 @@
-#ifndef DAYREPORTWIDGET_H
-#define DAYREPORTWIDGET_H
+#ifndef WEEKREPORTWIDGET_H
+#define WEEKREPORTWIDGET_H
 
 #include <QDate>
 #include <QPushButton>
 #include <QWidget>
 
 namespace Ui {
-class DayReportWidget;
+class WeekReportWidget;
 }
 
-class DayReportWidget : public QWidget
+class WeekReportWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit DayReportWidget(QWidget *parent = 0);
-    ~DayReportWidget();
+    explicit WeekReportWidget(QWidget *parent = 0);
+    ~WeekReportWidget();
 
     inline QDate currientDate() const;
 
@@ -28,11 +28,11 @@ protected:
     void update();
 
 private:
-    Ui::DayReportWidget *ui;
+    Ui::WeekReportWidget *ui;
 
     //currient data
     QDate m_date;
     QString m_template_str;
 };
 
-#endif // DAYREPORTWIDGET_H
+#endif // WEEKREPORTWIDGET_H
