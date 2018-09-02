@@ -24,11 +24,7 @@ BookingDialog::BookingDialog(QWidget *parent) :
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentMemberChanged);
 
     m_prices_model = new QSqlQueryModel(this);
-    m_prices_base_query_string = QString("SELECT (price_name || ' - ' || "
-//                                         "replace( case Mitglied when 'true' then 'Mitglied ' else '' end || "
-//                                         "case Gast when 'true' then 'Gast ' else '' end || "
-//                                         "case Abo when 'true' then 'Abo ' else '' end, ' ', ' - ') || "
-                                         "sum) "
+    m_prices_base_query_string = QString("SELECT (price_name || ' - ' || sum) "
                                          " AS info, sum, id FROM prices");
     m_prices_model->setQuery(m_prices_base_query_string);
     ui->m_combo_price->setModel(m_prices_model);
@@ -61,12 +57,28 @@ void BookingDialog::setTimeslot(int timeSlot)
 
 void BookingDialog::setMemberId(int id)
 {
-
+    QSqlQuery query(m_memberlist_base_query_string + QString(" WHERE id = %0").arg(id));
+    QString name;
+    if(query.exec())
+        if(query.next())
+            name = query.record().value(0).toString();
+    ui->m_line_edit_name->setText(name);
+    updateMembersQuery(ui->m_line_edit_name->text());
 }
 
 void BookingDialog::setPriceId(int id)
 {
-
+    QSqlQuery query(m_prices_base_query_string + QString(" WHERE id = %0").arg(id));
+    QString name;
+    if(query.exec())
+        if(query.next())
+            name = query.record().value(0).toString();
+    int index_in_new_list = ui->m_combo_price->findText(name);
+    if(index_in_new_list >= 0)
+        ui->m_combo_price->setCurrentIndex(index_in_new_list);
+    else
+        if(ui->m_combo_price->count() > 0)
+            ui->m_combo_price->setCurrentIndex(0);
 }
 
 int BookingDialog::selectedId() const
@@ -155,6 +167,6 @@ void BookingDialog::on_m_list_view_members_activated(const QModelIndex &index)
 void BookingDialog::on_m_combo_price_currentIndexChanged(int index)
 {
     int row = ui->m_combo_price->currentIndex();
-    QModelIndex idx = m_prices_model->index(row, 2); // therd column
+    QModelIndex idx = m_prices_model->index(row, 2); // third column
     m_last_selected_price_id = m_prices_model->data(idx).toInt();
 }
