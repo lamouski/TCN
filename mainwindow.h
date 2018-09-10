@@ -25,6 +25,7 @@
 class MembersListDialog;
 class FieldListDialog;
 class PriceListDialog;
+class ServiceDialog;
 
 namespace Ui {
 class MainWindow;
@@ -43,12 +44,15 @@ private slots:
     void on_m_button_fields_clicked();
     void on_m_button_prices_clicked();
 
+    void on_m_button_service_clicked();
+
 private:
     Ui::MainWindow *ui;
 
-    MembersListDialog* m_members_list_dialog;
-    FieldListDialog* m_fields_list_dialog;
-    PriceListDialog* m_prices_list_dialog;
+    MembersListDialog* m_members_list_dialog = nullptr;
+    FieldListDialog* m_fields_list_dialog = nullptr;
+    PriceListDialog* m_prices_list_dialog = nullptr;
+    ServiceDialog* m_service_dialog = nullptr;
 };
 
 #endif // MAINWINDOW_H

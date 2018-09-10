@@ -28,6 +28,7 @@ class DbManager
 public:
     DbManager(const QString& path);
     bool addMember(const QString &name, const QString &surname);
+    bool importMembersFile(QString filename);
 
     bool addField(const QString& name, const int time_masks[7], const int seasons) const;
     bool updateFieldName(const int id, const QString& name) const;

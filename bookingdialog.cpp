@@ -15,7 +15,7 @@ BookingDialog::BookingDialog(QWidget *parent) :
     ui->setupUi(this);
 
     m_memberlist_model = new QSqlQueryModel(this);
-    m_memberlist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name, id, membernumber FROM members");
+    m_memberlist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name, id FROM members");
     m_memberlist_model->setQuery(m_memberlist_base_query_string);
     ui->m_list_view_members->setModel(m_memberlist_model);
     ui->m_list_view_members->setModelColumn(0);
@@ -126,8 +126,7 @@ void BookingDialog::updatePriceQuery()
     query_string += " WHERE start_time_slot <= " + QString("%1").arg(m_timeslot) +
                     " AND end_time_slot > " + QString("%1").arg(m_timeslot);
     query_string += QString(" AND Winter = ") + "'false'";
-    query_string += QString(" AND Mitglied = ") + (m_last_selected_member_number > 0 ? "'true'" : "'false'");
-
+    query_string += QString(" AND Gast = 'false'");
     m_prices_model->setQuery(query_string);
 
     int index_in_new_list = ui->m_combo_price->findText(current_price);

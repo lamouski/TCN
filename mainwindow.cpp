@@ -23,6 +23,7 @@
 #include "memberslistdialog.h"
 #include "fieldlistdialog.h"
 #include "pricelistdialog.h"
+#include "servicedialog.h"
 
 #include <QDir>
 
@@ -89,4 +90,11 @@ void MainWindow::on_m_button_prices_clicked()
     if(!m_prices_list_dialog)
         m_prices_list_dialog = new PriceListDialog();
     m_prices_list_dialog->show();
+}
+
+void MainWindow::on_m_button_service_clicked()
+{
+    if(!m_service_dialog)
+        m_service_dialog = new ServiceDialog();
+    m_service_dialog->show();
 }

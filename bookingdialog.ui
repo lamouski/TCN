@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
-    <height>347</height>
+    <width>422</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,17 +15,19 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="4" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+    <widget class="QComboBox" name="m_combo_price"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="m_label_field">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
      </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     <property name="text">
+      <string>Field</string>
      </property>
     </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QLineEdit" name="m_line_edit_name"/>
    </item>
    <item row="0" column="1">
     <widget class="QLabel" name="m_label_time">
@@ -42,23 +44,21 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="m_label_field">
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-      </font>
+   <item row="5" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="text">
-      <string>Field</string>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLineEdit" name="m_line_edit_name"/>
+   </item>
    <item row="2" column="0" colspan="2">
     <widget class="QListView" name="m_list_view_members"/>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QComboBox" name="m_combo_price"/>
    </item>
   </layout>
  </widget>

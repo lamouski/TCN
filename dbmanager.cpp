@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QFile>
 
 DbManager* DbManager::m_instance = nullptr;
 
@@ -60,6 +61,42 @@ bool DbManager::addMember(const QString &name, const QString &surname)
                  << query.lastError();
    }
    return success;
+}
+
+bool DbManager::importMembersFile(QString filename)
+{
+    // you should check if args are ok first...
+    QFile f(filename);
+    if(f.open (QIODevice::ReadOnly))
+    {
+        QSqlQuery query;
+        QTextStream ts (&f);
+
+        //Travel through the csv file
+        while(!ts.atEnd())
+        {
+            QString req = "INSERT OR REPLACE INTO members VALUES(";
+            // split every lines on semikolumn
+            QStringList line = ts.readLine().split(';');
+            for(int i=0; i<line.length(); ++i)
+            {
+                req.append("\"");
+                req.append(line.at(i));
+                req.append("\", ");
+            }
+            req.chop(2); // remove the trailing comma
+            req.append(");");
+            if(!query.exec(req))
+            {
+                 qDebug() << "import member error:  "
+                          << query.lastError();
+            }
+        }
+        f.close();
+    }
+    else
+        return false;
+    return true;
 }
 
 bool DbManager::addField(const QString& name, const int days[7], const int seasons) const
