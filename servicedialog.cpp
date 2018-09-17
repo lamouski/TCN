@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSqlTableModel>
 
 #include "dbmanager.h"
 
@@ -11,6 +12,18 @@ ServiceDialog::ServiceDialog(QWidget *parent) :
     ui(new Ui::ServiceDialog)
 {
     ui->setupUi(this);
+
+    m_model = new QSqlTableModel(this);
+    m_model->setTable("settings");
+    m_model->select();
+
+    m_model->setHeaderData(1, Qt::Horizontal, tr("Parameter"));
+    m_model->setHeaderData(2, Qt::Horizontal, tr("Value"));
+
+    ui->m_view_settings->setModel(m_model);
+    ui->m_view_settings->hideColumn(0);
+    ui->m_view_settings->hideColumn(3);
+    ui->m_view_settings->resizeColumnsToContents();
 }
 
 ServiceDialog::~ServiceDialog()

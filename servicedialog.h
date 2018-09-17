@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+class QSqlTableModel;
+
 namespace Ui {
 class ServiceDialog;
 }
@@ -20,6 +22,8 @@ private slots:
 
 private:
     Ui::ServiceDialog *ui;
+
+    QSqlTableModel *m_model;
 };
 
 #endif // SERVICEDIALOG_H

@@ -125,7 +125,7 @@
     </widget>
    </item>
    <item row="0" column="7">
-    <widget class="QDateEdit" name="m_date_edit_currient_day">
+    <widget class="QDateEdit" name="m_date_edit_current_day">
      <property name="toolTip">
       <string>Current day</string>
      </property>
@@ -169,8 +169,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>472</width>
-        <height>607</height>
+        <width>465</width>
+        <height>761</height>
        </rect>
       </property>
       <property name="sizePolicy">

@@ -41,28 +41,26 @@ public:
     explicit WeekViewWidget(QWidget *parent = 0);
     ~WeekViewWidget();
 
-    inline QDate firstDayOfCurrientWeek() const;
-    inline QDate lastDayOfCurrientWeek() const;
-
-    inline QDate currientDate() const
-    {
-        return m_date;
-    };
+    inline QDate firstDayOfCurrentWeek() const;
+    inline QDate lastDayOfCurrentWeek() const;
 
     QPushButton *getReturnButton() const;
 
 public slots:
-    void setCurrientDate(QDate date);
-    void fillCurrientWeek();
+    //
+    void setCurrentDate(QDate date);
+
+protected:
+    void showEvent(QShowEvent *);
 
 protected slots:
     void updateGUI();
 
-     void processBooking(int day, const QModelIndex &index);
+    void processBooking(int day, const QModelIndex &index);
+    void fillCurrentWeek();
 
 private slots:
      void on_m_button_previous_week_clicked();
-
      void on_m_button_next_week_clicked();
 
 private:
@@ -72,8 +70,6 @@ private:
     QVector<QTableView*> m_booking_tables;
 
     QVector<DayBookingTableModel*> m_day_booking_models;
-    //currient data
-    QDate m_date;
 
     BookingDialog* m_booking_dialog;
     void set_signal_slots_connections();

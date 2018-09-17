@@ -1,4 +1,5 @@
 #include "bookingdialog.h"
+#include "settings.h"
 #include "ui_bookingdialog.h"
 
 #include <QDate>
@@ -125,7 +126,8 @@ void BookingDialog::updatePriceQuery()
     QString query_string = m_prices_base_query_string;
     query_string += " WHERE start_time_slot <= " + QString("%1").arg(m_timeslot) +
                     " AND end_time_slot > " + QString("%1").arg(m_timeslot);
-    query_string += QString(" AND Winter = ") + "'false'";
+    query_string += QString(" AND Winter = ") +
+            (Settings::winterSeason() ? QString("'true'") : QString("'false'"));
     query_string += QString(" AND Gast = 'false'");
     m_prices_model->setQuery(query_string);
 

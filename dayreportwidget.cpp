@@ -6,6 +6,7 @@
 #include <QDir>
 
 #include "dayreportwidget.h"
+#include "settings.h"
 #include "ui_dayreportwidget.h"
 
 DayReportWidget::DayReportWidget(QWidget *parent) :
@@ -35,25 +36,14 @@ QPushButton *DayReportWidget::getReturnButton() const
     return ui->m_button_back_to_main_menu;
 }
 
-/*
- * Sets currient day
- */
-void DayReportWidget::setCurrientDate(QDate date) {
-    if(m_date != date)
-    {
-        m_date = date;
-        update();
-    }
-}
-
-
-QDate DayReportWidget::currientDate() const
+void DayReportWidget::showEvent(QShowEvent */*e*/)
 {
-    return m_date;
+    update();
 }
 
 void DayReportWidget::update()
 {
+    const QDate& date = Settings::currentDate();
     QSqlQuery query;
     query.prepare("SELECT (surname || ' ' || firstname), account_name, account, sum, name, timeslot FROM bookings "
                   "LEFT OUTER JOIN members ON bookings.memberid = members.id "
@@ -61,17 +51,17 @@ void DayReportWidget::update()
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "LEFT OUTER JOIN accounts ON prices.account = accounts.number "
                   "WHERE date = :day ");
-    query.bindValue(":day", m_date.toJulianDay());
+    query.bindValue(":day", date.toJulianDay());
     if(!query.exec())
     {
-        qDebug() << "query day " << m_date.toString("yyyy-MM-dd") << " bookings error:  "
+        qDebug() << "query day " <<date.toString("yyyy-MM-dd") << " bookings error:  "
               << query.lastError();
         return;
     }
 
 
     QString html_text = m_template_str;
-    html_text.replace("%datum%", m_date.toString("dd.MM.yyyy"));
+    html_text.replace("%datum%", date.toString("dd.MM.yyyy"));
     const QString table_row_start_tag("%table_row_start%");
     int position = html_text.indexOf(table_row_start_tag);
     const QString table_row_end_tag("%table_row_end%");

@@ -17,21 +17,15 @@ public:
     explicit WeekReportWidget(QWidget *parent = 0);
     ~WeekReportWidget();
 
-    inline QDate currientDate() const;
-
     QPushButton *getReturnButton() const;
 
-public slots:
-    void setCurrientDate(QDate date);
-
 protected:
-    void update();
+    void update();    
+    void showEvent(QShowEvent *);
 
 private:
     Ui::WeekReportWidget *ui;
 
-    //currient data
-    QDate m_date;
     QString m_template_str;
 };
 

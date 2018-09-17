@@ -66,7 +66,6 @@ private:
     QSqlQuery m_query;    
 
     QDate m_day;
-    int m_season; // 2 - Sommer, 1 - Winter
 
     QHash<QPair<int, int>, int> m_index_hash;
 

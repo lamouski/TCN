@@ -39,7 +39,8 @@ SOURCES += \
     pricelistdialog.cpp \
     texteditor.cpp \
     weekreportwidget.cpp \
-    servicedialog.cpp
+    servicedialog.cpp \
+    settings.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -56,7 +57,8 @@ HEADERS += \
     pricelistdialog.h \
     texteditor.h \
     weekreportwidget.h \
-    servicedialog.h
+    servicedialog.h \
+    settings.h
 
 FORMS += \
         mainwindow.ui \

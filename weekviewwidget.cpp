@@ -22,6 +22,7 @@
 
 #include "bookingdialog.h"
 #include "daybookingtablemodel.h"
+#include "settings.h"
 
 #include <QTableWidget>
 #include <QDebug>
@@ -57,8 +58,8 @@ void WeekViewWidget::set_signal_slots_connections()
         connect(m_booking_tables[day], &QTableView::doubleClicked,
                 [this, day](const QModelIndex &index){ processBooking(day, index);});
     }
-    connect(ui->m_date_edit_currient_day, &QDateEdit::dateChanged,
-            [this](const QDate &date) { if(m_date != date) setCurrientDate(date); });
+    connect(ui->m_date_edit_current_day, &QDateEdit::dateChanged,
+            [this](const QDate &date) { if(Settings::currentDate() != date) setCurrentDate(date); });
 }
 
 
@@ -98,8 +99,6 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index)
         QPair<int, int> member_price_pair = curr_data.value<QPair<int, int> >();
         m_booking_dialog->setMemberId(member_price_pair.first);
         m_booking_dialog->setPriceId(member_price_pair.second);
-
-
     }
     else
     {
@@ -118,30 +117,32 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index)
 
 
 /*
- * Sets currient day
+ * Sets current day
  */
-void WeekViewWidget::setCurrientDate(QDate date) {
-    if(m_date.weekNumber() != date.weekNumber())
+void WeekViewWidget::setCurrentDate(QDate date) {
+
+    if(Settings::currentDate().weekNumber() != date.weekNumber())
     {
-        m_date = date;
-        fillCurrientWeek();
-        updateGUI();
+        Settings::instance()->setCurrentDate(date);
+        fillCurrentWeek();
     }
     else
-        m_date = date;
-    ui->m_date_edit_currient_day->setDate(m_date);
+        Settings::instance()->setCurrentDate(date);
+
+    ui->m_date_edit_current_day->setDate(Settings::currentDate());
+    updateGUI();
 }
 
 
 void WeekViewWidget::updateGUI()
 {
-    QDate first_day = firstDayOfCurrientWeek();
-    QDate last_day = lastDayOfCurrientWeek();
+    QDate first_day = firstDayOfCurrentWeek();
+    QDate last_day = lastDayOfCurrentWeek();
     if(first_day.month() == last_day.month())
         ui->m_week_label->setText( QString("%1 - %2 %3")
                     .arg(first_day.day())
                     .arg(last_day.day())
-                    .arg(m_date.toString("MMMM yyyy")));
+                    .arg(Settings::currentDate().toString("MMMM yyyy")));
     else
         ui->m_week_label->setText( QString("%1 - %2")
                     .arg(first_day.toString("dd MMMM"))
@@ -150,29 +151,36 @@ void WeekViewWidget::updateGUI()
 
 
 //current week handling functions
-inline QDate WeekViewWidget::firstDayOfCurrientWeek() const
+inline QDate WeekViewWidget::firstDayOfCurrentWeek() const
 {
-    return m_date.addDays(Qt::Monday - m_date.dayOfWeek());
+    const QDate& date = Settings::currentDate();
+    return date.addDays(Qt::Monday - date.dayOfWeek());
 }
 
 
-inline QDate WeekViewWidget::lastDayOfCurrientWeek() const
+inline QDate WeekViewWidget::lastDayOfCurrentWeek() const
 {
-    return m_date.addDays(Qt::Sunday - m_date.dayOfWeek());
+    const QDate& date = Settings::currentDate();
+    return date.addDays(Qt::Sunday - date.dayOfWeek());
 }
 
+void WeekViewWidget::showEvent(QShowEvent */*e*/)
+{
+    fillCurrentWeek();
+}
 
-void WeekViewWidget::fillCurrientWeek() { //on show
+void WeekViewWidget::fillCurrentWeek() {
     DbManager* db = DbManager::instance();
     if(!db)
         return;
-    QDate day = firstDayOfCurrientWeek();
+    QDate day = firstDayOfCurrentWeek();
     for(qint64 i = 0; i < 7; i ++) {
         DayBookingTableModel* model = m_day_booking_models[i];
         if(!model) {
             model = new DayBookingTableModel(this);
             m_day_booking_models[i] = model;
         }
+        m_booking_tables[i]->setModel(nullptr);
         model->setDay(day);
         m_booking_tables[i]->setModel(model);
         m_booking_tables[i]->resizeRowsToContents();
@@ -186,10 +194,10 @@ void WeekViewWidget::fillCurrientWeek() { //on show
 
 void WeekViewWidget::on_m_button_previous_week_clicked()
 {
-    setCurrientDate(m_date.addDays(-7));
+    setCurrentDate(Settings::currentDate().addDays(-7));
 }
 
 void WeekViewWidget::on_m_button_next_week_clicked()
 {
-    setCurrientDate(m_date.addDays(7));
+    setCurrentDate(Settings::currentDate().addDays(7));
 }

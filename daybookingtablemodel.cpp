@@ -28,10 +28,10 @@
 #include <QSqlError>
 
 #include "dbmanager.h"
+#include "settings.h"
 
 DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , m_season(2)
     , m_first_time_slot(8)
     , m_nr_time_slots(15)
     {
@@ -40,8 +40,7 @@ DayBookingTableModel::DayBookingTableModel(QObject *parent)
 
 bool DayBookingTableModel::queryData() {
 
-    //int day_mask = 1 << (m_day.dayOfWeek() - 1);
-    int season_mask = 1 << (m_season - 1);
+    int season_mask = Settings::winterSeason() ? 1 : 2;
     QSqlQuery field_query(QString("SELECT id, name, day%1, seasons FROM fields "
                                   "WHERE (`day%1` & 33554432) = 33554432 " //25-th bit is set to 1
                                   "AND (`seasons` & %2) = %2;").arg(m_day.dayOfWeek() - 1).arg(season_mask));

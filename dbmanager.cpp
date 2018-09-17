@@ -43,6 +43,20 @@ DbManager::DbManager(const QString& path)
     }
 }
 
+
+DbManager *DbManager::instance()
+{
+    return m_instance;
+}
+
+QSqlDatabase DbManager::db()
+{
+    if(m_instance)
+        return m_instance->m_db;
+    else
+        return QSqlDatabase();
+}
+
 bool DbManager::addMember(const QString &name, const QString &surname)
 {
    bool success = false;
@@ -232,7 +246,7 @@ bool DbManager::addBooking(const int memberID, const QDate& date, const int time
    bool success = false;
    // you should check if args are ok first...
    QSqlQuery query;
-   query.prepare("INSERT INTO bookings (memberid, date, timeslot, fieldid, priceid)"
+   query.prepare("INSERT OR REPLACE INTO bookings (memberid, date, timeslot, fieldid, priceid)"
                  "VALUES (:memberid, :date, :timeslot, :fieldid, :priceid) ;");
    query.bindValue(":memberid", memberID);
    query.bindValue(":date", date.toJulianDay());
@@ -336,15 +350,3 @@ bool DbManager::checkDB()
     return true;
 }
 
-DbManager *DbManager::instance()
-{
-    return m_instance;
-}
-
-QSqlDatabase DbManager::db()
-{
-    if(m_instance)
-        return m_instance->m_db;
-    else
-        return QSqlDatabase();
-}

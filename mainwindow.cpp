@@ -24,6 +24,7 @@
 #include "fieldlistdialog.h"
 #include "pricelistdialog.h"
 #include "servicedialog.h"
+#include "settings.h"
 
 #include <QDir>
 
@@ -41,7 +42,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     db->checkDB();
 
-    ui->m_week_view->setCurrientDate(QDate::currentDate());
+    Settings* settings = new Settings();
+
+    ui->m_week_view->setCurrentDate(settings->currentDate());
 
     connect(ui->m_button_bookings, &QPushButton::clicked,
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_week_view);});
@@ -49,14 +52,12 @@ MainWindow::MainWindow(QWidget *parent) :
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
     connect(ui->m_button_day_report, &QPushButton::clicked,
             [this](){
-                ui->m_day_report_view->setCurrientDate(ui->m_week_view->currientDate());
                 ui->m_stacked_widget->setCurrentWidget(ui->m_day_report_view);
             });
     connect(ui->m_day_report_view->getReturnButton(), &QPushButton::clicked,
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
     connect(ui->m_button_week_report, &QPushButton::clicked,
             [this](){
-                ui->m_week_report_view->setCurrientDate(ui->m_week_view->currientDate());
                 ui->m_stacked_widget->setCurrentWidget(ui->m_week_report_view);
             });
     connect(ui->m_week_report_view->getReturnButton(), &QPushButton::clicked,

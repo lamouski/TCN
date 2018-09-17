@@ -7,6 +7,7 @@
 
 #include "weekreportwidget.h"
 #include "ui_weekreportwidget.h"
+#include "settings.h"
 
 WeekReportWidget::WeekReportWidget(QWidget *parent) :
     QWidget(parent),
@@ -35,28 +36,17 @@ QPushButton *WeekReportWidget::getReturnButton() const
     return ui->m_button_back_to_main_menu;
 }
 
-/*
- * Sets currient day
- */
-void WeekReportWidget::setCurrientDate(QDate date) {
-    if(m_date != date)
-    {
-        m_date = date;
-        update();
-    }
-}
-
-
-QDate WeekReportWidget::currientDate() const
+void WeekReportWidget::showEvent(QShowEvent */*e*/)
 {
-    return m_date;
+    update();
 }
 
 void WeekReportWidget::update()
 {
+    const QDate& date = Settings::currentDate();
     //current week handling functions
-    const QDate firstDayOfCurrientWeek = m_date.addDays(Qt::Monday - m_date.dayOfWeek());
-    const QDate lastDayOfCurrientWeek = m_date.addDays(Qt::Sunday - m_date.dayOfWeek());
+    const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
+    const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
 
     QSqlQuery query;
     query.prepare("SELECT account_name, account, TOTAL(sum), date FROM bookings "
@@ -68,7 +58,7 @@ void WeekReportWidget::update()
     query.bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
     if(!query.exec())
     {
-        qDebug() << "query day " << m_date.toString("yyyy-MM-dd") << " bookings error:  "
+        qDebug() << "query day " << date.toString("yyyy-MM-dd") << " bookings error:  "
               << query.lastError();
         return;
     }
