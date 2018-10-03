@@ -151,7 +151,7 @@ bool FieldsTableModel::queryData()
         int days_mask = 0;
         for(int i = 0; i < 7; i++)
         {
-            if(m_query.value(i + 2).toInt() & 33554432) //25-th bit is set thenn enabled
+            if(m_query.value(i + 2).toInt() & 33554432) //25-th bit is set then enabled
                 days_mask |= (1 << i);
         }
         m_days_masks.push_back(days_mask);

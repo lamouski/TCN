@@ -45,7 +45,7 @@ void DayReportWidget::update()
 {
     const QDate& date = Settings::currentDate();
     QSqlQuery query;
-    query.prepare("SELECT (surname || ' ' || firstname), account_name, account, sum, name, timeslot FROM bookings "
+    query.prepare("SELECT (surname || ' ' || firstname), info, account_name, account, sum, name, timeslot FROM bookings "
                   "LEFT OUTER JOIN members ON bookings.memberid = members.id "
                   "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
@@ -71,12 +71,19 @@ void DayReportWidget::update()
     while(query.next())
     {
         QString tmp_string = row_string;
-        tmp_string.replace("%full_name%", query.value(0).toString());
-        tmp_string.replace("%account_name%", query.value(1).toString());
-        tmp_string.replace("%account%", query.value(2).toString());
-        tmp_string.replace("%price%", query.value(3).toString() + "€");
-        tmp_string.replace("%field_name%", query.value(4).toString());
-        tmp_string.replace("%time_slot%", query.value(5).toString());
+        QString full_name = query.value(0).toString();
+        QString info = query.value(1).toString();
+        if(!info.isEmpty())
+            if(full_name.isEmpty())
+                full_name = info;
+            else
+                full_name += "(" + info + ")";
+        tmp_string.replace("%full_name%", full_name);
+        tmp_string.replace("%account_name%", query.value(2).toString());
+        tmp_string.replace("%account%", query.value(3).toString());
+        tmp_string.replace("%price%", query.value(4).toString() + "€");
+        tmp_string.replace("%field_name%", query.value(5).toString());
+        tmp_string.replace("%time_slot%", query.value(6).toString());
         html_text.insert(position,tmp_string); position += tmp_string.length();
     }
     ui->m_text_editor->setHtml(html_text);

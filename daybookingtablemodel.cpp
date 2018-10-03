@@ -59,7 +59,7 @@ bool DayBookingTableModel::queryData() {
         int last_time_slot = (int) log2((float)time_mask);
         m_nr_time_slots = std::max(m_first_time_slot + m_nr_time_slots, last_time_slot) - m_first_time_slot;
     }
-    m_query.prepare("SELECT (surname || ' ' || firstname), date, timeslot, fieldid, sum, memberid, priceid "
+    m_query.prepare("SELECT (surname || ' ' || firstname), info, date, timeslot, fieldid, sum, memberid, priceid "
                     " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
                     " LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                     " WHERE date = :day ");
@@ -74,8 +74,8 @@ bool DayBookingTableModel::queryData() {
     m_index_hash.clear();
     int ind = 0;
     while(m_query.next()) {
-        int timeslot = m_query.value(2).toInt();
-        int fieldId = m_query.value(3).toInt();
+        int timeslot = m_query.value(3).toInt();
+        int fieldId = m_query.value(4).toInt();
         m_index_hash[QPair<int, int>(fieldId, timeslot)] = ind++;
     }
 
@@ -145,9 +145,12 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                 int index = m_index_hash[index_key];
                 const_cast<QSqlQuery&>(m_query).seek(index);
                 QString member_mame = m_query.record().value(0).toString();
-                QVariant price_variant =m_query.record().value(4);
+                QString booking_info = m_query.record().value(1).toString();
+                QVariant price_variant =m_query.record().value(5);
                 double price = price_variant.toDouble();
-                return QString("%1 (%2)").arg(member_mame).arg(price);
+                return QString("%1 (%2 EUR)")
+                        .arg(!member_mame.isEmpty() ? member_mame : booking_info)
+                        .arg(price);
             }            
             break;
         case Qt::UserRole:
@@ -155,8 +158,8 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             {
                 int index = m_index_hash[index_key];
                 const_cast<QSqlQuery&>(m_query).seek(index);
-                int memberId = m_query.record().value(5).toInt();
-                int priceId = m_query.record().value(6).toInt();
+                int memberId = m_query.record().value(6).toInt();
+                int priceId = m_query.record().value(7).toInt();
                 QPair<int, int> member_price_pair(memberId, priceId);
                 return QVariant::fromValue(member_price_pair);
             }
@@ -222,12 +225,24 @@ bool DayBookingTableModel::setData(const QModelIndex &index, const QVariant &val
     if (data(index, role) != value) {
         switch (role) {
         case Qt::UserRole:
-            QPair<int, int> member_price_pair = value.value<QPair<int, int> >();
-            DbManager::instance()->addBooking(member_price_pair.first,
-                                              m_day,
-                                              index.column() + m_first_time_slot,
-                                              m_fields_IDis[index.row()],
-                                              member_price_pair.second);
+            if(value.canConvert<QPair<int, int> >())
+            {
+                QPair<int, int> member_price_pair = value.value<QPair<int, int> >();
+                DbManager::instance()->addBooking(member_price_pair.first,
+                                                  m_day,
+                                                  index.column() + m_first_time_slot,
+                                                  m_fields_IDis[index.row()],
+                                                  member_price_pair.second);
+            }
+            else if(value.canConvert<QPair<QString, int> >())
+            {
+                QPair<QString, int> info_price_pair = value.value<QPair<QString, int> >();
+                DbManager::instance()->addBooking(info_price_pair.first,
+                                                  m_day,
+                                                  index.column() + m_first_time_slot,
+                                                  m_fields_IDis[index.row()],
+                                                  info_price_pair.second);
+            }
             break;
         }
         queryData();

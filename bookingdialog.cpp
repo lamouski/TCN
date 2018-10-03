@@ -9,8 +9,7 @@
 BookingDialog::BookingDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BookingDialog),
-    m_last_selected_id(-1),
-    m_last_selected_member_number(0),
+    m_last_selected_member_id(-1),
     m_last_selected_price_id(-1)
 {
     ui->setupUi(this);
@@ -56,6 +55,11 @@ void BookingDialog::setTimeslot(int timeSlot)
     updatePriceQuery();
 }
 
+void BookingDialog::setDaysMask(int daysMask)
+{
+    m_days_mask = daysMask;
+}
+
 void BookingDialog::setMemberId(int id)
 {
     QSqlQuery query(m_memberlist_base_query_string + QString(" WHERE id = %0").arg(id));
@@ -84,12 +88,17 @@ void BookingDialog::setPriceId(int id)
 
 int BookingDialog::selectedId() const
 {
-    return m_last_selected_id;
+    return m_last_selected_member_id;
 }
 
 int BookingDialog::selectedPrice() const
 {
     return m_last_selected_price_id;
+}
+
+QString BookingDialog::info() const
+{
+    return ui->m_line_edit_name->text();
 }
 
 void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
@@ -118,6 +127,11 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
         }
         m_memberlist_model->setQuery(query_string);
     }
+    if(m_memberlist_model->rowCount() == 0) //no member with entered name
+    {
+       m_last_selected_member_id = -1;
+       updatePriceQuery();
+    }
 }
 
 void BookingDialog::updatePriceQuery()
@@ -126,9 +140,11 @@ void BookingDialog::updatePriceQuery()
     QString query_string = m_prices_base_query_string;
     query_string += " WHERE start_time_slot <= " + QString("%1").arg(m_timeslot) +
                     " AND end_time_slot > " + QString("%1").arg(m_timeslot);
-    query_string += QString(" AND Winter = ") +
+    query_string += QString(" AND winter = ") +
             (Settings::winterSeason() ? QString("'true'") : QString("'false'"));
-    query_string += QString(" AND Gast = 'false'");
+    query_string += QString(" AND member = ") +
+            (m_memberlist_model->rowCount() == 0 ? QString("'false'") : QString("'true'"));
+    query_string += QString(" AND (`days` & %1) = %1").arg(m_days_mask);
     m_prices_model->setQuery(query_string);
 
     int index_in_new_list = ui->m_combo_price->findText(current_price);
@@ -149,8 +165,7 @@ void BookingDialog::selectCurrientId(const QModelIndex &index)
 {
     if(index.isValid())
     {
-        m_last_selected_id = m_memberlist_model->record(index.row()).value(1).toInt();
-        m_last_selected_member_number = m_memberlist_model->record(index.row()).value(2).toInt();
+        m_last_selected_member_id = m_memberlist_model->record(index.row()).value(1).toInt();
     }
 }
 
