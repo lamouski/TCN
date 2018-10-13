@@ -16,7 +16,7 @@ DayReportWidget::DayReportWidget(QWidget *parent) :
     ui->setupUi(this);
 
     QString curr_dir = QDir::currentPath();
-    QFile file(curr_dir+"/test_db/day_report_template.htm");
+    QFile file(curr_dir+"/db/day_report_template.htm");
     if (!file.open(QFile::ReadOnly))
         m_template_str = "day_report_template.htm is not found";
 

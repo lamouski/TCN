@@ -21,7 +21,7 @@ public:
 public slots:
     void setField(const QString& fieldName);
     void setTimeslot(int timeSlot);
-    void setDaysMask(int daysMask = 255);
+    void setDay(const QDate& date);
 
     void setMemberId(int id);
     void setPriceId(int id);
@@ -53,11 +53,13 @@ private:
     QSqlQueryModel *m_prices_model;
     QString m_prices_base_query_string;
 
-    int m_timeslot;
-    int m_last_selected_member_id;
-    int m_last_selected_price_id;
-    int m_days_mask = 255;
 
+
+    int m_timeslot;
+    int m_last_selected_member_id = -1;
+    int m_last_selected_price_id = -1;
+    int m_days_mask = 255;
+    bool m_abo_booking = false;
     void selectCurrientId(const QModelIndex &index);
 };
 

@@ -18,6 +18,26 @@ public:
         return m_instance->m_winter_season;
     };
 
+    static inline QDate winterSeasonBegin()
+    {
+        return m_instance->m_winter_begin;
+    };
+
+    static inline QDate winterSeasonEnd()
+    {
+        return m_instance->m_sommer_begin.addYears(1).addDays(-1);
+    };
+
+    static inline QDate sommerSeasonBegin()
+    {
+        return m_instance->m_sommer_begin;
+    };
+
+    static inline QDate sommerSeasonEnd()
+    {
+        return m_instance->m_winter_begin.addDays(-1);
+    };
+
     void setCurrentDate(const QDate& date);
 
     static Settings* instance();

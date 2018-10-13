@@ -8,9 +8,7 @@
 
 BookingDialog::BookingDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::BookingDialog),
-    m_last_selected_member_id(-1),
-    m_last_selected_price_id(-1)
+    ui(new Ui::BookingDialog)
 {
     ui->setupUi(this);
 
@@ -25,7 +23,7 @@ BookingDialog::BookingDialog(QWidget *parent) :
 
     m_prices_model = new QSqlQueryModel(this);
     m_prices_base_query_string = QString("SELECT (price_name || ' - ' || sum) "
-                                         " AS info, sum, id FROM prices");
+                                         " AS info, sum, id, abo FROM prices");
     m_prices_model->setQuery(m_prices_base_query_string);
     ui->m_combo_price->setModel(m_prices_model);
     ui->m_combo_price->setModelColumn(0);
@@ -55,9 +53,28 @@ void BookingDialog::setTimeslot(int timeSlot)
     updatePriceQuery();
 }
 
-void BookingDialog::setDaysMask(int daysMask)
+void BookingDialog::setDay(const QDate& date)
 {
-    m_days_mask = daysMask;
+    m_days_mask = 1 << (date.dayOfWeek() -1);
+    ui->m_label_day->setText(date.toString("dddd"));
+
+    Settings* settings = Settings::instance();
+    if(settings->winterSeason())
+    {
+        ui->m_start_abo_date->setDateRange(settings->winterSeasonBegin(),settings->winterSeasonEnd());
+        ui->m_start_abo_date->setDate(date);
+
+        ui->m_end_abo_date->setDateRange(settings->winterSeasonBegin(), settings->winterSeasonEnd());
+        ui->m_end_abo_date->setDate(settings->winterSeasonEnd());
+    }
+    else
+    {
+        ui->m_start_abo_date->setDateRange(settings->sommerSeasonBegin(), settings->sommerSeasonEnd());
+        ui->m_start_abo_date->setDate(date);
+
+        ui->m_end_abo_date->setDateRange(settings->sommerSeasonBegin(), settings->sommerSeasonEnd());
+        ui->m_end_abo_date->setDate(settings->sommerSeasonEnd());
+    }
 }
 
 void BookingDialog::setMemberId(int id)
@@ -127,7 +144,13 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
         }
         m_memberlist_model->setQuery(query_string);
     }
-    if(m_memberlist_model->rowCount() == 0) //no member with entered name
+
+    if(m_memberlist_model->rowCount() == 1) //no member with entered name
+    {
+       m_last_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
+       updatePriceQuery();
+    }
+    else if(m_memberlist_model->rowCount() == 0) //no member with entered name
     {
        m_last_selected_member_id = -1;
        updatePriceQuery();
@@ -183,6 +206,10 @@ void BookingDialog::on_m_list_view_members_activated(const QModelIndex &index)
 void BookingDialog::on_m_combo_price_currentIndexChanged(int index)
 {
     int row = ui->m_combo_price->currentIndex();
-    QModelIndex idx = m_prices_model->index(row, 2); // third column
-    m_last_selected_price_id = m_prices_model->data(idx).toInt();
+    m_last_selected_price_id = m_prices_model->data(m_prices_model->index(row, 2)).toInt(); // third column
+
+    QString abo_string =  m_prices_model->data(m_prices_model->index(row, 3)).toString(); // fourth column
+    m_abo_booking = abo_string == "true" ? true : false;
+    ui->m_abo_date_widget->setVisible(m_abo_booking);
+
 }

@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QString curr_dir = QDir::currentPath();
-    DbManager* db = new DbManager(curr_dir+"/test_db/tcn2020.db");
+    DbManager* db = new DbManager(curr_dir+"/db/tcn2020.db");
 
     db->checkDB();
 

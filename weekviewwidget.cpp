@@ -91,7 +91,7 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index)
     if(!m_booking_dialog)
         m_booking_dialog = new BookingDialog(this);
 
-    m_booking_dialog->setDaysMask(1 << day);
+    m_booking_dialog->setDay(firstDayOfCurrentWeek().addDays(day));
     m_booking_dialog->setField(m_day_booking_models[day]->fieldName(index.row()));
     m_booking_dialog->setTimeslot(m_day_booking_models[day]->timeSlot(index.column()));
 
