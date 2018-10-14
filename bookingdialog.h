@@ -25,6 +25,7 @@ public slots:
 
     void setMemberId(int id);
     void setPriceId(int id);
+    void setInfo(const QString& info);
 
     void updateMembersQuery(const QString &find_string);
     void updatePriceQuery();
@@ -34,15 +35,18 @@ public:
     int selectedPrice() const;
     QString info() const;
 
+    bool isMultyBooking();
+    QDate aboStartDate() const;
+    QDate aboEndDate() const;
+
 private slots:
     void on_m_line_edit_name_textEdited(const QString &arg1);
     //void on_m_list_view_members_doubleClicked(const QModelIndex &index);
     void on_m_list_view_members_clicked(const QModelIndex &index);
     void on_m_list_view_members_activated(const QModelIndex &index);
+    void on_m_combo_price_currentIndexChanged(int index);
 
     void handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &previous);
-
-    void on_m_combo_price_currentIndexChanged(int index);
 
 private:
     Ui::BookingDialog *ui;
@@ -52,8 +56,6 @@ private:
 
     QSqlQueryModel *m_prices_model;
     QString m_prices_base_query_string;
-
-
 
     int m_timeslot;
     int m_last_selected_member_id = -1;

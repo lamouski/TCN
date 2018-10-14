@@ -32,8 +32,8 @@
 
 DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
-    , m_first_time_slot(8)
-    , m_nr_time_slots(15)
+    , m_first_time_slot(9)
+    , m_nr_time_slots(14)
     {
 
 }
@@ -59,7 +59,7 @@ bool DayBookingTableModel::queryData() {
         int last_time_slot = (int) log2((float)time_mask);
         m_nr_time_slots = std::max(m_first_time_slot + m_nr_time_slots, last_time_slot) - m_first_time_slot;
     }
-    m_query.prepare("SELECT (surname || ' ' || firstname), info, date, timeslot, fieldid, sum, memberid, priceid "
+    m_query.prepare("SELECT (surname || ' ' || firstname), info, date, timeslot, fieldid, sum, memberid, priceid, aboid"
                     " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
                     " LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                     " WHERE date = :day ");
@@ -144,13 +144,17 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             {
                 int index = m_index_hash[index_key];
                 const_cast<QSqlQuery&>(m_query).seek(index);
-                QString member_mame = m_query.record().value(0).toString();
+                QString member_name = m_query.record().value(0).toString();
                 QString booking_info = m_query.record().value(1).toString();
-                QVariant price_variant =m_query.record().value(5);
+                QVariant price_variant = m_query.record().value(5);
+                int abo_id = m_query.record().value(8).toInt();
                 double price = price_variant.toDouble();
-                return QString("%1 (%2 EUR)")
-                        .arg(!member_mame.isEmpty() ? member_mame : booking_info)
-                        .arg(price);
+                QString result = !member_name.isEmpty() ? member_name : booking_info;
+                if(abo_id > 0)
+                    result += " (Abo)";
+                else
+                    result += QString(" (%2 EUR)").arg(price);
+                return result;
             }            
             break;
         case Qt::UserRole:
@@ -160,8 +164,17 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                 const_cast<QSqlQuery&>(m_query).seek(index);
                 int memberId = m_query.record().value(6).toInt();
                 int priceId = m_query.record().value(7).toInt();
-                QPair<int, int> member_price_pair(memberId, priceId);
-                return QVariant::fromValue(member_price_pair);
+                if(memberId >= 0)
+                {
+                    QPair<int, int> member_price_pair(memberId, priceId);
+                    return QVariant::fromValue(member_price_pair);
+                }
+                else
+                {
+                    QString info = m_query.record().value(1).toString();
+                    QPair<QString, int> info_price_pair(info, priceId);
+                    return QVariant::fromValue(info_price_pair);
+                }
             }
             else
                 return QVariant();
@@ -289,7 +302,20 @@ void DayBookingTableModel::setPreviousWeek()
 
 void DayBookingTableModel::setNextWeek()
 {
-   setDay(m_day.addDays(7));
+    setDay(m_day.addDays(7));
+}
+
+void DayBookingTableModel::select()
+{
+    queryData();
+}
+
+int DayBookingTableModel::fieldId(int row) const
+{
+    if(row < m_fields_IDis.size())
+        return m_fields_IDis[row];
+    else
+        return -1;
 }
 
 QString DayBookingTableModel::fieldName(int row) const
@@ -298,6 +324,24 @@ QString DayBookingTableModel::fieldName(int row) const
         return m_fields_names[row];
     else
         return QString();
+}
+
+int DayBookingTableModel::aboId(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return 0;
+
+    int row = index.row();
+    int col = index.column();
+
+    QPair<int, int> index_key(m_fields_IDis[row], m_first_time_slot + col);
+    if(m_index_hash.contains(index_key))
+    {
+        int index = m_index_hash[index_key];
+        const_cast<QSqlQuery&>(m_query).seek(index);
+        return m_query.record().value(8).toInt();
+    }
+    return 0;
 }
 
 int DayBookingTableModel::timeSlot(int column) const

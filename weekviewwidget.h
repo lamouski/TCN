@@ -29,6 +29,8 @@
 class DayBookingTableModel;
 class BookingDialog;
 
+class QMenu;
+
 namespace Ui {
 class WeekViewWidget;
 }
@@ -53,10 +55,17 @@ public slots:
 protected:
     void showEvent(QShowEvent *);
 
+    void singleBooking(int day, const QModelIndex &index, int selected_member_id, int selected_price_id, const QString &info);
+    void multiBooking(const QDate& start_date, const QDate& end_date, int day_of_the_week,
+                      int field_id, int time_slot,
+                      int selected_member_id, int selected_price_id, const QString &info);
+
 protected slots:
     void updateGUI();
 
-    void processBooking(int day, const QModelIndex &index);
+    void processBooking(int day, const QModelIndex &index, bool allow_correction = false);
+    void processBookingContextMenu(int day, const QModelIndex &index, const QPoint &pos);
+
     void fillCurrentWeek();
 
 private slots:
@@ -74,7 +83,16 @@ private:
     BookingDialog* m_booking_dialog;
     void set_signal_slots_connections();
 
-};
+    QMenu* m_contextMenu = nullptr;
+    QAction* m_action_change_abo_cur = nullptr;
+    QAction* m_action_change_abo_all = nullptr;
+    QAction* m_action_cancle_abo_cur = nullptr;
+    QAction* m_action_cancle_abo_all = nullptr;
+    QAction* m_action_change_booking = nullptr;
+    QAction* m_action_cancle_booking = nullptr;
+    int m_selected_day = -1;
+    QModelIndex m_selected_index = QModelIndex();
 
+};
 
 #endif // WEEKVIEWWIDGET_H

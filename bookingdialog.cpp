@@ -84,7 +84,15 @@ void BookingDialog::setMemberId(int id)
     if(query.exec())
         if(query.next())
             name = query.record().value(0).toString();
+    m_last_selected_member_id = id;
     ui->m_line_edit_name->setText(name);
+    updateMembersQuery(ui->m_line_edit_name->text());
+}
+
+void BookingDialog::setInfo(const QString& info)
+{
+    m_last_selected_member_id = -1;
+    ui->m_line_edit_name->setText(info);
     updateMembersQuery(ui->m_line_edit_name->text());
 }
 
@@ -116,6 +124,21 @@ int BookingDialog::selectedPrice() const
 QString BookingDialog::info() const
 {
     return ui->m_line_edit_name->text();
+}
+
+QDate BookingDialog::aboStartDate() const
+{
+    return ui->m_start_abo_date->date();
+}
+
+QDate BookingDialog::aboEndDate() const
+{
+    return ui->m_end_abo_date->date();
+}
+
+bool BookingDialog::isMultyBooking()
+{
+    return m_abo_booking;
 }
 
 void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
@@ -155,6 +178,13 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
        m_last_selected_member_id = -1;
        updatePriceQuery();
     }
+    else
+    {
+        if(m_last_selected_member_id >= 0)
+        {
+
+        }
+    }
 }
 
 void BookingDialog::updatePriceQuery()
@@ -168,6 +198,7 @@ void BookingDialog::updatePriceQuery()
     query_string += QString(" AND member = ") +
             (m_memberlist_model->rowCount() == 0 ? QString("'false'") : QString("'true'"));
     query_string += QString(" AND (`days` & %1) = %1").arg(m_days_mask);
+    query_string += QString(" ORDER BY abo ");
     m_prices_model->setQuery(query_string);
 
     int index_in_new_list = ui->m_combo_price->findText(current_price);
@@ -213,3 +244,4 @@ void BookingDialog::on_m_combo_price_currentIndexChanged(int index)
     ui->m_abo_date_widget->setVisible(m_abo_booking);
 
 }
+

@@ -53,7 +53,8 @@ void WeekReportWidget::update()
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "LEFT OUTER JOIN accounts ON prices.account = accounts.number "
                   "WHERE date between :from_day AND :till_day "
-                  "GROUP BY account, date "                  );
+                  "AND aboid IS NULL OR aboid = '' "
+                  "GROUP BY account, date ");
     query.bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
     query.bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
     if(!query.exec())

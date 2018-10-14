@@ -47,6 +47,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     QDate day() const;
+    int fieldId(int row) const;
     QString fieldName(int row) const;
     int timeSlot(int column) const;
 
@@ -55,9 +56,13 @@ public:
     void setFirstTimeSlot(int first_time_slot);
     void setNumOfTimeSlots(int num_of_time_slots);
 
+    int aboId(const QModelIndex &index);
+
 public slots:
     void setPreviousWeek();
     void setNextWeek();
+
+    void select();
 
 protected slots:
     bool queryData();

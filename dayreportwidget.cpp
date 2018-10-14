@@ -50,7 +50,8 @@ void DayReportWidget::update()
                   "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "LEFT OUTER JOIN accounts ON prices.account = accounts.number "
-                  "WHERE date = :day ");
+                  "WHERE date = :day "
+                  "AND aboid IS NULL OR aboid = ''");
     query.bindValue(":day", date.toJulianDay());
     if(!query.exec())
     {
@@ -74,10 +75,12 @@ void DayReportWidget::update()
         QString full_name = query.value(0).toString();
         QString info = query.value(1).toString();
         if(!info.isEmpty())
+        {
             if(full_name.isEmpty())
                 full_name = info;
             else
                 full_name += "(" + info + ")";
+        }
         tmp_string.replace("%full_name%", full_name);
         tmp_string.replace("%account_name%", query.value(2).toString());
         tmp_string.replace("%account%", query.value(3).toString());
