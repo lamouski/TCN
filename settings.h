@@ -25,7 +25,16 @@ public:
 
     static inline QDate winterSeasonEnd()
     {
-        return m_instance->m_sommer_begin.addYears(1).addDays(-1);
+        QDate end =  m_instance->m_sommer_begin.addYears(1).addDays(-1);
+        if(m_instance->m_season_starts_from_monday)
+        {
+            int day_of_the_week = end.dayOfWeek();
+            if(day_of_the_week < 3)
+              end = end.addDays( Qt::Monday - day_of_the_week );
+            else
+              end = end.addDays( Qt::Sunday - day_of_the_week + 1);
+        }
+        return end;
     };
 
     static inline QDate sommerSeasonBegin()

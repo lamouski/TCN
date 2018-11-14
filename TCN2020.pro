@@ -74,3 +74,7 @@ FORMS += \
 
 RESOURCES += \
     tcn2020.qrc
+
+TRANSLATIONS = \
+    languages/Translation_en.ts  \
+    languages/Translation_de.ts

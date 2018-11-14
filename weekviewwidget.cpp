@@ -266,8 +266,8 @@ void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date
                   " AND date IN (%3)").arg(time_slot).arg(field_id).arg(all_abo_days_str);
     if(query.exec(query_str))
     {
-        qDebug()  << query.lastQuery();
-        qDebug()  << query_str;
+        //qDebug()  << query.lastQuery();
+        //qDebug()  << query_str;
         QString conflicts;
         bool have_date = query.first();
         while(have_date)
