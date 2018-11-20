@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>845</width>
+    <height>694</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -45,6 +45,11 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>15</pointsize>
+           </font>
+          </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
     border: 2px solid #8f8f91;
@@ -71,6 +76,11 @@ QPushButton:pressed {
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>15</pointsize>
+           </font>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
@@ -99,6 +109,11 @@ QPushButton:pressed {
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>15</pointsize>
+           </font>
+          </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
     border: 2px solid #8f8f91;
@@ -125,6 +140,11 @@ QPushButton:pressed {
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>15</pointsize>
+           </font>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
@@ -153,6 +173,11 @@ QPushButton:pressed {
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>15</pointsize>
+           </font>
+          </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
     border: 2px solid #8f8f91;
@@ -180,6 +205,11 @@ QPushButton:pressed {
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>15</pointsize>
+           </font>
+          </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
     border: 2px solid #8f8f91;
@@ -206,6 +236,11 @@ QPushButton:pressed {
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>15</pointsize>
+           </font>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
@@ -252,6 +287,11 @@ QPushButton:pressed {
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>15</pointsize>
+              </font>
+             </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {
     border: 2px solid #8f8f91;
@@ -278,6 +318,11 @@ QPushButton:pressed {
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>15</pointsize>
+              </font>
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {

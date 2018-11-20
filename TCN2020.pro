@@ -40,7 +40,8 @@ SOURCES += \
     texteditor.cpp \
     weekreportwidget.cpp \
     servicedialog.cpp \
-    settings.cpp
+    settings.cpp \
+    pricestablemodel.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -58,7 +59,8 @@ HEADERS += \
     texteditor.h \
     weekreportwidget.h \
     servicedialog.h \
-    settings.h
+    settings.h \
+    pricestablemodel.h
 
 FORMS += \
         mainwindow.ui \

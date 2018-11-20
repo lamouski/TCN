@@ -15,4 +15,8 @@
         <file>Resources/images/monday.png</file>
         <file>Resources/images/tuesday.png</file>
     </qresource>
+    <qresource prefix="/translations">
+        <file>languages/Translation_de.qm</file>
+        <file>languages/Translation_en.qm</file>
+    </qresource>
 </RCC>

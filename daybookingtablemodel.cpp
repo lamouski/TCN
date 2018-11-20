@@ -1,4 +1,4 @@
-                                                          /*
+/*
  * TCN Field Booking Application
  * Copyright (C) 2018 Dzianis Lamouski
  *

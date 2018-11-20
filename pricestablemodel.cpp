@@ -16,29 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FIELDLISTDIALOG_H
-#define FIELDLISTDIALOG_H
+#include "pricestablemodel.h"
 
-#include <QDialog>
-
-class FieldsTableModel;
-
-namespace Ui {
-class FieldListDialog;
-}
-
-class FieldListDialog : public QDialog
+PricesTableModel::PricesTableModel()
 {
-    Q_OBJECT
 
-public:
-    explicit FieldListDialog(QWidget *parent = 0);
-    ~FieldListDialog();
-
-private:
-    Ui::FieldListDialog *ui;
-
-    FieldsTableModel *m_model;
-};
-
-#endif // FIELDLISTDIALOG_H
+}
