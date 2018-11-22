@@ -52,8 +52,8 @@ void FieldDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                            const QModelIndex &index) const
 {   
     const QAbstractItemModel *model = index.model();
-    QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled) ?
-        (option.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive : QPalette::Disabled;
+//    QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled) ?
+//        (option.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive : QPalette::Disabled;
 
     if (index.column() == DAYS_MASK_COLUMN) {
         /*
@@ -61,19 +61,27 @@ void FieldDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
         */
         int days = model->data(index, Qt::DisplayRole).toInt();
-        int width = 20; //m_days_pixmaps[0].width();
-        int height = 20; //m_days_pixmaps[0].height();
+        int width = 25; //m_days_pixmaps[0].width();
+        int height = 25; //m_days_pixmaps[0].height();
         int x = option.rect.x() + 1;
         int y = option.rect.y() + (option.rect.height() / 2) - (height / 2) + 1;
-        for (int i = 0; i < 7; ++i) {
-            if(days & (1 << i)) {
+        QFont font = painter->font();
+        QFont old_font = font;
+        for (int i = 0; i < 7; ++i)
+        {
+            if(days & (1 << i))
+            {
                 painter->setPen(option.palette.color(QPalette::Normal, QPalette::Text));
+                font.setBold(true);
                 //painter->drawPixmap(x, y, m_days_pixmaps[i]);
             }
-            else {
+            else
+            {
                 painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
                 //painter->drawPixmap(x, y, m_days_pixmaps[i+7]);
+                font.setBold(false);
             }
+            painter->setFont(font);
             QString ddd;
             switch (i) {
                case 0: { ddd = tr("Mo"); } break;
@@ -87,28 +95,41 @@ void FieldDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
             painter->drawText(x, y, width, height, Qt::AlignCenter, ddd);
             x += width+2;
         }
+        painter->setFont(old_font);
         drawFocus(painter, option, option.rect.adjusted(0, 0, -1, -1)); // since we draw the grid ourselves
     }
     else
         if (index.column() == SEASONS_MASK_COLUMN)
         {
             int seasons = model->data(index, Qt::DisplayRole).toInt();
-            int width = 20;
-            int height = 20;
+            int width = 25;
+            int height = 25;
             int x = option.rect.x() + 1;
             int y = option.rect.y() + (option.rect.height() / 2) - (height / 2) + 1;
             QPen pen = painter->pen();
-            for (int i = 0; i < 2; ++i) {
+            QFont font = painter->font();
+            QFont old_font = font;
+            for (int i = 0; i < 2; ++i)
+            {
                 if(seasons & (1 << i))
+                {
                     painter->setPen(option.palette.color(QPalette::Normal, QPalette::Text));
+                    font.setBold(true);
+                }
                 else
+                {
                     painter->setPen(option.palette.color(QPalette::Disabled, QPalette::Text));
+                    font.setBold(false);
+                }
+                painter->setFont(font);
                 painter->drawText(x, y, width, height, Qt::AlignCenter, i == 0 ? "W" : "S");
                 x += width+2;
             }
             painter->setPen(pen);
+            painter->setFont(old_font);
         }
-        else {
+        else
+        {
             QStyleOptionViewItem opt = option;
             opt.rect.adjust(0, 0, -1, -1); // since we draw the grid ourselves
             QSqlRelationalDelegate::paint(painter, opt, index);
@@ -116,8 +137,8 @@ void FieldDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
     QPen pen = painter->pen();
     painter->setPen(option.palette.color(QPalette::Mid));
-    painter->drawLine(option.rect.bottomLeft() + QPoint(0,1), option.rect.bottomRight() + QPoint(0,1));
-    painter->drawLine(option.rect.topRight() + QPoint(1,0), option.rect.bottomRight() + QPoint(1,0));
+    painter->drawLine(option.rect.bottomLeft() + QPoint(0, 1), option.rect.bottomRight() + QPoint(0, 1));
+    painter->drawLine(option.rect.topRight() + QPoint(1, 0), option.rect.bottomRight() + QPoint(1, 0));
     painter->setPen(pen);
 }
 
@@ -157,6 +178,8 @@ bool FieldDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
                 model->setData(index, QVariant(days), Qt::EditRole);
                 return false; //so that the selection can change
             }
+        break;
+
         case SEASONS_MASK_COLUMN:
             if (event->type() == QEvent::MouseButtonPress) {
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);

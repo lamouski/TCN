@@ -20,6 +20,7 @@
 #define PRICELISTDIALOG_H
 
 #include <QDialog>
+#include <QModelIndex>
 
 class QSqlTableModel;
 
@@ -32,12 +33,23 @@ class PriceListDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PriceListDialog(QWidget *parent = 0);
+    explicit PriceListDialog(QWidget *parent = nullptr);
     ~PriceListDialog();
+
+protected slots:
+    void delete_currient();
+    void edit_currient();
+
+private slots:
+    void on_m_add_button_clicked();
+
+    void handleCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
     Ui::PriceListDialog *ui;
     QSqlTableModel* m_model;
+
+    QModelIndex m_edited_index;
 };
 
 #endif // PRICELISTDIALOG_H

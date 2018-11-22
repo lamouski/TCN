@@ -39,13 +39,12 @@ QVariant FieldsTableModel::headerData(int section, Qt::Orientation orientation, 
                 {
                     switch (section)
                     {
-                    case 0: return QString(tr("Name")); break;
-                    case 1: return QString(tr("Days")); break;
-                    case 2: return QString(tr("Seasons")); break;
+                    case 0: return QString(tr("Name"));
+                    case 1: return QString(tr("Days"));
+                    case 2: return QString(tr("Seasons"));
                     default : return QVariant();
                     }
-                }
-                break;
+                }                
             case Qt::Vertical:
                 return QString("%1").arg(section);
         }
@@ -85,18 +84,14 @@ QVariant FieldsTableModel::data(const QModelIndex &index, int role) const
             case 0: // name
                 const_cast<QSqlQuery&>(m_query).seek(row);
                 return m_query.record().value(1).toString();
-                break;
             case 1: // days mask
                 return m_days_masks.at(row);
-                break;
             case 2: // seasons
                 const_cast<QSqlQuery&>(m_query).seek(row);
                 return m_query.record().value(9).toInt();
-                break;
             default:
                 return QVariant();
             }
-            break;
     }
     return QVariant();
 }
@@ -126,7 +121,7 @@ bool FieldsTableModel::setData(const QModelIndex &index, const QVariant &value, 
                 int id = m_query.record().value(0).toInt();
                 int day_mask = (m_days_masks.at(row) & ~value.toInt()) | (~m_days_masks.at(row) & value.toInt());
                 m_days_masks[row] = value.toInt();
-                int day_index = (int) log2((float) day_mask);
+                int day_index = (int) log2((double) day_mask);
                 int time_mask = m_query.record().value(day_index + 2).toInt();
                 if(!time_mask)
                     time_mask = 65520; //default time mask
