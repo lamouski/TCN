@@ -29,8 +29,9 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     ui->setupUi(this);
 
     QMenu *pop_up = new QMenu(this);
-    pop_up->addAction(tr("Edit"), this, &PriceListDialog::edit_currient);
-    pop_up->addAction(tr("Delete"), this, &PriceListDialog::delete_currient);
+    pop_up->addAction(tr("Edit"), this, &PriceListDialog::edit_current);
+    pop_up->addAction(tr("Copy"), this, &PriceListDialog::copy_current);
+    pop_up->addAction(tr("Delete"), this, &PriceListDialog::delete_current);
     ui->m_other_button->setMenu(pop_up);
 
     m_model = new QSqlTableModel(this);
@@ -65,37 +66,43 @@ PriceListDialog::~PriceListDialog()
     delete ui;
 }
 
-void PriceListDialog::edit_currient()
+void PriceListDialog::edit_current()
 {
     QModelIndex index = ui->m_view_prices->currentIndex();
     if(index.isValid())
     {
         m_edited_index = index;
         ui->m_view_prices->edit(index);
-        ui->m_view_prices->setEditTriggers(QAbstractItemView::SelectedClicked);
+        ui->m_view_prices->setEditTriggers(QAbstractItemView::AllEditTriggers);
     }
 }
 
-void PriceListDialog::delete_currient()
+void PriceListDialog::delete_current()
 {
     const int row = ui->m_view_prices->currentIndex().row();
     m_model->removeRows(row, 1);
     m_model->select();
 }
 
+void PriceListDialog::copy_current()
+{
+
+}
+
 void PriceListDialog::on_m_add_button_clicked()
 {
     const int row = m_model->rowCount();
     m_model->insertRows(row, 1);
-
-    edit_currient();
+    QModelIndex index = m_model->index(row, 0);
+    ui->m_view_prices->setCurrentIndex(index);
+    edit_current();
 }
 
 void PriceListDialog::handleCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if(current.row() != m_edited_index.row())
     {
-
+        ui->m_view_prices->closePersistentEditor(current);
         ui->m_view_prices->setEditTriggers(QAbstractItemView::NoEditTriggers);
         m_edited_index = QModelIndex();
     }

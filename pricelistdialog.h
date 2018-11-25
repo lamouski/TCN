@@ -37,8 +37,9 @@ public:
     ~PriceListDialog();
 
 protected slots:
-    void delete_currient();
-    void edit_currient();
+    void delete_current();
+    void copy_current();
+    void edit_current();
 
 private slots:
     void on_m_add_button_clicked();

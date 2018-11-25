@@ -41,7 +41,7 @@ BookingDialog::BookingDialog(QWidget *parent) :
 
     m_prices_model = new QSqlQueryModel(this);
     m_prices_base_query_string = QString("SELECT (price_name || ' - ' || sum) "
-                                         " AS info, sum, id, abo FROM prices");
+                                         " AS info, sum, id, abo, member FROM prices");
     m_prices_model->setQuery(m_prices_base_query_string);
     ui->m_combo_price->setModel(m_prices_model);
     ui->m_combo_price->setModelColumn(0);
@@ -207,21 +207,32 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
 
 void BookingDialog::updatePriceQuery()
 {
+    bool not_member = (m_memberlist_model->rowCount() == 0);
     QString current_price = ui->m_combo_price->currentText();
+    int curr_index = ui->m_combo_price->currentIndex();
+    QString curr_member_string =  m_prices_model->data(m_prices_model->index(curr_index, 4)).toString(); // fith column
+    bool curr_member = curr_member_string == "true" ? true : false;
+
     QString query_string = m_prices_base_query_string;
     query_string += " WHERE start_time_slot <= " + QString("%1").arg(m_timeslot) +
                     " AND end_time_slot > " + QString("%1").arg(m_timeslot);
     query_string += QString(" AND winter = ") +
             (Settings::winterSeason() ? QString("'true'") : QString("'false'"));
-    query_string += QString(" AND member = ") +
-            (m_memberlist_model->rowCount() == 0 ? QString("'false'") : QString("'true'"));
+
+    if(!not_member)
+        query_string += QString(" AND member = 'true'");
+
     query_string += QString(" AND (`days` & %1) = %1").arg(m_days_mask);
     query_string += QString(" ORDER BY abo ");
+    if(not_member)
+        query_string += QString(" , member ASC ");
     m_prices_model->setQuery(query_string);
 
     int index_in_new_list = ui->m_combo_price->findText(current_price);
-    if(index_in_new_list >= 0)
+     if(index_in_new_list >= 0 && curr_member != not_member)
+    {
         ui->m_combo_price->setCurrentIndex(index_in_new_list);
+    }
     else
         if(ui->m_combo_price->count() > 0)
             ui->m_combo_price->setCurrentIndex(0);

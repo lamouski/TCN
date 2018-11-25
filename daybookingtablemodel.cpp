@@ -87,11 +87,11 @@ QVariant DayBookingTableModel::headerData(int section, Qt::Orientation orientati
 {
     if (role == Qt::DisplayRole){
         switch(orientation) {
-        case Qt::Horizontal: {
+        case Qt::Horizontal:
+        {
             QTime time(section + m_first_time_slot, 0); //todo define start timeslot and number of timeslots
             return time.toString("hh:mm");
         }
-            break;
         case Qt::Vertical:
             return m_fields_names[section];
         }
@@ -101,7 +101,8 @@ QVariant DayBookingTableModel::headerData(int section, Qt::Orientation orientati
 
 bool DayBookingTableModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
 {
-    if (value != headerData(section, orientation, role)) {
+    if (value != headerData(section, orientation, role))
+    {
         // FIXME: Implement me!
         emit headerDataChanged(orientation, section, section);
         return true;
@@ -178,16 +179,6 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             }
             else
                 return QVariant();
-            break;
-
-/*        case Qt::FontRole:
-            if (row == 0 && col == 0) //change font only for cell(0,0)
-            {
-                QFont boldFont;
-                boldFont.setBold(true);
-                return boldFont;
-            }
-            break;*/
         case Qt::BackgroundRole:
             if(!time_slot_is_active)
             {
@@ -222,7 +213,6 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                     return QBrush(qRgb(255, 153, 0));
                 return QBrush(qRgb(255, 242, 230));
             }
-            break;
         case Qt::TextAlignmentRole:
             if(m_index_hash.contains(index_key))
             {

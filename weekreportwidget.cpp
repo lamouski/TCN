@@ -93,15 +93,18 @@ void WeekReportWidget::update()
     int end_position = html_text.indexOf(table_row_end_tag);
     QString row_string = html_text.mid(position+table_row_start_tag.length(), end_position - position - table_row_start_tag.length());
     html_text.remove(position, end_position - position + table_row_end_tag.length());
+    double total_sum = 0.0;
     while(query.next())
     {
         QString tmp_string = row_string;
         tmp_string.replace("%account_name%", query.value(0).toString());
         tmp_string.replace("%account%", query.value(1).toString());
-        tmp_string.replace("%price%", query.value(2).toString() + "€");
+        tmp_string.replace("%sum%", query.value(2).toString() + "€");
+        total_sum += query.value(2).toDouble();
         tmp_string.replace("%date%", QDate::fromJulianDay(query.value(3).toInt()).toString("dd.MM.yyyy"));
         html_text.insert(position,tmp_string); position += tmp_string.length();
     }
+    html_text.replace("%total_sum%", QString("%1 €").arg(total_sum));
     ui->m_text_editor->setHtml(html_text);
 
 }
