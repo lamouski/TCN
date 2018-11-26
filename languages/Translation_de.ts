@@ -50,37 +50,37 @@
 <context>
     <name>FieldDelegate</name>
     <message>
-        <location filename="../fielddelegate.cpp" line="61"/>
+        <location filename="../fielddelegate.cpp" line="87"/>
         <source>Mo</source>
         <translation type="unfinished">Mo</translation>
     </message>
     <message>
-        <location filename="../fielddelegate.cpp" line="62"/>
+        <location filename="../fielddelegate.cpp" line="88"/>
         <source>Tu</source>
         <translation type="unfinished">Di</translation>
     </message>
     <message>
-        <location filename="../fielddelegate.cpp" line="63"/>
+        <location filename="../fielddelegate.cpp" line="89"/>
         <source>We</source>
         <translation type="unfinished">Mi</translation>
     </message>
     <message>
-        <location filename="../fielddelegate.cpp" line="64"/>
+        <location filename="../fielddelegate.cpp" line="90"/>
         <source>Th</source>
         <translation type="unfinished">Do</translation>
     </message>
     <message>
-        <location filename="../fielddelegate.cpp" line="65"/>
+        <location filename="../fielddelegate.cpp" line="91"/>
         <source>Fr</source>
         <translation type="unfinished">Fr</translation>
     </message>
     <message>
-        <location filename="../fielddelegate.cpp" line="66"/>
+        <location filename="../fielddelegate.cpp" line="92"/>
         <source>Sa</source>
         <translation type="unfinished">Sa</translation>
     </message>
     <message>
-        <location filename="../fielddelegate.cpp" line="67"/>
+        <location filename="../fielddelegate.cpp" line="93"/>
         <source>Su</source>
         <translation type="unfinished">So</translation>
     </message>
@@ -93,12 +93,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../fieldlistdialog.ui" line="67"/>
+        <location filename="../fieldlistdialog.ui" line="128"/>
         <source>Add</source>
         <translation type="unfinished">Neu</translation>
     </message>
     <message>
-        <location filename="../fieldlistdialog.ui" line="112"/>
+        <location filename="../fieldlistdialog.ui" line="83"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -106,17 +106,17 @@
 <context>
     <name>FieldsTableModel</name>
     <message>
-        <location filename="../fieldstablemodel.cpp" line="24"/>
+        <location filename="../fieldstablemodel.cpp" line="42"/>
         <source>Name</source>
         <translation type="unfinished">Name</translation>
     </message>
     <message>
-        <location filename="../fieldstablemodel.cpp" line="25"/>
+        <location filename="../fieldstablemodel.cpp" line="43"/>
         <source>Days</source>
         <translation type="unfinished">Tags</translation>
     </message>
     <message>
-        <location filename="../fieldstablemodel.cpp" line="26"/>
+        <location filename="../fieldstablemodel.cpp" line="44"/>
         <source>Seasons</source>
         <translation type="unfinished">Seasons</translation>
     </message>
@@ -129,47 +129,47 @@
         <translation type="unfinished">TCN Buchungszentrale</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="63"/>
+        <location filename="../mainwindow.ui" line="68"/>
         <source>Week report</source>
         <translation type="unfinished">Wochenabrechnung</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="90"/>
+        <location filename="../mainwindow.ui" line="100"/>
         <source>Day report</source>
         <translation type="unfinished">Tagesabrechnung</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="117"/>
+        <location filename="../mainwindow.ui" line="132"/>
         <source>Members</source>
         <translation type="unfinished">Mitglieder</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="144"/>
+        <location filename="../mainwindow.ui" line="164"/>
         <source>Prices</source>
         <translation type="unfinished">Preise</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="171"/>
+        <location filename="../mainwindow.ui" line="196"/>
         <source>Fields</source>
         <translation type="unfinished">Felder</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="198"/>
+        <location filename="../mainwindow.ui" line="228"/>
         <source>Bokkings</source>
         <translation type="unfinished">Buchungen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="225"/>
+        <location filename="../mainwindow.ui" line="260"/>
         <source>Kassa</source>
         <translation type="unfinished">Kasse</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="270"/>
+        <location filename="../mainwindow.ui" line="310"/>
         <source>Service</source>
         <translation type="unfinished">Service</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="297"/>
+        <location filename="../mainwindow.ui" line="342"/>
         <source>Info</source>
         <translation type="unfinished">Info</translation>
     </message>
@@ -196,8 +196,83 @@
     <name>PriceListDialog</name>
     <message>
         <location filename="../pricelistdialog.ui" line="14"/>
-        <source>Dialog</source>
+        <source>Booking prices</source>
+        <translation type="unfinished">Buchungspreise</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.ui" line="71"/>
+        <source>Add</source>
+        <translation type="unfinished">Neu</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.ui" line="139"/>
+        <source>...</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="32"/>
+        <source>Edit</source>
+        <translation type="unfinished">Bearbeiten</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="33"/>
+        <source>Copy</source>
+        <translation type="unfinished">Kopieren</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="34"/>
+        <source>Delete</source>
+        <translation type="unfinished">Löschen</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="42"/>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="43"/>
+        <source>Member</source>
+        <translation type="unfinished">Mitglied</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="44"/>
+        <source>Season</source>
+        <translation type="unfinished">Saison</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="45"/>
+        <source>Abo</source>
+        <translation type="unfinished">Abo</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="46"/>
+        <source>Guest</source>
+        <translation type="unfinished">Gast</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="47"/>
+        <source>Days</source>
+        <translation type="unfinished">Tags</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="48"/>
+        <source>From</source>
+        <translation type="unfinished">Von</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="49"/>
+        <source>Till</source>
+        <translation type="unfinished">Bis</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="50"/>
+        <source>Summe</source>
+        <translation type="unfinished">Summe</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.cpp" line="51"/>
+        <source>Account</source>
+        <translation type="unfinished">Konto</translation>
     </message>
 </context>
 <context>
@@ -218,42 +293,42 @@
         <translation type="unfinished">Mitgliedertabelle importieren</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="20"/>
+        <location filename="../servicedialog.cpp" line="38"/>
         <source>Parameter</source>
         <translation type="unfinished">Parameter</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="21"/>
+        <location filename="../servicedialog.cpp" line="39"/>
         <source>Value</source>
         <translation type="unfinished">Wert</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="37"/>
+        <location filename="../servicedialog.cpp" line="55"/>
         <source>Open member list file</source>
         <translation type="unfinished">Mitgliederlistendatei öffnen</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="37"/>
+        <location filename="../servicedialog.cpp" line="55"/>
         <source>Table CSV (*.csv)</source>
         <translation type="unfinished">Tabelle CSV (*.csv)</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="43"/>
+        <location filename="../servicedialog.cpp" line="61"/>
         <source>File open error</source>
         <translation type="unfinished">Fehler beim Öffnen der Datei</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="43"/>
+        <location filename="../servicedialog.cpp" line="61"/>
         <source>The file is not exist.</source>
         <translation type="unfinished">Die Datei ist nicht vorhanden.</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="48"/>
+        <location filename="../servicedialog.cpp" line="66"/>
         <source>File import error</source>
         <translation type="unfinished">Fehler beim Import von Dateien</translation>
     </message>
     <message>
-        <location filename="../servicedialog.cpp" line="48"/>
+        <location filename="../servicedialog.cpp" line="66"/>
         <source>The member list can&apos;t be imported.</source>
         <translation type="unfinished">Die Mitgliederliste kann nicht importiert werden.</translation>
     </message>
@@ -267,7 +342,7 @@
     </message>
     <message>
         <location filename="../texteditor.ui" line="35"/>
-        <location filename="../texteditor.cpp" line="30"/>
+        <location filename="../texteditor.cpp" line="48"/>
         <source>Export PDF</source>
         <translation type="unfinished">PDF exportieren</translation>
     </message>
@@ -277,7 +352,7 @@
         <translation type="unfinished">Drucken</translation>
     </message>
     <message>
-        <location filename="../texteditor.cpp" line="54"/>
+        <location filename="../texteditor.cpp" line="72"/>
         <source>Print Document</source>
         <translation type="unfinished">Dokument drucken</translation>
     </message>

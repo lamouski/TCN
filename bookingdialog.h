@@ -79,7 +79,17 @@ private:
     int m_last_selected_member_id = -1;
     int m_last_selected_price_id = -1;
     int m_days_mask = 255;
-    bool m_abo_booking = false;
+
+    enum BookingMode
+    {
+        MODE_SINGLE,
+        MODE_BLOCK,
+        MODE_ABO
+    };
+
+    BookingMode m_mode = MODE_SINGLE;
+    void setMode(BookingMode mode);
+
     void selectCurrientId(const QModelIndex &index);
 };
 

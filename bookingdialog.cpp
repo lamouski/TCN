@@ -21,6 +21,7 @@
 #include "ui_bookingdialog.h"
 
 #include <QDate>
+#include <QMenu>
 #include <QSqlQuery>
 #include <QSqlRecord>
 
@@ -45,7 +46,14 @@ BookingDialog::BookingDialog(QWidget *parent) :
     m_prices_model->setQuery(m_prices_base_query_string);
     ui->m_combo_price->setModel(m_prices_model);
     ui->m_combo_price->setModelColumn(0);
+
+    QMenu* mode_menu = new QMenu(this);
+    mode_menu->addAction(QString(tr("Single booking")), [this](){ setMode(MODE_SINGLE);});
+    mode_menu->addAction(QString(tr("Block booking")), [this](){ setMode(MODE_BLOCK);});
+    mode_menu->addAction(QString(tr("Abo booking")), [this](){ setMode(MODE_ABO);});
+    ui->m_mode_tool_button->setMenu(mode_menu);
 }
+
 
 BookingDialog::~BookingDialog()
 {
@@ -56,6 +64,7 @@ void BookingDialog::reset()
 {
     ui->m_line_edit_name->clear();
     updateMembersQuery(ui->m_line_edit_name->text());
+    setMode(MODE_SINGLE);
     ui->m_line_edit_name->setFocus();
 }
 
@@ -156,7 +165,7 @@ QDate BookingDialog::aboEndDate() const
 
 bool BookingDialog::isMultyBooking()
 {
-    return m_abo_booking;
+    return m_mode == MODE_ABO;
 }
 
 void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
@@ -167,6 +176,15 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
         selectCurrientId(current);
         updatePriceQuery();
     }
+}
+
+void BookingDialog::setMode(BookingDialog::BookingMode mode)
+{
+    m_mode = mode;
+    ui->m_block_date_widget->setVisible(m_mode == MODE_BLOCK);
+    ui->m_abo_date_widget->setVisible(m_mode == MODE_ABO);
+
+    updatePriceQuery();
 }
 
 void BookingDialog::updateMembersQuery(const QString &find_string)
@@ -218,7 +236,8 @@ void BookingDialog::updatePriceQuery()
                     " AND end_time_slot > " + QString("%1").arg(m_timeslot);
     query_string += QString(" AND winter = ") +
             (Settings::winterSeason() ? QString("'true'") : QString("'false'"));
-
+    query_string += QString(" AND abo = ") +
+            (m_mode == MODE_ABO ? QString("'true'") : QString("'false'"));
     if(!not_member)
         query_string += QString(" AND member = 'true'");
 
@@ -267,10 +286,6 @@ void BookingDialog::on_m_combo_price_currentIndexChanged(int index)
 {
     int row = ui->m_combo_price->currentIndex();
     m_last_selected_price_id = m_prices_model->data(m_prices_model->index(row, 2)).toInt(); // third column
-
-    QString abo_string =  m_prices_model->data(m_prices_model->index(row, 3)).toString(); // fourth column
-    m_abo_booking = abo_string == "true" ? true : false;
-    ui->m_abo_date_widget->setVisible(m_abo_booking);
 
 }
 
