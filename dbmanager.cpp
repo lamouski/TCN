@@ -243,10 +243,12 @@ bool DbManager::updateFieldSeasons(const int id, const int seasons) const
 }
 
 bool DbManager::addBooking(const int memberID,
+                           const QString& booking_info,
                            const QDate& date,
                            const int timeSlot,
                            const int fieldID,
-                           const int priceID)
+                           const int priceID,
+                           const int numOfBlocks)
 {
    bool success = false;
    // you should check if args are ok first...
@@ -260,70 +262,25 @@ bool DbManager::addBooking(const int memberID,
    if(query.first()) //this field is already booked. update
    {
        int id = query.record().value(0).toInt();
+
+
        query.prepare("UPDATE bookings SET "
-                     "info='', "
+                     "info=:info, "
                      "memberid=:memberid, "
                      "priceid=:priceid "
                      "WHERE id=:id;");
-       query.bindValue(":memberid", memberID);
-       query.bindValue(":priceid", priceID);
-       query.bindValue(":id", id);
-   }
-   else
-   { //insert
-       query.prepare("INSERT OR REPLACE INTO bookings (memberid, date, timeslot, fieldid, priceid)"
-                     "VALUES (:memberid, :date, :timeslot, :fieldid, :priceid) ;");
-       query.bindValue(":memberid", memberID);
-       query.bindValue(":date", date.toJulianDay());
-       query.bindValue(":timeslot", timeSlot);
-       query.bindValue(":fieldid", fieldID);
-       query.bindValue(":priceid", priceID);
-   }
-   if(query.exec())
-   {
-       success = true;
-   }
-   else
-   {
-        qDebug() << "addBooking error:  "
-                 << query.lastError();
-   }
-   return success;
-}
-
-bool DbManager::addBooking(const QString& booking_info,
-                           const QDate& date,
-                           const int timeSlot,
-                           const int fieldID,
-                           const int priceID)
-{
-   bool success = false;
-   // you should check if args are ok first...
-   QSqlQuery query;
-
-   query.exec(QString("SELECT id FROM bookings "
-                      "WHERE date=%1 "
-                      "AND timeslot=%2 "
-                      "AND fieldid=%3;").arg(date.toJulianDay()).arg(timeSlot).arg(fieldID));
-
-   if(query.first()) //this field is already booked. update
-   {
-       int id = query.record().value(0).toInt();
-       query.prepare("UPDATE bookings SET "
-                     "info=:info, "
-                     "memberid=-1, "
-                     "priceid=:priceid "
-                     "WHERE id=:id;");
        query.bindValue(":info",booking_info);
+       query.bindValue(":memberid", memberID);
        query.bindValue(":priceid", priceID);
        query.bindValue(":id", id);
    }
    else
-   { //insert
+   {
+       //insert
        query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid)"
                      "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid) ;");
        query.bindValue(":info", booking_info);
-       query.bindValue(":memberid", -1);
+       query.bindValue(":memberid", memberID);
        query.bindValue(":date", date.toJulianDay());
        query.bindValue(":timeslot", timeSlot);
        query.bindValue(":fieldid", fieldID);
@@ -340,6 +297,7 @@ bool DbManager::addBooking(const QString& booking_info,
    }
    return success;
 }
+
 
 bool DbManager::checkDB()
 {

@@ -35,8 +35,14 @@ public:
     bool updateFieldTimeMask(const int id, const int day_index, const int time_mask) const;
     bool updateFieldSeasons(const int id, const int seasons) const;
 
-    bool addBooking(const int memberID, const QDate &date, const int tymeslot, const int fieldid, const int priceid);
-    bool addBooking(const QString &booking_info, const QDate &date, const int timeSlot, const int fieldID, const int priceID);
+    bool addBooking(const int memberID,
+                    const QString& booking_info,
+                    const QDate& date,
+                    const int timeSlot,
+                    const int fieldID,
+                    const int priceID,
+                    const int numOfBlocks = -1);
+    //bool addBooking(const QString &booking_info, const QDate &date, const int timeSlot, const int fieldID, const int priceID);
 
     bool checkDB();
 

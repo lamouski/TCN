@@ -143,6 +143,11 @@ int BookingDialog::selectedId() const
     return m_last_selected_member_id;
 }
 
+bool BookingDialog::isSingleBooking() const
+{
+    return m_mode == MODE_SINGLE;
+}
+
 int BookingDialog::selectedPrice() const
 {
     return m_last_selected_price_id;
@@ -153,19 +158,38 @@ QString BookingDialog::info() const
     return ui->m_line_edit_name->text();
 }
 
-QDate BookingDialog::aboStartDate() const
+bool BookingDialog::isBlockBooking() const
 {
-    return ui->m_start_abo_date->date();
+    return m_mode == MODE_BLOCK;
 }
 
-QDate BookingDialog::aboEndDate() const
+int BookingDialog::numOfBlocks() const
 {
-    return ui->m_end_abo_date->date();
+    if(m_mode == MODE_BLOCK)
+        return ui->m_num_of_blocks_spin_box->value();
+    else
+        return -1;
 }
 
 bool BookingDialog::isMultyBooking()
 {
     return m_mode == MODE_ABO;
+}
+
+QDate BookingDialog::aboStartDate() const
+{
+    if(m_mode == MODE_ABO)
+        return ui->m_start_abo_date->date();
+    else
+        return QDate();
+}
+
+QDate BookingDialog::aboEndDate() const
+{
+    if(m_mode == MODE_ABO)
+        return ui->m_end_abo_date->date();
+    else
+        return QDate();
 }
 
 void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)

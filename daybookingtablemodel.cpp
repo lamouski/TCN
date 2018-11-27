@@ -204,7 +204,8 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             }
             else
             {
-                int minute = (QDateTime(m_day, QTime(index.column() + m_first_time_slot, 0)).toSecsSinceEpoch() - QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
+                int minute = (QDateTime(m_day, QTime(index.column() + m_first_time_slot, 0)).toSecsSinceEpoch() -
+                              QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
                 if(minute < 0)
                     return QBrush(qRgb(242, 242, 242));
                 if(minute < 15)
@@ -223,37 +224,37 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool DayBookingTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if (data(index, role) != value) {
-        switch (role) {
-        case Qt::UserRole:
-            if(value.canConvert<QPair<int, int> >())
-            {
-                QPair<int, int> member_price_pair = value.value<QPair<int, int> >();
-                DbManager::instance()->addBooking(member_price_pair.first,
-                                                  m_day,
-                                                  index.column() + m_first_time_slot,
-                                                  m_fields_IDis[index.row()],
-                                                  member_price_pair.second);
-            }
-            else if(value.canConvert<QPair<QString, int> >())
-            {
-                QPair<QString, int> info_price_pair = value.value<QPair<QString, int> >();
-                DbManager::instance()->addBooking(info_price_pair.first,
-                                                  m_day,
-                                                  index.column() + m_first_time_slot,
-                                                  m_fields_IDis[index.row()],
-                                                  info_price_pair.second);
-            }
-            break;
-        }
-        queryData();
-        emit dataChanged(index, index, QVector<int>() << role);
-        return true;
-    }
-    return false;
-}
+//bool DayBookingTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
+//{
+//    if (data(index, role) != value) {
+//        switch (role) {
+//        case Qt::UserRole:
+//            if(value.canConvert<QPair<int, int> >())
+//            {
+//                QPair<int, int> member_price_pair = value.value<QPair<int, int> >();
+//                DbManager::instance()->addBooking(member_price_pair.first,
+//                                                  m_day,
+//                                                  index.column() + m_first_time_slot,
+//                                                  m_fields_IDis[index.row()],
+//                                                  member_price_pair.second);
+//            }
+//            else if(value.canConvert<QPair<QString, int> >())
+//            {
+//                QPair<QString, int> info_price_pair = value.value<QPair<QString, int> >();
+//                DbManager::instance()->addBooking(info_price_pair.first,
+//                                                  m_day,
+//                                                  index.column() + m_first_time_slot,
+//                                                  m_fields_IDis[index.row()],
+//                                                  info_price_pair.second);
+//            }
+//            break;
+//        }
+//        queryData();
+//        emit dataChanged(index, index, QVector<int>() << role);
+//        return true;
+//    }
+//    return false;
+//}
 
 Qt::ItemFlags DayBookingTableModel::flags(const QModelIndex &index) const
 {

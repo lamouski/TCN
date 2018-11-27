@@ -48,14 +48,17 @@ public:
 
     QPushButton *getReturnButton() const;
 
-public slots:
+    public slots:
     //
     void setCurrentDate(QDate date);
 
 protected:
     void showEvent(QShowEvent *);
 
-    void singleBooking(int day, const QModelIndex &index, int selected_member_id, int selected_price_id, const QString &info);
+    void singleBooking(int day, const QModelIndex &index,
+                       int selected_member_id, int selected_price_id, const QString &info);
+    void blockBooking(int day, int num_of_blocks, const QModelIndex &index,
+                      int member_id, int price_id, const QString &info);
     void multiBooking(const QDate& start_date, const QDate& end_date, int day_of_the_week,
                       int field_id, int time_slot,
                       int selected_member_id, int selected_price_id, const QString &info);

@@ -136,21 +136,28 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, bool allo
     if(m_booking_dialog->exec() == QDialog::Accepted)
     {
         int selected_member_id = m_booking_dialog->selectedId();
-        int selected_price_id = m_booking_dialog->selectedPrice();
         QString info = m_booking_dialog->info();
+        int selected_price_id = m_booking_dialog->selectedPrice();
+
         qDebug() << "Selected member id " << selected_member_id;
-        if(!m_booking_dialog->isMultyBooking())
-        {
+
+        if(m_booking_dialog->isSingleBooking())
+        {            
             singleBooking(day, index, selected_member_id, selected_price_id, info);
         }
-        else
+        else if(m_booking_dialog->isBlockBooking())
+        {
+            const int num_of_blocks = m_booking_dialog->numOfBlocks();
+            blockBooking(day, num_of_blocks, index, selected_member_id, selected_price_id, info);
+        }
+        else if(m_booking_dialog->isMultyBooking())
         {
             const int field_id = m_day_booking_models[day]->fieldId(index.row());
             const QDate& abo_start_date = m_booking_dialog->aboStartDate();
             const QDate& abo_end_date = m_booking_dialog->aboEndDate();
             multiBooking(abo_start_date, abo_end_date, day, field_id, time_slot, selected_member_id, selected_price_id, info);
-            m_day_booking_models[day]->select();
         }
+        m_day_booking_models[day]->select();
     }
 }
 
@@ -220,23 +227,35 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
 void WeekViewWidget::singleBooking(int day, const QModelIndex &index,
                                    int member_id, int price_id, const QString& info)
 {
-    if(member_id > 0)
+    if(member_id <= 0 && info.isEmpty())
     {
-        m_day_booking_models[day]->setData(index,
-                                           QVariant::fromValue(QPair<int, int>(member_id, price_id)),
-                                           Qt::UserRole);
+        QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
+        return;
     }
-    else
+
+    DbManager::instance()->addBooking(member_id, info,
+                                      m_day_booking_models[day]->day(),
+                                      m_day_booking_models[day]->timeSlot(index.column()),
+                                      m_day_booking_models[day]->fieldId(index.row()),
+                                      price_id);
+
+}
+
+void WeekViewWidget::blockBooking(int day, int num_of_blocks, const QModelIndex &index,
+                                  int member_id, int price_id, const QString &info)
+{
+    if(member_id <= 0 && info.isEmpty())
     {
-        if(info.isEmpty())
-        {
-            QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
-            return;
-        }
-        m_day_booking_models[day]->setData(index,
-                                           QVariant::fromValue(QPair<QString, int>(info, price_id)),
-                                           Qt::UserRole);
+        QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
+        return;
     }
+
+    DbManager::instance()->addBooking(member_id, info,
+                                      m_day_booking_models[day]->day(),
+                                      m_day_booking_models[day]->timeSlot(index.column()),
+                                      m_day_booking_models[day]->fieldId(index.row()),
+                                      price_id,
+                                      num_of_blocks);
 }
 
 void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date, int day_of_the_week,
@@ -264,6 +283,7 @@ void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date
                   " WHERE timeslot = %1"
                   " AND fieldid = %2"
                   " AND date IN (%3)").arg(time_slot).arg(field_id).arg(all_abo_days_str);
+
     if(query.exec(query_str))
     {
         //qDebug()  << query.lastQuery();
@@ -296,16 +316,9 @@ void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date
     query.prepare("INSERT INTO bookings (info, memberid, date, timeslot, fieldid, priceid, aboid)"
                   "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :aboid) ;");
 
-    if(member_id >=0)
-    {
-        query.bindValue(":info", "");
-        query.bindValue(":memberid", member_id);
-    }
-    else
-    {
-        query.bindValue(":info", info);
-        query.bindValue(":memberid", -1);
-    }
+    query.bindValue(":info", info);
+    query.bindValue(":memberid", member_id);
+
     query.bindValue(":timeslot", time_slot);
     query.bindValue(":fieldid", field_id);
     query.bindValue(":priceid", price_id);

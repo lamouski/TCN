@@ -50,8 +50,13 @@ public slots:
 
 public:
     int selectedId() const;    
-    int selectedPrice() const;
     QString info() const;
+
+    bool isSingleBooking() const;
+    int selectedPrice() const;
+
+    bool isBlockBooking() const;
+    int numOfBlocks() const;
 
     bool isMultyBooking();
     QDate aboStartDate() const;
