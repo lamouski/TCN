@@ -40,6 +40,20 @@ BookingDialog::BookingDialog(QWidget *parent) :
     connect(ui->m_list_view_members->selectionModel(),
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentMemberChanged);
 
+    m_blockslist_model = new QSqlQueryModel(this);
+    m_blockslist_base_query_string = QString("SELECT (' Block: ' || price_name  || ' - Total ' || amount || ' - Used ' || count(bookings.id)) AS info_string,"
+                                             "block_bookings.id, block_bookings.date, block_bookings.priceid, "
+                                             "count(bookings.id) AS used_amount FROM block_bookings "
+                                             "LEFT OUTER JOIN prices ON block_bookings.priceid = prices.id "
+                                             "LEFT OUTER JOIN bookings ON block_bookings.id = bookings.blockid ");
+    m_blockslist_model->setQuery(m_blockslist_base_query_string + QString(" WHERE block_bookings.memberid = -1"));
+    ui->m_list_view_blocks->setModel(m_blockslist_model);
+    ui->m_list_view_blocks->setModelColumn(0);
+
+    connect(ui->m_list_view_blocks->selectionModel(),
+          &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentBlockChanged);
+
+
     m_prices_model = new QSqlQueryModel(this);
     m_prices_base_query_string = QString("SELECT (price_name || ' - ' || sum) "
                                          " AS info, sum, id, abo, member FROM prices");
@@ -197,7 +211,20 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
     if(current.isValid())
     {
         ui->m_line_edit_name->setText(m_memberlist_model->record(current.row()).value(0).toString());
-        selectCurrientId(current);
+        selectCurrentMemberId(current);
+        if(m_last_selected_member_id > -1)
+            updateBlocksQuery();
+        updatePriceQuery();
+    }
+}
+
+
+void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
+{
+    if(current.isValid())
+    {
+        //ui->m_line_edit_name->setText(m_memberlist_model->record(current.row()).value(0).toString());
+       // selectCurrentBlockId(current);
         updatePriceQuery();
     }
 }
@@ -228,30 +255,48 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
         m_memberlist_model->setQuery(query_string);
     }
 
-    if(m_memberlist_model->rowCount() == 1) //no member with entered name
+    if(m_memberlist_model->rowCount() == 1) //one with entered name
     {
        m_last_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
+       updateBlocksQuery();
        updatePriceQuery();
     }
     else if(m_memberlist_model->rowCount() == 0) //no member with entered name
     {
        m_last_selected_member_id = -1;
+       updateBlocksQuery();
        updatePriceQuery();
     }
     else
     {
         if(m_last_selected_member_id >= 0)
         {
-
+            //find the member with given id in the list
         }
     }
+}
+
+
+void BookingDialog::updateBlocksQuery()
+{
+    QString query_string = m_blockslist_base_query_string;
+    query_string += QString(" WHERE block_bookings.memberid=%1").arg(m_last_selected_member_id);
+    m_blockslist_model->setQuery(query_string);
+
+    if(m_blockslist_model->rowCount() == 0) //one with entered name
+        ui->m_list_view_blocks->hide();
+    else
+        ui->m_list_view_blocks->show();
+
 }
 
 void BookingDialog::updatePriceQuery()
 {
     bool not_member = (m_memberlist_model->rowCount() == 0);
+
     QString current_price = ui->m_combo_price->currentText();
     int curr_index = ui->m_combo_price->currentIndex();
+
     QString curr_member_string =  m_prices_model->data(m_prices_model->index(curr_index, 4)).toString(); // fith column
     bool curr_member = curr_member_string == "true" ? true : false;
 
@@ -287,7 +332,7 @@ void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
     updateMembersQuery(arg1);
 }
 
-void BookingDialog::selectCurrientId(const QModelIndex &index)
+void BookingDialog::selectCurrentMemberId(const QModelIndex &index)
 {
     if(index.isValid())
     {
@@ -297,12 +342,12 @@ void BookingDialog::selectCurrientId(const QModelIndex &index)
 
 void BookingDialog::on_m_list_view_members_clicked(const QModelIndex &index)
 {
-   selectCurrientId(index);
+   selectCurrentMemberId(index);
 }
 
 void BookingDialog::on_m_list_view_members_activated(const QModelIndex &index)
 {
-    selectCurrientId(index);
+    selectCurrentMemberId(index);
     accept();
 }
 

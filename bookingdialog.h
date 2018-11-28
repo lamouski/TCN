@@ -46,6 +46,7 @@ public slots:
     void setInfo(const QString& info);
 
     void updateMembersQuery(const QString &find_string);
+    void updateBlocksQuery();
     void updatePriceQuery();
 
 public:
@@ -69,6 +70,7 @@ private slots:
     void on_m_list_view_members_activated(const QModelIndex &index);
     void on_m_combo_price_currentIndexChanged(int index);
 
+    void handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &previous);
     void handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
@@ -76,6 +78,9 @@ private:
 
     QSqlQueryModel *m_memberlist_model;
     QString m_memberlist_base_query_string;
+
+    QSqlQueryModel *m_blockslist_model;
+    QString m_blockslist_base_query_string;
 
     QSqlQueryModel *m_prices_model;
     QString m_prices_base_query_string;
@@ -95,7 +100,7 @@ private:
     BookingMode m_mode = MODE_SINGLE;
     void setMode(BookingMode mode);
 
-    void selectCurrientId(const QModelIndex &index);
+    void selectCurrentMemberId(const QModelIndex &index);
 };
 
 #endif // BOOKINGDIALOG_H

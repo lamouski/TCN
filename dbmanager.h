@@ -42,12 +42,17 @@ public:
                     const int fieldID,
                     const int priceID,
                     const int numOfBlocks = -1);
-    //bool addBooking(const QString &booking_info, const QDate &date, const int timeSlot, const int fieldID, const int priceID);
+    int addBlock(const int memberID,
+                 const QString &booking_info,
+                 const QDate &start_date,
+                 const int priceID,
+                 const int numOfBlocks);
 
     bool checkDB();
 
     static DbManager* instance();    
     static QSqlDatabase db();
+
 
 private:
     static DbManager* m_instance;

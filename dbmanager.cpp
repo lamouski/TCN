@@ -263,7 +263,6 @@ bool DbManager::addBooking(const int memberID,
    {
        int id = query.record().value(0).toInt();
 
-
        query.prepare("UPDATE bookings SET "
                      "info=:info, "
                      "memberid=:memberid, "
@@ -275,16 +274,29 @@ bool DbManager::addBooking(const int memberID,
        query.bindValue(":id", id);
    }
    else
-   {
+   {       
        //insert
-       query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid)"
-                     "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid) ;");
+       int blockId = -1;
+       if(numOfBlocks > 1)
+       {
+           blockId = addBlock(memberID, booking_info, date, priceID, numOfBlocks);
+
+           query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid, blockid)"
+                     "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
+       }
+       else
+       {
+           query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid)"
+                         "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid) ;");
+       }
        query.bindValue(":info", booking_info);
        query.bindValue(":memberid", memberID);
        query.bindValue(":date", date.toJulianDay());
        query.bindValue(":timeslot", timeSlot);
        query.bindValue(":fieldid", fieldID);
        query.bindValue(":priceid", priceID);
+       if(blockId > -1)
+        query.bindValue(":blockid", blockId);
    }
    if(query.exec())
    {
@@ -296,6 +308,41 @@ bool DbManager::addBooking(const int memberID,
                  << query.lastError();
    }
    return success;
+}
+
+
+int DbManager::addBlock(const int memberID,
+                        const QString& booking_info,
+                        const QDate& start_date,
+                        const int priceID,
+                        const int numOfBlocks)
+{
+    int new_record_id = -1;
+    // you should check if args are ok first...
+    QSqlQuery query;
+
+    //insert
+
+    if(numOfBlocks < 2)
+        return -1;
+
+    query.prepare("INSERT OR REPLACE INTO block_bookings (info, memberid, date, priceid, amount)"
+                 "VALUES (:info, :memberid, :date, :priceid, :amount) ;");
+    query.bindValue(":info", booking_info);
+    query.bindValue(":memberid", memberID);
+    query.bindValue(":date", start_date.toJulianDay());
+    query.bindValue(":priceid", priceID);
+    query.bindValue(":amount", numOfBlocks);
+    if(query.exec())
+    {
+       new_record_id = query.lastInsertId().toInt();
+    }
+    else
+    {
+        qDebug() << "addBlock error:  "
+                 << query.lastError();
+    }
+    return new_record_id;
 }
 
 
