@@ -46,7 +46,7 @@ public slots:
     void setInfo(const QString& info);
 
     void updateMembersQuery(const QString &find_string);
-    void updateBlocksQuery();
+    void updateBlocksQuery(const QString &find_string);
     void updatePriceQuery();
 
 public:
@@ -87,6 +87,7 @@ private:
 
     int m_timeslot;
     int m_last_selected_member_id = -1;
+    int m_last_selected_block_id = -1;
     int m_last_selected_price_id = -1;
     int m_days_mask = 255;
 
@@ -101,6 +102,8 @@ private:
     void setMode(BookingMode mode);
 
     void selectCurrentMemberId(const QModelIndex &index);
+    void selectCurrentBlockId(const QModelIndex &index);
+
 };
 
 #endif // BOOKINGDIALOG_H

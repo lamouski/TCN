@@ -41,14 +41,15 @@ BookingDialog::BookingDialog(QWidget *parent) :
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentMemberChanged);
 
     m_blockslist_model = new QSqlQueryModel(this);
-    m_blockslist_base_query_string = QString("SELECT (' Block: ' || price_name  || ' - Total ' || amount || ' - Used ' || count(bookings.id)) AS info_string,"
-                                             "block_bookings.id, block_bookings.date, block_bookings.priceid, "
-                                             "count(bookings.id) AS used_amount FROM block_bookings "
-                                             "LEFT OUTER JOIN prices ON block_bookings.priceid = prices.id "
-                                             "LEFT OUTER JOIN bookings ON block_bookings.id = bookings.blockid ");
-    m_blockslist_model->setQuery(m_blockslist_base_query_string + QString(" WHERE block_bookings.memberid = -1"));
+    m_blockslist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name,"
+                                             "( firstname || ' ' || surname || ' - Block ' || amount || ' - Used ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id )) AS info_string, "
+                                             "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
+                                             "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id ) AS used_amount "
+                                             "FROM block_bookings "
+                                             "LEFT OUTER JOIN members ON block_bookings.memberid = members.id ");
+    m_blockslist_model->setQuery(m_blockslist_base_query_string);
     ui->m_list_view_blocks->setModel(m_blockslist_model);
-    ui->m_list_view_blocks->setModelColumn(0);
+    ui->m_list_view_blocks->setModelColumn(1);
 
     connect(ui->m_list_view_blocks->selectionModel(),
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentBlockChanged);
@@ -78,6 +79,7 @@ void BookingDialog::reset()
 {
     ui->m_line_edit_name->clear();
     updateMembersQuery(ui->m_line_edit_name->text());
+    updateBlocksQuery(ui->m_line_edit_name->text());
     setMode(MODE_SINGLE);
     ui->m_line_edit_name->setFocus();
 }
@@ -128,6 +130,7 @@ void BookingDialog::setMemberId(int id)
     m_last_selected_member_id = id;
     ui->m_line_edit_name->setText(name);
     updateMembersQuery(ui->m_line_edit_name->text());
+    updateBlocksQuery(ui->m_line_edit_name->text());
 }
 
 void BookingDialog::setInfo(const QString& info)
@@ -135,6 +138,7 @@ void BookingDialog::setInfo(const QString& info)
     m_last_selected_member_id = -1;
     ui->m_line_edit_name->setText(info);
     updateMembersQuery(ui->m_line_edit_name->text());
+    updateBlocksQuery(ui->m_line_edit_name->text());
 }
 
 void BookingDialog::setPriceId(int id)
@@ -212,8 +216,7 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
     {
         ui->m_line_edit_name->setText(m_memberlist_model->record(current.row()).value(0).toString());
         selectCurrentMemberId(current);
-        if(m_last_selected_member_id > -1)
-            updateBlocksQuery();
+        ui->m_list_view_blocks->clearSelection();
         updatePriceQuery();
     }
 }
@@ -223,9 +226,19 @@ void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const 
 {
     if(current.isValid())
     {
-        //ui->m_line_edit_name->setText(m_memberlist_model->record(current.row()).value(0).toString());
-       // selectCurrentBlockId(current);
+        ui->m_line_edit_name->setText(m_blockslist_model->record(current.row()).value(0).toString());
+        selectCurrentBlockId(current);
+        ui->m_list_view_members->clearSelection();
         updatePriceQuery();
+    }
+}
+
+
+void BookingDialog::on_m_combo_price_currentIndexChanged(int row)
+{
+   if(row >= 0)
+    {
+        m_last_selected_price_id = m_prices_model->data(m_prices_model->index(row, 2)).toInt(); // third column
     }
 }
 
@@ -238,34 +251,35 @@ void BookingDialog::setMode(BookingDialog::BookingMode mode)
     updatePriceQuery();
 }
 
-void BookingDialog::updateMembersQuery(const QString &find_string)
+QString member_name_condition_for_query(const QString &find_string)
 {
     QStringList key_words = find_string.split(" ", QString::SkipEmptyParts);
     if(key_words.empty())
-        m_memberlist_model->setQuery(m_memberlist_base_query_string);
+        return QString();
     else
     {
-        QString query_string = m_memberlist_base_query_string;
+        QString condition_string;
         QString and_string(" WHERE ");
         foreach (QString key_word, key_words)
         {
-            query_string += and_string + "name LIKE '%"+key_word+"%'";
+            condition_string += and_string + "name LIKE '%"+key_word+"%'";
             and_string = QString(" AND ");
         }
-        m_memberlist_model->setQuery(query_string);
+        return condition_string;
     }
+}
 
+void BookingDialog::updateMembersQuery(const QString &find_string)
+{
+    m_memberlist_model->setQuery(m_memberlist_base_query_string + member_name_condition_for_query(find_string));
     if(m_memberlist_model->rowCount() == 1) //one with entered name
     {
        m_last_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
-       updateBlocksQuery();
-       updatePriceQuery();
     }
     else if(m_memberlist_model->rowCount() == 0) //no member with entered name
     {
        m_last_selected_member_id = -1;
-       updateBlocksQuery();
-       updatePriceQuery();
+
     }
     else
     {
@@ -274,15 +288,14 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
             //find the member with given id in the list
         }
     }
+    updatePriceQuery();
 }
 
 
-void BookingDialog::updateBlocksQuery()
+void BookingDialog::updateBlocksQuery(const QString &find_string)
 {
-    QString query_string = m_blockslist_base_query_string;
-    query_string += QString(" WHERE block_bookings.memberid=%1").arg(m_last_selected_member_id);
-    m_blockslist_model->setQuery(query_string);
-
+    m_blockslist_model->setQuery(m_blockslist_base_query_string +
+                                 member_name_condition_for_query(find_string) );
     if(m_blockslist_model->rowCount() == 0) //one with entered name
         ui->m_list_view_blocks->hide();
     else
@@ -323,6 +336,7 @@ void BookingDialog::updatePriceQuery()
     }
     else
         if(ui->m_combo_price->count() > 0)
+
             ui->m_combo_price->setCurrentIndex(0);
 
 }
@@ -330,6 +344,7 @@ void BookingDialog::updatePriceQuery()
 void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
 {
     updateMembersQuery(arg1);
+    updateBlocksQuery(arg1);
 }
 
 void BookingDialog::selectCurrentMemberId(const QModelIndex &index)
@@ -337,8 +352,20 @@ void BookingDialog::selectCurrentMemberId(const QModelIndex &index)
     if(index.isValid())
     {
         m_last_selected_member_id = m_memberlist_model->record(index.row()).value(1).toInt();
+        m_last_selected_block_id = -1;
     }
 }
+
+void BookingDialog::selectCurrentBlockId(const QModelIndex &index)
+{
+    if(index.isValid())
+    {
+        m_last_selected_block_id = m_blockslist_model->record(index.row()).value(2).toInt();
+        m_last_selected_price_id =  m_blockslist_model->record(index.row()).value(3).toInt();
+        m_last_selected_member_id = m_blockslist_model->record(index.row()).value(4).toInt();
+    }
+}
+
 
 void BookingDialog::on_m_list_view_members_clicked(const QModelIndex &index)
 {
@@ -349,12 +376,5 @@ void BookingDialog::on_m_list_view_members_activated(const QModelIndex &index)
 {
     selectCurrentMemberId(index);
     accept();
-}
-
-void BookingDialog::on_m_combo_price_currentIndexChanged(int index)
-{
-    int row = ui->m_combo_price->currentIndex();
-    m_last_selected_price_id = m_prices_model->data(m_prices_model->index(row, 2)).toInt(); // third column
-
 }
 
