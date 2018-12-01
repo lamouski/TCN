@@ -248,7 +248,7 @@ bool DbManager::addBooking(const int memberID,
                            const int timeSlot,
                            const int fieldID,
                            const int priceID,
-                           const int numOfBlocks)
+                           const int blockID)
 {
    bool success = false;
    // you should check if args are ok first...
@@ -276,27 +276,15 @@ bool DbManager::addBooking(const int memberID,
    else
    {       
        //insert
-       int blockId = -1;
-       if(numOfBlocks > 1)
-       {
-           blockId = addBlock(memberID, booking_info, date, priceID, numOfBlocks);
-
-           query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid, blockid)"
-                     "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
-       }
-       else
-       {
-           query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid)"
-                         "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid) ;");
-       }
+       query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid, blockid)"
+                 "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
        query.bindValue(":info", booking_info);
        query.bindValue(":memberid", memberID);
        query.bindValue(":date", date.toJulianDay());
        query.bindValue(":timeslot", timeSlot);
        query.bindValue(":fieldid", fieldID);
        query.bindValue(":priceid", priceID);
-       if(blockId > -1)
-        query.bindValue(":blockid", blockId);
+       query.bindValue(":blockid", blockID);
    }
    if(query.exec())
    {
@@ -355,77 +343,108 @@ bool DbManager::checkDB()
          query.exec("CREATE TABLE `members` ("
                     "`id`	INTEGER,"
                     "`firstname`	TEXT,"
-                    "`surname`	  TEXT,"
-                    "`phone1`	  TEXT,"
-                    "`phone2`	  TEXT,"
-                    "`employment` TEXT,"
-                    "`info1`	TEXT,"
-                    "`info2`	TEXT,"
-                    "`info3`	TEXT,"
-                    "`membernumber`	TEXT,"
-                    "`debitentry`	INTEGER,"
-                    "`blockbooking`	INTEGER,"
-                    "`blockbookingnum`	TEXT,"
+                    "`surname`	TEXT,"
+                    "`phone1`	TEXT,"
+                    "`phone2`	TEXT,"
                     "PRIMARY KEY(`id`)"
-                ");");
+                    ");");
     }
     if ( !table_names.contains( QLatin1String("fields") ))
     {
-     QSqlQuery query;
-     query.exec("CREATE TABLE `fields` ( "
-                "`id`	INTEGER,"
-                "`name`	TEXT,"
-                "`day0`	INTEGER,"
-                "`day1`	INTEGER,"
-                "`day2`	INTEGER,"
-                "`day3`	INTEGER,"
-                "`day4`	INTEGER,"
-                "`day5`	INTEGER,"
-                "`day6`	INTEGER,"
-                "`seasons`	INTEGER NOT NULL,"
-                "PRIMARY KEY(`id`));");
+         QSqlQuery query;
+         query.exec("CREATE TABLE `fields` ("
+                    "`id`	INTEGER,"
+                    "`name`	TEXT,"
+                    "`day0`	INTEGER,"
+                    "`day1`	INTEGER,"
+                    "`day2`	INTEGER,"
+                    "`day3`	INTEGER,"
+                    "`day4`	INTEGER,"
+                    "`day5`	INTEGER,"
+                    "`day6`	INTEGER,"
+                    "`seasons`	INTEGER NOT NULL,"
+                    "PRIMARY KEY(`id`)"
+                    ");");
     }
     if ( !table_names.contains( QLatin1String("bookings") ))
     {
-     QSqlQuery query;
-     query.exec("CREATE TABLE `bookings` ("
-                "`id`	INTEGER,"
-                "`memberid`	INTEGER,"
-                "`date`	INTEGER,"
-                "`timeslot`	INTEGER,"
-                "`fieldid`	INTEGER,"
-                "`priceid`	INTEGER,"
-                "FOREIGN KEY(`memberid`) REFERENCES `members`(`id`),"
-                "FOREIGN KEY(`fieldid`) REFERENCES `fields`(`id`),"
-                "PRIMARY KEY(`id`));");
+         QSqlQuery query;
+         query.exec("CREATE TABLE `bookings` ("
+                    "`id`	INTEGER,"
+                    "`info`	TEXT,"
+                    "`memberid`	INTEGER,"
+                    "`date`	INTEGER,"
+                    "`timeslot`	INTEGER,"
+                    "`fieldid`	INTEGER,"
+                    "`priceid`	INTEGER,"
+                    "`blockid`	INTEGER,"
+                    "`aboid`	INTEGER,"
+                    "PRIMARY KEY(`id`)"
+                    ");");
     }
-    if ( !table_names.contains( QLatin1String("prices") )) {
-     QSqlQuery query;
-     query.exec("CREATE TABLE `prices` ("
-                "`id`	INTEGER,"
-                "`price`	REAL,"
-                "`start_time_slot`	INTEGER,"
-                "`end_time_slot`	INTEGER,"
-                "`flags`	INTEGER UNIQUE,"  //bit 1 - gast oder member, bit 2 - abo, bit 3 - winter oder sommer
-                "PRIMARY KEY(`id`));");
+    if ( !table_names.contains( QLatin1String("block_bookings") ))
+    {
+         QSqlQuery query;
+         query.exec("CREATE TABLE `block_bookings` ("
+                    "`id`	INTEGER,"
+                    "`info`	TEXT,"
+                    "`memberid`	INTEGER,"
+                    "`date`	INTEGER,"
+                    "`priceid`	INTEGER,"
+                    "`amount`	INTEGER,"
+                    "FOREIGN KEY(`priceid`) REFERENCES `prices`(`id`),"
+                    "PRIMARY KEY(`id`),"
+                    "FOREIGN KEY(`memberid`) REFERENCES `members`(`id`)"
+                    ");");
     }
-
-    if(!table_names.contains( QLatin1String("accounts") )) {
+    if ( !table_names.contains( QLatin1String("cash_register") ))
+    {
+         QSqlQuery query;
+         query.exec("CREATE TABLE `cash_register` ("
+                    "`id`	INTEGER,"
+                    "`date`	INTEGER NOT NULL,"
+                    "`operation`	INTEGER NOT NULL,"
+                    "`sum`	REAL,"
+                    "PRIMARY KEY(`id`)"
+                    ");");
+    }
+    if ( !table_names.contains( QLatin1String("prices") ))
+    {
+         QSqlQuery query;
+         query.exec("CREATE TABLE `prices` ("
+                    "`id`	INTEGER,"
+                    "`price_name`	TEXT,"
+                    "`member`	TEXT,"
+                    "`winter`	TEXT,"
+                    "`abo`	TEXT,"
+                    "`guest`	TEXT,"
+                    "`days`	INTEGER,"
+                    "`start_time_slot`	INTEGER,"
+                    "`end_time_slot`	INTEGER,"
+                    "`sum`	REAL,"
+                    "`account`	INTEGER,"
+                    "PRIMARY KEY(`id`)"
+                    ");");
+    }
+    if(!table_names.contains( QLatin1String("accounts") ))
+    {
         QSqlQuery query;
-        if(!query.exec("CREATE TABLE `accounts` ("
-            "`number`	INTEGER NOT NULL UNIQUE,"
-            "`name`	TEXT,"
-            "PRIMARY KEY(`number`)"
-        ");"))
-            qDebug() << "create table 'accounts' error:  "
-                     << query.lastError();;
+        query.exec("CREATE TABLE `accounts` ("
+                   "`number`	INTEGER NOT NULL UNIQUE,"
+                   "`account_name`	TEXT,"
+                   "PRIMARY KEY(`number`)"
+                   ");");
     }
-
-    if ( !table_names.contains( QLatin1String("settings") )) {
-     QSqlQuery query;
-     query.exec("CREATE TABLE `settings` ("
-                "`name`	TEXT NOT NULL UNIQUE,"
-                "`val`	NUMERIC );");
+    if ( !table_names.contains( QLatin1String("settings") ))
+    {
+         QSqlQuery query;
+         query.exec("CREATE TABLE `settings` ("
+                    "`id`	TEXT NOT NULL UNIQUE,"
+                    "`name`	TEXT NOT NULL UNIQUE,"
+                    "`val`	TEXT,"
+                    "`type`	INTEGER,"
+                    "PRIMARY KEY(`id`)"
+                    ");");
     }
 
     return true;

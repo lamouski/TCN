@@ -142,8 +142,9 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, bool allo
         qDebug() << "Selected member id " << selected_member_id;
 
         if(m_booking_dialog->isSingleBooking())
-        {            
-            singleBooking(day, index, selected_member_id, selected_price_id, info);
+        {
+            int selected_block_id = m_booking_dialog->selectedBlock();
+            singleBooking(day, index, selected_member_id, selected_price_id, selected_block_id, info);
         }
         else if(m_booking_dialog->isBlockBooking())
         {
@@ -225,24 +226,7 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
 }
 
 void WeekViewWidget::singleBooking(int day, const QModelIndex &index,
-                                   int member_id, int price_id, const QString& info)
-{
-    if(member_id <= 0 && info.isEmpty())
-    {
-        QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
-        return;
-    }
-
-    DbManager::instance()->addBooking(member_id, info,
-                                      m_day_booking_models[day]->day(),
-                                      m_day_booking_models[day]->timeSlot(index.column()),
-                                      m_day_booking_models[day]->fieldId(index.row()),
-                                      price_id);
-
-}
-
-void WeekViewWidget::blockBooking(int day, int num_of_blocks, const QModelIndex &index,
-                                  int member_id, int price_id, const QString &info)
+                                   int member_id, int price_id, int block_id, const QString& info)
 {
     if(member_id <= 0 && info.isEmpty())
     {
@@ -255,7 +239,32 @@ void WeekViewWidget::blockBooking(int day, int num_of_blocks, const QModelIndex 
                                       m_day_booking_models[day]->timeSlot(index.column()),
                                       m_day_booking_models[day]->fieldId(index.row()),
                                       price_id,
-                                      num_of_blocks);
+                                      block_id);
+
+}
+
+void WeekViewWidget::blockBooking(int day, int num_of_blocks, const QModelIndex &index,
+                                  int member_id, int price_id, const QString &info)
+{
+    if(member_id <= 0 && info.isEmpty())
+    {
+        QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
+        return;
+    }
+
+
+    int block_id = DbManager::instance()->addBlock(member_id,
+                                                   info,
+                                                   m_day_booking_models[day]->day(),
+                                                   price_id,
+                                                   num_of_blocks);
+
+    DbManager::instance()->addBooking(member_id, info,
+                                      m_day_booking_models[day]->day(),
+                                      m_day_booking_models[day]->timeSlot(index.column()),
+                                      m_day_booking_models[day]->fieldId(index.row()),
+                                      price_id,
+                                      block_id);
 }
 
 void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date, int day_of_the_week,

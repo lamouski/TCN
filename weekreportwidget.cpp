@@ -69,7 +69,7 @@ void WeekReportWidget::update()
     QSqlQuery query;
     query.prepare("SELECT account_name, account, TOTAL(sum), date FROM bookings "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
-                  "LEFT OUTER JOIN accounts ON prices.account = accounts.number "
+                  "INNER JOIN accounts ON prices.account = accounts.number "
                   "WHERE date between :from_day AND :till_day "
                   "AND aboid IS NULL OR aboid = '' "
                   "GROUP BY account, date ");

@@ -55,6 +55,7 @@ public:
 
     bool isSingleBooking() const;
     int selectedPrice() const;
+    int selectedBlock() const;
 
     bool isBlockBooking() const;
     int numOfBlocks() const;
@@ -63,7 +64,7 @@ public:
     QDate aboStartDate() const;
     QDate aboEndDate() const;
 
-private slots:
+protected slots:
     void on_m_line_edit_name_textEdited(const QString &arg1);
     //void on_m_list_view_members_doubleClicked(const QModelIndex &index);
     void on_m_list_view_members_clicked(const QModelIndex &index);
@@ -72,6 +73,9 @@ private slots:
 
     void handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &previous);
     void handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &previous);
+
+    void on_m_list_view_blocks_activated(const QModelIndex &index);
+    void on_m_list_view_blocks_clicked(const QModelIndex &index);
 
 private:
     Ui::BookingDialog *ui;

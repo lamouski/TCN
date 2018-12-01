@@ -32,7 +32,7 @@ BookingDialog::BookingDialog(QWidget *parent) :
     ui->setupUi(this);
 
     m_memberlist_model = new QSqlQueryModel(this);
-    m_memberlist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name, id FROM members");
+    m_memberlist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name, id FROM members ");
     m_memberlist_model->setQuery(m_memberlist_base_query_string);
     ui->m_list_view_members->setModel(m_memberlist_model);
     ui->m_list_view_members->setModelColumn(0);
@@ -46,7 +46,8 @@ BookingDialog::BookingDialog(QWidget *parent) :
                                              "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
                                              "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id ) AS used_amount "
                                              "FROM block_bookings "
-                                             "LEFT OUTER JOIN members ON block_bookings.memberid = members.id ");
+                                             "LEFT OUTER JOIN members ON block_bookings.memberid = members.id "
+                                             "WHERE amount > used_amount ");
     m_blockslist_model->setQuery(m_blockslist_base_query_string);
     ui->m_list_view_blocks->setModel(m_blockslist_model);
     ui->m_list_view_blocks->setModelColumn(1);
@@ -156,30 +157,42 @@ void BookingDialog::setPriceId(int id)
             ui->m_combo_price->setCurrentIndex(0);
 }
 
+
 int BookingDialog::selectedId() const
 {
     return m_last_selected_member_id;
 }
+
 
 bool BookingDialog::isSingleBooking() const
 {
     return m_mode == MODE_SINGLE;
 }
 
+
 int BookingDialog::selectedPrice() const
 {
     return m_last_selected_price_id;
 }
+
+
+int BookingDialog::selectedBlock() const
+{
+    return m_last_selected_block_id;
+}
+
 
 QString BookingDialog::info() const
 {
     return ui->m_line_edit_name->text();
 }
 
+
 bool BookingDialog::isBlockBooking() const
 {
     return m_mode == MODE_BLOCK;
 }
+
 
 int BookingDialog::numOfBlocks() const
 {
@@ -189,10 +202,12 @@ int BookingDialog::numOfBlocks() const
         return -1;
 }
 
+
 bool BookingDialog::isMultyBooking()
 {
     return m_mode == MODE_ABO;
 }
+
 
 QDate BookingDialog::aboStartDate() const
 {
@@ -202,6 +217,7 @@ QDate BookingDialog::aboStartDate() const
         return QDate();
 }
 
+
 QDate BookingDialog::aboEndDate() const
 {
     if(m_mode == MODE_ABO)
@@ -209,6 +225,7 @@ QDate BookingDialog::aboEndDate() const
     else
         return QDate();
 }
+
 
 void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
@@ -251,6 +268,7 @@ void BookingDialog::setMode(BookingDialog::BookingMode mode)
     updatePriceQuery();
 }
 
+
 QString member_name_condition_for_query(const QString &find_string)
 {
     QStringList key_words = find_string.split(" ", QString::SkipEmptyParts);
@@ -259,7 +277,7 @@ QString member_name_condition_for_query(const QString &find_string)
     else
     {
         QString condition_string;
-        QString and_string(" WHERE ");
+        QString and_string(" ");
         foreach (QString key_word, key_words)
         {
             condition_string += and_string + "name LIKE '%"+key_word+"%'";
@@ -269,9 +287,12 @@ QString member_name_condition_for_query(const QString &find_string)
     }
 }
 
+
 void BookingDialog::updateMembersQuery(const QString &find_string)
 {
-    m_memberlist_model->setQuery(m_memberlist_base_query_string + member_name_condition_for_query(find_string));
+    QString condition = member_name_condition_for_query(find_string);
+    m_memberlist_model->setQuery(m_memberlist_base_query_string +
+                                 (condition.isEmpty() ? "" : " WHERE " + condition));
     if(m_memberlist_model->rowCount() == 1) //one with entered name
     {
        m_last_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
@@ -294,14 +315,17 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
 
 void BookingDialog::updateBlocksQuery(const QString &find_string)
 {
+    QString condition = member_name_condition_for_query(find_string);
     m_blockslist_model->setQuery(m_blockslist_base_query_string +
-                                 member_name_condition_for_query(find_string) );
+                                 (condition.isEmpty() ? "" : " AND " + condition));
     if(m_blockslist_model->rowCount() == 0) //one with entered name
         ui->m_list_view_blocks->hide();
     else
         ui->m_list_view_blocks->show();
 
+
 }
+
 
 void BookingDialog::updatePriceQuery()
 {
@@ -341,6 +365,7 @@ void BookingDialog::updatePriceQuery()
 
 }
 
+
 void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
 {
     updateMembersQuery(arg1);
@@ -356,25 +381,40 @@ void BookingDialog::selectCurrentMemberId(const QModelIndex &index)
     }
 }
 
+
 void BookingDialog::selectCurrentBlockId(const QModelIndex &index)
 {
     if(index.isValid())
     {
         m_last_selected_block_id = m_blockslist_model->record(index.row()).value(2).toInt();
-        m_last_selected_price_id =  m_blockslist_model->record(index.row()).value(3).toInt();
+        m_last_selected_price_id = m_blockslist_model->record(index.row()).value(3).toInt();
         m_last_selected_member_id = m_blockslist_model->record(index.row()).value(4).toInt();
+        setMode(MODE_SINGLE);
     }
 }
 
 
 void BookingDialog::on_m_list_view_members_clicked(const QModelIndex &index)
 {
-   selectCurrentMemberId(index);
+   handleCurrentMemberChanged(index, QModelIndex());
 }
+
 
 void BookingDialog::on_m_list_view_members_activated(const QModelIndex &index)
 {
-    selectCurrentMemberId(index);
+    handleCurrentMemberChanged(index, QModelIndex());
     accept();
 }
 
+
+void BookingDialog::on_m_list_view_blocks_clicked(const QModelIndex &index)
+{
+   handleCurrentBlockChanged(index, QModelIndex());
+}
+
+
+void BookingDialog::on_m_list_view_blocks_activated(const QModelIndex &index)
+{
+     handleCurrentBlockChanged(index, QModelIndex());
+    accept();
+}
