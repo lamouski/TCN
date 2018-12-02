@@ -76,6 +76,7 @@ BookingDialog::~BookingDialog()
     delete ui;
 }
 
+
 void BookingDialog::reset()
 {
     ui->m_line_edit_name->clear();
@@ -85,10 +86,12 @@ void BookingDialog::reset()
     ui->m_line_edit_name->setFocus();
 }
 
+
 void BookingDialog::setField(const QString& fieldName)
 {
     ui->m_label_field->setText(fieldName);
 }
+
 
 void BookingDialog::setTimeslot(int timeSlot)
 {
@@ -96,6 +99,7 @@ void BookingDialog::setTimeslot(int timeSlot)
     ui->m_label_time->setText(QTime(m_timeslot, 0).toString("HH:mm") + " - " + QTime(m_timeslot+1, 0).toString("HH:mm"));
     updatePriceQuery();
 }
+
 
 void BookingDialog::setDay(const QDate& date)
 {
@@ -121,6 +125,7 @@ void BookingDialog::setDay(const QDate& date)
     }
 }
 
+
 void BookingDialog::setMemberId(int id)
 {
     QSqlQuery query(m_memberlist_base_query_string + QString(" WHERE id = %0").arg(id));
@@ -132,7 +137,10 @@ void BookingDialog::setMemberId(int id)
     ui->m_line_edit_name->setText(name);
     updateMembersQuery(ui->m_line_edit_name->text());
     updateBlocksQuery(ui->m_line_edit_name->text());
+
+    setMode(MODE_SINGLE);
 }
+
 
 void BookingDialog::setInfo(const QString& info)
 {
@@ -140,7 +148,10 @@ void BookingDialog::setInfo(const QString& info)
     ui->m_line_edit_name->setText(info);
     updateMembersQuery(ui->m_line_edit_name->text());
     updateBlocksQuery(ui->m_line_edit_name->text());
+
+    setMode(MODE_SINGLE);
 }
+
 
 void BookingDialog::setPriceId(int id)
 {

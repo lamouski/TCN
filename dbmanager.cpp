@@ -254,30 +254,39 @@ bool DbManager::addBooking(const int memberID,
    // you should check if args are ok first...
    QSqlQuery query;
 
-   query.exec(QString("SELECT id FROM bookings "
+   query.exec(QString("SELECT id, blockid, aboid FROM bookings "
                       "WHERE date=%1 "
                       "AND timeslot=%2 "
                       "AND fieldid=%3;").arg(date.toJulianDay()).arg(timeSlot).arg(fieldID));
 
+   int old_block_id = -1;
+   //int old_abo_id = -1;
+
    if(query.first()) //this field is already booked. update
    {
-       int id = query.record().value(0).toInt();
+        int id = query.record().value(0).toInt();
+        old_block_id = query.record().value(1).toInt();
+        //old_abo_id = query.record().value(2).toInt();
 
-       query.prepare("UPDATE bookings SET "
+        query.prepare("UPDATE bookings SET "
                      "info=:info, "
                      "memberid=:memberid, "
-                     "priceid=:priceid "
+                     "priceid=:priceid, "
+                     "blockid=:blockid, "
+                     "aboid=NULL "
                      "WHERE id=:id;");
-       query.bindValue(":info",booking_info);
-       query.bindValue(":memberid", memberID);
-       query.bindValue(":priceid", priceID);
-       query.bindValue(":id", id);
+        query.bindValue(":info",booking_info);
+        query.bindValue(":memberid", memberID);
+        query.bindValue(":priceid", priceID);
+        query.bindValue(":blockid", blockID);
+        query.bindValue(":id", id);
    }
    else
    {       
        //insert
-       query.prepare("INSERT OR REPLACE INTO bookings (info, memberid, date, timeslot, fieldid, priceid, blockid)"
-                 "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
+       query.prepare("INSERT OR REPLACE INTO bookings "
+                     "( info,  memberid,  date,  timeslot,  fieldid,  priceid,  blockid)"
+              "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
        query.bindValue(":info", booking_info);
        query.bindValue(":memberid", memberID);
        query.bindValue(":date", date.toJulianDay());
@@ -294,6 +303,11 @@ bool DbManager::addBooking(const int memberID,
    {
         qDebug() << "addBooking error:  "
                  << query.lastError();
+   }
+
+   if(success && old_block_id >=0 && old_block_id != blockID)
+   {
+       deleteBlock(old_block_id);
    }
    return success;
 }
@@ -331,6 +345,25 @@ int DbManager::addBlock(const int memberID,
                  << query.lastError();
     }
     return new_record_id;
+}
+
+bool DbManager::deleteBlock(const int blockId)
+{
+    QSqlQuery query;
+    bool success = false;
+    query.exec(QString("SELECT count(*) FROM bookings "
+                       "WHERE blockid=%1;").arg(blockId));
+    int used_blocks = -1;
+    if(query.first()) //this field is already booked. update
+    {
+        used_blocks = query.value(0).toInt();
+    }
+    if(used_blocks == 0)
+    {
+        success = query.exec(QString("DELETE FROM block_bookings "
+                           "WHERE id=%1;").arg(blockId));
+    }
+    return success;
 }
 
 

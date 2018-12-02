@@ -47,11 +47,13 @@ public:
                  const QDate &start_date,
                  const int priceID,
                  const int numOfBlocks);
+    bool deleteBlock(const int blockId);
 
     bool checkDB();
 
     static DbManager* instance();    
     static QSqlDatabase db();
+
 
 
 private:

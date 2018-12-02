@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Booking dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="topMargin">
@@ -149,7 +149,7 @@
       <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string> Number of bloks:</string>
+         <string>Number of blocks:</string>
         </property>
        </widget>
       </item>

@@ -77,28 +77,28 @@ QPushButton *WeekViewWidget::getReturnButton() const
 }
 
 
-void WeekViewWidget::processBooking(int day, const QModelIndex &index, bool allow_correction)
+void WeekViewWidget::processBooking(int day, const QModelIndex &index, ProcessingFlag flag)
 {
     if(!m_day_booking_models[day])
         return;
 
     QVariant curr_data = m_day_booking_models[day]->data(index, Qt::UserRole);
 
-    if(!curr_data.isNull() && !allow_correction)
+    if(flag == NEW_BOOKING && !curr_data.isNull())
         return;
 
-    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
-       QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
-       QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
+//    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
+//       QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
+//       QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
 
-    if(rest_minutes < 0)
-    {
-        //if(!curr_data.isNull())
-        {
-            QMessageBox::information(this, QString(), QString("This time interval is in the past. It can't be booked."));
-            return;
-        }
-    }
+//    if(rest_minutes < 0)
+//    {
+//        //if(!curr_data.isNull())
+//        {
+//            QMessageBox::information(this, QString(), QString(tr("This time interval is in the past. It can't be booked.")));
+//            return;
+//        }
+//    }
 
     if(!m_booking_dialog)
         m_booking_dialog = new BookingDialog(this);
@@ -144,7 +144,10 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, bool allo
         if(m_booking_dialog->isSingleBooking())
         {
             int selected_block_id = m_booking_dialog->selectedBlock();
-            singleBooking(day, index, selected_member_id, selected_price_id, selected_block_id, info);
+            singleBooking(day, index,
+                          selected_member_id,
+                          selected_price_id,
+                          selected_block_id, info);
         }
         else if(m_booking_dialog->isBlockBooking())
         {
@@ -162,6 +165,11 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, bool allo
     }
 }
 
+void WeekViewWidget::cancleBooking(int day, const QModelIndex &index, WeekViewWidget::ProcessingFlag flag)
+{
+
+}
+
 void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index, const QPoint& pos)
 {
 
@@ -176,27 +184,27 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
 
         m_action_change_abo_cur = new QAction(tr("Change currient Abo booking"), this);
         connect(m_action_change_abo_cur, &QAction::triggered,
-                [this] () {processBooking(m_selected_day, m_selected_index, true);});
+                [this] () { processBooking(m_selected_day, m_selected_index, CURRENT_BOOKING ); });
 
-        m_action_change_abo_all = new QAction("Change complet Abo booking", this);
+        m_action_change_abo_all = new QAction(tr("Change complet Abo booking"), this);
         connect(m_action_change_abo_all, &QAction::triggered,
-                [this] () {/* processBooking(m_selected_day, m_selected_index);*/});
+                [this] () { processBooking(m_selected_day, m_selected_index, ALL_BOOKINGS);});
 
-        m_action_cancle_abo_cur = new QAction("Cancel currient Abo booking", this);
+        m_action_cancle_abo_cur = new QAction(tr("Cancel currient Abo booking"), this);
         connect(m_action_cancle_abo_cur, &QAction::triggered,
-                [this] () {/*cancleBooking(m_selected_day, m_selected_index);*/});
+                [this] () { cancleBooking(m_selected_day, m_selected_index, CURRENT_BOOKING);});
 
-        m_action_cancle_abo_all = new QAction("Cancel currient Abo booking", this);
+        m_action_cancle_abo_all = new QAction(tr("Cancel complet Abo booking"), this);
         connect(m_action_cancle_abo_all, &QAction::triggered,
-                [this] () {/*cancleBooking(m_selected_day, m_selected_index);*/});
+                [this] () { cancleBooking(m_selected_day, m_selected_index, ALL_BOOKINGS);});
 
-        m_action_change_booking = new QAction("Change curriet booking", this);
+        m_action_change_booking = new QAction(tr("Change booking"), this);
         connect(m_action_change_booking, &QAction::triggered,
-                [this] () { processBooking(m_selected_day, m_selected_index, true); } );
+                [this] () { processBooking(m_selected_day, m_selected_index, CURRENT_BOOKING); } );
 
-        m_action_cancle_booking = new QAction("Cancel curriet booking", this);
+        m_action_cancle_booking = new QAction(tr("Cancel booking"), this);
         connect(m_action_change_booking, &QAction::triggered,
-                [this] () {/* cancleBooking(m_selected_day, m_selected_index);*/});
+                [this] () { cancleBooking(m_selected_day, m_selected_index, CURRENT_BOOKING);});
     }
 
     int abo_id = m_day_booking_models[day]->aboId(index);

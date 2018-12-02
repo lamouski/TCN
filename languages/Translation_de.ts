@@ -5,33 +5,67 @@
     <name>BookingDialog</name>
     <message>
         <location filename="../bookingdialog.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <source>Booking dialog</source>
+        <translation type="unfinished">Buchungsdialog</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="38"/>
+        <location filename="../bookingdialog.ui" line="44"/>
         <source>From date:</source>
         <translation type="unfinished">Ab:</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="48"/>
+        <location filename="../bookingdialog.ui" line="54"/>
         <source>Till date:</source>
         <translation type="unfinished">Bis:</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="104"/>
+        <location filename="../bookingdialog.ui" line="91"/>
         <source>Field</source>
         <translation type="unfinished">Feld</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="116"/>
+        <location filename="../bookingdialog.ui" line="103"/>
         <source>Day</source>
         <translation type="unfinished">Tag</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="131"/>
+        <location filename="../bookingdialog.ui" line="118"/>
         <source>Time</source>
         <translation type="unfinished">Zeit</translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="152"/>
+        <source>Number of bloks:</source>
+        <translation type="unfinished">Anzahl der Blöcke:</translation>
+    </message>
+    <message>
+        <source> Number of bloks:</source>
+        <translation type="obsolete">Anzahl der Blöcke:</translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="169"/>
+        <source>Sum:</source>
+        <translation type="unfinished">Summe:</translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="201"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.cpp" line="67"/>
+        <source>Single booking</source>
+        <translation type="unfinished">Einzelbuchung</translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.cpp" line="68"/>
+        <source>Block booking</source>
+        <translation type="unfinished">Blockbuchung</translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.cpp" line="69"/>
+        <source>Abo booking</source>
+        <translation type="unfinished">Abo Buchung</translation>
     </message>
 </context>
 <context>
@@ -89,8 +123,8 @@
     <name>FieldListDialog</name>
     <message>
         <location filename="../fieldlistdialog.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <source>Filds</source>
+        <translation type="unfinished">Plätze</translation>
     </message>
     <message>
         <location filename="../fieldlistdialog.ui" line="128"/>
@@ -177,11 +211,6 @@
 <context>
     <name>MembersListDialog</name>
     <message>
-        <location filename="../memberslistdialog.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../memberslistdialog.cpp" line="35"/>
         <source>First name</source>
         <translation type="unfinished">Vorname</translation>
@@ -191,13 +220,22 @@
         <source>Last name</source>
         <translation type="unfinished">Nachname</translation>
     </message>
+    <message>
+        <location filename="../memberslistdialog.ui" line="14"/>
+        <source>Members</source>
+        <translation type="unfinished">Mitglieder</translation>
+    </message>
 </context>
 <context>
     <name>PriceListDialog</name>
     <message>
-        <location filename="../pricelistdialog.ui" line="14"/>
         <source>Booking prices</source>
-        <translation type="unfinished">Buchungspreise</translation>
+        <translation type="obsolete">Buchungspreise</translation>
+    </message>
+    <message>
+        <location filename="../pricelistdialog.ui" line="14"/>
+        <source>Prices</source>
+        <translation type="unfinished">Preise</translation>
     </message>
     <message>
         <location filename="../pricelistdialog.ui" line="71"/>
@@ -279,8 +317,8 @@
     <name>ServiceDialog</name>
     <message>
         <location filename="../servicedialog.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <source>Service functions</source>
+        <translation type="unfinished">Servicefunktionen</translation>
     </message>
     <message>
         <location filename="../servicedialog.ui" line="20"/>
@@ -438,14 +476,39 @@
         <translation type="unfinished">Sontag</translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="167"/>
+        <location filename="../weekviewwidget.cpp" line="183"/>
         <source>Context menu</source>
         <translation type="unfinished">Kontextmenü</translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="169"/>
+        <location filename="../weekviewwidget.cpp" line="185"/>
         <source>Change currient Abo booking</source>
         <translation type="unfinished">Aktuelle Abo-Buchung ändern</translation>
+    </message>
+    <message>
+        <location filename="../weekviewwidget.cpp" line="189"/>
+        <source>Change complet Abo booking</source>
+        <translation type="unfinished">Vollständige Abo-Buchung ändern</translation>
+    </message>
+    <message>
+        <location filename="../weekviewwidget.cpp" line="193"/>
+        <source>Cancel currient Abo booking</source>
+        <translation type="unfinished">Aktuelle Abo-Buchung stornieren</translation>
+    </message>
+    <message>
+        <location filename="../weekviewwidget.cpp" line="197"/>
+        <source>Cancel complet Abo booking</source>
+        <translation type="unfinished">Vollständige Abo-Buchung stornieren</translation>
+    </message>
+    <message>
+        <location filename="../weekviewwidget.cpp" line="201"/>
+        <source>Change booking</source>
+        <translation type="unfinished">Buchung ändern</translation>
+    </message>
+    <message>
+        <location filename="../weekviewwidget.cpp" line="205"/>
+        <source>Cancel booking</source>
+        <translation type="unfinished">Buchung stornieren</translation>
     </message>
 </context>
 </TS>

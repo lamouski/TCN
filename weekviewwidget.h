@@ -39,6 +39,13 @@ class WeekViewWidget : public QWidget
 {
     Q_OBJECT
 
+    enum ProcessingFlag
+    {
+        NEW_BOOKING = 0,
+        CURRENT_BOOKING,
+        ALL_BOOKINGS
+    };
+
 public:
     explicit WeekViewWidget(QWidget *parent = 0);
     ~WeekViewWidget();
@@ -66,7 +73,8 @@ protected:
 protected slots:
     void updateGUI();
 
-    void processBooking(int day, const QModelIndex &index, bool allow_correction = false);
+    void processBooking(int day, const QModelIndex &index, ProcessingFlag flag = NEW_BOOKING);
+    void cancleBooking(int day, const QModelIndex &index, ProcessingFlag flag);
     void processBookingContextMenu(int day, const QModelIndex &index, const QPoint &pos);
 
     void fillCurrentWeek();
