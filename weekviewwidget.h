@@ -19,6 +19,8 @@
 #ifndef WEEKVIEWWIDGET_H
 #define WEEKVIEWWIDGET_H
 
+#include "bookingdata.h"
+
 #include <QObject>
 #include <QDate>
 #include <QLabel>
@@ -62,13 +64,10 @@ public:
 protected:
     void showEvent(QShowEvent *);
 
-    void singleBooking(int day, const QModelIndex &index,
-                       int member_id, int price_id, int block_id, const QString &info);
-    void blockBooking(int day, int num_of_blocks, const QModelIndex &index,
-                      int member_id, int price_id, const QString &info);
+    void singleBooking(int day, const QModelIndex &index, const BookingData& data);
+    void blockBooking(int day, int num_of_blocks, const QModelIndex &index, const BookingData& data);
     void multiBooking(const QDate& start_date, const QDate& end_date, int days,
-                      int field_id, int time_slot,
-                      int selected_member_id, int selected_price_id, const QString &info);
+                      const QModelIndex &index, const BookingData& data);
 
 protected slots:
     void updateGUI();

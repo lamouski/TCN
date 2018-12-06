@@ -23,6 +23,8 @@
 #include <QSqlDatabase>
 #include <QString>
 
+#include "bookingdata.h"
+
 class DbManager
 {
 public:
@@ -35,13 +37,11 @@ public:
     bool updateFieldTimeMask(const int id, const int day_index, const int time_mask) const;
     bool updateFieldSeasons(const int id, const int seasons) const;
 
-    bool addBooking(const int memberID,
-                    const QString& booking_info,
-                    const QDate& date,
-                    const int timeSlot,
-                    const int fieldID,
-                    const int priceID,
-                    const int numOfBlocks = -1);
+    bool bookingSlotIsFree(const BookingSlot& slot, int &bookingId, BookingData& data);
+    bool addBooking(const BookingSlot& slot, const BookingData& data);
+    bool updateBooking(const int bookingId, const BookingData& data);
+    bool cancleBooking(const int bookingId);
+
     int addBlock(const int memberID,
                  const QString &booking_info,
                  const QDate &start_date,
@@ -53,8 +53,6 @@ public:
 
     static DbManager* instance();    
     static QSqlDatabase db();
-
-
 
 private:
     static DbManager* m_instance;

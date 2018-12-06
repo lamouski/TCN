@@ -22,6 +22,8 @@
 #include <QDialog>
 #include <QSqlQueryModel>
 
+#include "bookingdata.h"
+
 namespace Ui {
 class BookingDialog;
 }
@@ -31,7 +33,7 @@ class BookingDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit BookingDialog(QWidget *parent = 0);
+    explicit BookingDialog(QWidget *parent = nullptr);
     ~BookingDialog();
 
     void reset();
@@ -50,12 +52,15 @@ public slots:
     void updatePriceQuery();
 
 public:
-    int selectedId() const;    
-    QString info() const;
+    BookingData getSelectedData() const;
+
+//    int selectedId() const;
+//    QString info() const;
 
     bool isSingleBooking() const;
-    int selectedPrice() const;
-    int selectedBlock() const;
+//    int selectedPrice() const;
+//    int selectedBlock() const;
+//    float sum() const;
 
     bool isBlockBooking() const;
     int numOfBlocks() const;
@@ -63,6 +68,8 @@ public:
     bool isMultyBooking();
     QDate aboStartDate() const;
     QDate aboEndDate() const;
+
+
 
 protected slots:
     void on_m_line_edit_name_textEdited(const QString &arg1);
@@ -90,9 +97,11 @@ private:
     QString m_prices_base_query_string;
 
     int m_timeslot;
+
     int m_last_selected_member_id = -1;
     int m_last_selected_block_id = -1;
     int m_last_selected_price_id = -1;
+
     int m_days_mask = 255;
 
     enum BookingMode

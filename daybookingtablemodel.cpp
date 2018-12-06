@@ -60,9 +60,8 @@ bool DayBookingTableModel::queryData()
         int last_time_slot = (int) log2((float)time_mask);
         m_nr_time_slots = std::max(m_first_time_slot + m_nr_time_slots, last_time_slot) - m_first_time_slot;
     }
-    m_query.prepare("SELECT (surname || ' ' || firstname), info, date, timeslot, fieldid, sum, memberid, priceid, aboid"
+    m_query.prepare("SELECT (surname || ' ' || firstname), info, date, timeslot, fieldid, bookings.sum, memberid, priceid, aboid, status"
                     " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
-                    " LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                     " WHERE date = :day ");
     m_query.bindValue(":day", m_day.toJulianDay());
     if(!m_query.exec())
@@ -144,13 +143,12 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
             if(m_index_hash.contains(index_key))
             {
-                int index = m_index_hash[index_key];
-                const_cast<QSqlQuery&>(m_query).seek(index);
+                const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
                 QString member_name = m_query.record().value(0).toString();
                 QString booking_info = m_query.record().value(1).toString();
-                QVariant price_variant = m_query.record().value(5);
+
 //                int abo_id = m_query.record().value(8).toInt();
-//                double price = price_variant.toDouble();
+                //double price = m_query.record().value(5).toDouble();
                 QString result = !member_name.isEmpty() ? member_name : booking_info;
 //                if(abo_id > 0)
 //                    result += " (Abo)";
@@ -162,8 +160,7 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
         case Qt::UserRole:
             if(m_index_hash.contains(index_key))
             {
-                int index = m_index_hash[index_key];
-                const_cast<QSqlQuery&>(m_query).seek(index);
+                const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
                 int memberId = m_query.record().value(6).toInt();
                 int priceId = m_query.record().value(7).toInt();
                 if(memberId >= 0)
@@ -187,21 +184,32 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             }
             else if(m_index_hash.contains(index_key))
             {
-                QBrush background;
-                switch (index.row() % 3) {
-                case 0:
-                    background = QBrush(qRgb(174, 234, 174));
-                    break;
-                case 1:
-                    background = QBrush(qRgb(154, 229, 154));
-                    break;
-                case 2:
-                    background = QBrush(qRgb(133, 224, 133));
-                    break;
-                default:
-                    break;
+                const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
+                const int status = m_query.record().value(9).toInt();
+                if(status >= 0) //
+                {
+                    int abo_id = m_query.record().value(8).toInt();
+                    int saturation = 80;
+                    switch (index.row() % 3) {
+                    case 0:
+                        saturation = 160;// 80%
+                        break;
+                    case 1:
+                        saturation = 191; //~75%
+                        break;
+                    case 2:
+                        saturation = 179; //~70%
+                        break;
+                    default:
+                        break;
+                    }
+                    QColor base_color;
+                    if(abo_id <= 0)
+                        base_color = QColor::fromHsl(120, 150, saturation);
+                    else
+                        base_color = QColor::fromHsl(180, 150, saturation);
+                    return QBrush(base_color);
                 }
-                return background;
             }
             else
             {
@@ -215,13 +223,30 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                     return QBrush(qRgb(255, 153, 0));
                 return QBrush(qRgb(255, 242, 230));
             }
+            break;
         case Qt::TextAlignmentRole:
             if(m_index_hash.contains(index_key))
             {
                 return Qt::AlignLeft + Qt::AlignVCenter;
             }
             break;
-        }
+        case Qt::FontRole:
+            {
+                if(m_index_hash.contains(index_key))
+                {
+                   const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
+                   int status = m_query.record().value(9).toInt();
+                   if(status < 0)
+                   {
+                       QFont standart_font;
+                        standart_font.setStrikeOut(true);
+                        standart_font.setWeight(QFont::ExtraLight);
+                        return QVariant::fromValue<QFont>(standart_font);
+                   }
+                }
+            }
+            break;
+    }
     return QVariant();
 }
 
@@ -297,9 +322,25 @@ int DayBookingTableModel::aboId(const QModelIndex &index)
     QPair<int, int> index_key(m_fields_IDis[row], m_first_time_slot + col);
     if(m_index_hash.contains(index_key))
     {
-        int index = m_index_hash[index_key];
-        const_cast<QSqlQuery&>(m_query).seek(index);
+        const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
         return m_query.record().value(8).toInt();
+    }
+    return 0;
+}
+
+int DayBookingTableModel::bookingStatus(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return 0;
+
+    int row = index.row();
+    int col = index.column();
+
+    QPair<int, int> index_key(m_fields_IDis[row], m_first_time_slot + col);
+    if(m_index_hash.contains(index_key))
+    {
+        const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
+        return m_query.record().value(9).toInt();
     }
     return 0;
 }

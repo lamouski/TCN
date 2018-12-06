@@ -60,7 +60,8 @@ HEADERS += \
     weekreportwidget.h \
     servicedialog.h \
     settings.h \
-    pricestablemodel.h
+    pricestablemodel.h \
+    bookingdata.h
 
 FORMS += \
         mainwindow.ui \

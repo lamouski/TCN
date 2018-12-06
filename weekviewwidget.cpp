@@ -84,21 +84,23 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
 
     QVariant curr_data = m_day_booking_models[day]->data(index, Qt::UserRole);
 
-    if(flag == NEW_BOOKING && !curr_data.isNull())
+    int booking_status = m_day_booking_models[day]->bookingStatus(index);
+
+    if(flag == NEW_BOOKING && (!curr_data.isNull() || booking_status >= 0))
         return;
 
-//    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
-//       QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
-//       QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
+    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
+       QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
+       QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
 
-//    if(rest_minutes < 0)
-//    {
-//        //if(!curr_data.isNull())
-//        {
-//            QMessageBox::information(this, QString(), QString(tr("This time interval is in the past. It can't be booked.")));
-//            return;
-//        }
-//    }
+    if(rest_minutes < 0)
+    {
+        if(booking_status > 0) //
+        {
+            QMessageBox::information(this, QString(), QString(tr("This booking is already entered in the cash register. It can't be changed.")));
+            return;
+        }
+    }
 
     if(!m_booking_dialog)
         m_booking_dialog = new BookingDialog(this);
@@ -135,19 +137,19 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
 
     if(m_booking_dialog->exec() == QDialog::Accepted)
     {
-        int selected_member_id = m_booking_dialog->selectedId();
-        QString info = m_booking_dialog->info();
-        int selected_price_id = m_booking_dialog->selectedPrice();
+        BookingData data = m_booking_dialog->getSelectedData();
+
+//        int selected_member_id = m_booking_dialog->selectedId();
+//        QString info = m_booking_dialog->info();
+//        int selected_price_id = m_booking_dialog->selectedPrice();
 
         qDebug() << "Selected member id " << selected_member_id;
 
         if(m_booking_dialog->isSingleBooking())
         {
+
             int selected_block_id = m_booking_dialog->selectedBlock();
-            singleBooking(day, index,
-                          selected_member_id,
-                          selected_price_id,
-                          selected_block_id, info);
+            singleBooking(day, index, data);
         }
         else if(m_booking_dialog->isBlockBooking())
         {
@@ -167,6 +169,30 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
 
 void WeekViewWidget::cancleBooking(int day, const QModelIndex &index, WeekViewWidget::ProcessingFlag flag)
 {
+    if(!m_day_booking_models[day])
+        return;
+
+    QVariant curr_data = m_day_booking_models[day]->data(index, Qt::UserRole);
+
+    int booking_status = m_day_booking_models[day]->bookingStatus(index);
+
+    if(flag == NEW_BOOKING && (!curr_data.isNull() || booking_status >= 0))
+        return;
+
+    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
+       QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
+       QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
+
+    if(rest_minutes < 0)
+    {
+        if(booking_status > 0) //
+        {
+            QMessageBox::information(this, QString(), QString(tr("This booking is already entered in the cash register. It can't be changed.")));
+            return;
+        }
+    }
+
+
 
 }
 
@@ -233,21 +259,24 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
     }
 }
 
-void WeekViewWidget::singleBooking(int day, const QModelIndex &index,
-                                   int member_id, int price_id, int block_id, const QString& info)
+void WeekViewWidget::singleBooking(int day, const QModelIndex &index, const BookingData& data)
 {
-    if(member_id <= 0 && info.isEmpty())
+    if(data.memberID <= 0 && data.booking_info.isEmpty())
     {
         QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
         return;
     }
 
-    DbManager::instance()->addBooking(member_id, info,
-                                      m_day_booking_models[day]->day(),
-                                      m_day_booking_models[day]->timeSlot(index.column()),
-                                      m_day_booking_models[day]->fieldId(index.row()),
-                                      price_id,
-                                      block_id);
+    BookingSlot slot = { m_day_booking_models[day]->day(),
+            m_day_booking_models[day]->timeSlot(index.column()),
+            m_day_booking_models[day]->fieldId(index.row())};
+    int old_bookingId;
+    BookingData old_data;
+    if(DbManager::instance()->bookingSlotIsFree(slot, old_bookingId, old_data))
+    {
+
+    }
+    DbManager::instance()->addBooking(slot, data);
 
 }
 

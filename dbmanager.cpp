@@ -242,59 +242,57 @@ bool DbManager::updateFieldSeasons(const int id, const int seasons) const
     return success;
 }
 
-bool DbManager::addBooking(const int memberID,
-                           const QString& booking_info,
-                           const QDate& date,
-                           const int timeSlot,
-                           const int fieldID,
-                           const int priceID,
-                           const int blockID)
+
+/////////////////////// work with bookings
+bool DbManager::bookingSlotIsFree(const BookingSlot& slot, int &bookingId, BookingData& data)
+{
+
+    QSqlQuery query(QString("SELECT * FROM bookings "
+                            "WHERE date=%1 "
+                            "AND timeslot=%2 "
+                            "AND fieldid=%3 "
+                            "AND status>=0;").arg(slot.date.toJulianDay()).arg(slot.timeSlot).arg(slot.fieldID));
+    if(query.exec())
+    {
+        if(query.first()) //this field is already booked.
+        {
+             bookingId = query.record().value(0).toInt();
+             data.booking_info = query.record().value(1).toString();
+             data.memberID = query.record().value(2).toInt();
+             data.priceID = query.record().value(6).toInt();
+             data.blockID = query.record().value(7).toInt();
+             data.aboID = query.record().value(8).toInt();
+             data.sum = query.record().value(9).toFloat();
+             data.status = query.record().value(10).toInt();
+             return false;
+        }
+    }
+    else
+    {
+         qDebug() << "bookingSlotIsFree error:  "
+                  << query.lastError();
+    }
+    return true;
+}
+
+bool DbManager::addBooking(const BookingSlot& slot, const BookingData& data)
 {
    bool success = false;
    // you should check if args are ok first...
    QSqlQuery query;
 
-   query.exec(QString("SELECT id, blockid, aboid FROM bookings "
-                      "WHERE date=%1 "
-                      "AND timeslot=%2 "
-                      "AND fieldid=%3;").arg(date.toJulianDay()).arg(timeSlot).arg(fieldID));
+   //insert
+   query.prepare("INSERT OR REPLACE INTO bookings "
+                 "( info,  memberid,  date,  timeslot,  fieldid,  priceid,  blockid)"
+          "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
+   query.bindValue(":info", data.booking_info);
+   query.bindValue(":memberid", data.memberID);
+   query.bindValue(":date", slot.date.toJulianDay());
+   query.bindValue(":timeslot", slot.timeSlot);
+   query.bindValue(":fieldid", slot.fieldID);
+   query.bindValue(":priceid", data.priceID);
+   query.bindValue(":blockid", data.blockID);
 
-   int old_block_id = -1;
-   //int old_abo_id = -1;
-
-   if(query.first()) //this field is already booked. update
-   {
-        int id = query.record().value(0).toInt();
-        old_block_id = query.record().value(1).toInt();
-        //old_abo_id = query.record().value(2).toInt();
-
-        query.prepare("UPDATE bookings SET "
-                     "info=:info, "
-                     "memberid=:memberid, "
-                     "priceid=:priceid, "
-                     "blockid=:blockid, "
-                     "aboid=NULL "
-                     "WHERE id=:id;");
-        query.bindValue(":info",booking_info);
-        query.bindValue(":memberid", memberID);
-        query.bindValue(":priceid", priceID);
-        query.bindValue(":blockid", blockID);
-        query.bindValue(":id", id);
-   }
-   else
-   {       
-       //insert
-       query.prepare("INSERT OR REPLACE INTO bookings "
-                     "( info,  memberid,  date,  timeslot,  fieldid,  priceid,  blockid)"
-              "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
-       query.bindValue(":info", booking_info);
-       query.bindValue(":memberid", memberID);
-       query.bindValue(":date", date.toJulianDay());
-       query.bindValue(":timeslot", timeSlot);
-       query.bindValue(":fieldid", fieldID);
-       query.bindValue(":priceid", priceID);
-       query.bindValue(":blockid", blockID);
-   }
    if(query.exec())
    {
        success = true;
@@ -305,11 +303,61 @@ bool DbManager::addBooking(const int memberID,
                  << query.lastError();
    }
 
-   if(success && old_block_id >=0 && old_block_id != blockID)
-   {
-       deleteBlock(old_block_id);
-   }
    return success;
+}
+
+bool DbManager::updateBooking(const int bookingId, const BookingData& data)
+{
+    bool success = false;
+
+    QSqlQuery query;
+
+    query.prepare("UPDATE bookings SET "
+                    "info=:info, "
+                    "memberid=:memberid, "
+                    "priceid=:priceid, "
+                    "blockid=:blockid, "
+                    "aboid=NULL "
+                    "WHERE id=:id;");
+    query.bindValue(":info", data.booking_info);
+    query.bindValue(":memberid", data.memberID);
+    query.bindValue(":priceid", data.priceID);
+    query.bindValue(":blockid", data.blockID);
+    query.bindValue(":id", bookingId);
+
+    if(query.exec())
+    {
+        success = true;
+    }
+    else
+    {
+         qDebug() << "updateBooking error:  "
+                  << query.lastError();
+    }
+    return success;
+}
+
+bool DbManager::cancleBooking(const int bookingId)
+{
+    bool success = false;
+
+    QSqlQuery query;
+
+    query.prepare("UPDATE bookings SET "
+                    "status=-1 "
+                    "WHERE id=:id;");
+    query.bindValue(":id", bookingId);
+
+    if(query.exec())
+    {
+        success = true;
+    }
+    else
+    {
+         qDebug() << "cancleBooking error:  "
+                  << query.lastError();
+    }
+    return success;
 }
 
 
@@ -406,12 +454,14 @@ bool DbManager::checkDB()
                     "`id`	INTEGER,"
                     "`info`	TEXT,"
                     "`memberid`	INTEGER,"
-                    "`date`	INTEGER,"
+                    "`date`     INTEGER,"
                     "`timeslot`	INTEGER,"
                     "`fieldid`	INTEGER,"
                     "`priceid`	INTEGER,"
                     "`blockid`	INTEGER,"
                     "`aboid`	INTEGER,"
+                    "`sum`      REAL,"
+                    "`status`	INTEGER,"
                     "PRIMARY KEY(`id`)"
                     ");");
     }

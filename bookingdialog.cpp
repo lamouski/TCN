@@ -42,12 +42,12 @@ BookingDialog::BookingDialog(QWidget *parent) :
 
     m_blockslist_model = new QSqlQueryModel(this);
     m_blockslist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name,"
-                                             "( firstname || ' ' || surname || ' - Block ' || amount || ' - Used ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id )) AS info_string, "
-                                             "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
-                                             "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id ) AS used_amount "
-                                             "FROM block_bookings "
-                                             "LEFT OUTER JOIN members ON block_bookings.memberid = members.id "
-                                             "WHERE amount > used_amount ");
+    "( firstname || ' ' || surname || ' - " +tr("Block")+ "' || amount || ' - " + tr("Used") + " ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id )) AS info_string, "
+    "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
+    "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id ) AS used_amount "
+    "FROM block_bookings "
+    "LEFT OUTER JOIN members ON block_bookings.memberid = members.id "
+    "WHERE amount > used_amount ");
     m_blockslist_model->setQuery(m_blockslist_base_query_string);
     ui->m_list_view_blocks->setModel(m_blockslist_model);
     ui->m_list_view_blocks->setModelColumn(1);
@@ -68,6 +68,26 @@ BookingDialog::BookingDialog(QWidget *parent) :
     mode_menu->addAction(QString(tr("Block booking")), [this](){ setMode(MODE_BLOCK);});
     mode_menu->addAction(QString(tr("Abo booking")), [this](){ setMode(MODE_ABO);});
     ui->m_mode_tool_button->setMenu(mode_menu);
+
+    ui->m_combo_price->setValidator(new QDoubleValidator(0, 10000, 2, this));
+
+    Settings* settings = Settings::instance();
+    if(settings->winterSeason())
+    {
+        ui->m_start_abo_date->setDateRange(settings->winterSeasonBegin(),settings->winterSeasonEnd());
+        ui->m_start_abo_date->setDate(settings->winterSeasonBegin());
+
+        ui->m_end_abo_date->setDateRange(settings->winterSeasonBegin(), settings->winterSeasonEnd());
+        ui->m_end_abo_date->setDate(settings->winterSeasonEnd());
+    }
+    else
+    {
+        ui->m_start_abo_date->setDateRange(settings->sommerSeasonBegin(), settings->sommerSeasonEnd());
+        ui->m_start_abo_date->setDate(settings->sommerSeasonBegin());
+
+        ui->m_end_abo_date->setDateRange(settings->sommerSeasonBegin(), settings->sommerSeasonEnd());
+        ui->m_end_abo_date->setDate(settings->sommerSeasonEnd());
+    }
 }
 
 
@@ -105,24 +125,6 @@ void BookingDialog::setDay(const QDate& date)
 {
     m_days_mask = 1 << (date.dayOfWeek() -1);
     ui->m_label_day->setText(date.toString("dddd"));
-
-    Settings* settings = Settings::instance();
-    if(settings->winterSeason())
-    {
-        ui->m_start_abo_date->setDateRange(settings->winterSeasonBegin(),settings->winterSeasonEnd());
-        ui->m_start_abo_date->setDate(date);
-
-        ui->m_end_abo_date->setDateRange(settings->winterSeasonBegin(), settings->winterSeasonEnd());
-        ui->m_end_abo_date->setDate(settings->winterSeasonEnd());
-    }
-    else
-    {
-        ui->m_start_abo_date->setDateRange(settings->sommerSeasonBegin(), settings->sommerSeasonEnd());
-        ui->m_start_abo_date->setDate(date);
-
-        ui->m_end_abo_date->setDateRange(settings->sommerSeasonBegin(), settings->sommerSeasonEnd());
-        ui->m_end_abo_date->setDate(settings->sommerSeasonEnd());
-    }
 }
 
 
@@ -169,10 +171,20 @@ void BookingDialog::setPriceId(int id)
 }
 
 
-int BookingDialog::selectedId() const
+BookingData BookingDialog::getSelectedData() const
 {
-    return m_last_selected_member_id;
+    BookingData data;
+    data.memberID = m_last_selected_member_id;
+    data.booking_info = ui->m_line_edit_name->text();
+    data.priceID = m_last_selected_price_id;
+    data.blockID = m_last_selected_block_id;
+    data.sum = ui->m_summ_line_edit->text().toDouble();
 }
+
+//int BookingDialog::selectedId() const
+//{
+//    return m_last_selected_member_id;
+//}
 
 
 bool BookingDialog::isSingleBooking() const
@@ -181,22 +193,27 @@ bool BookingDialog::isSingleBooking() const
 }
 
 
-int BookingDialog::selectedPrice() const
-{
-    return m_last_selected_price_id;
-}
+//int BookingDialog::selectedPrice() const
+//{
+//    return m_last_selected_price_id;
+//}
 
 
-int BookingDialog::selectedBlock() const
-{
-    return m_last_selected_block_id;
-}
+//int BookingDialog::selectedBlock() const
+//{
+//    return m_last_selected_block_id;
+//}
+
+//float BookingDialog::sum() const
+//{
+//    return ui->m_summ_line_edit->text().toFloat();
+//}
 
 
-QString BookingDialog::info() const
-{
-    return ui->m_line_edit_name->text();
-}
+//QString BookingDialog::info() const
+//{
+//    return ui->m_line_edit_name->text();
+//}
 
 
 bool BookingDialog::isBlockBooking() const
@@ -264,11 +281,17 @@ void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const 
 
 void BookingDialog::on_m_combo_price_currentIndexChanged(int row)
 {
-   if(row >= 0)
+    if(row >= 0)
     {
-        m_last_selected_price_id = m_prices_model->data(m_prices_model->index(row, 2)).toInt(); // third column
+        int new_selected_price_id = m_prices_model->data(m_prices_model->index(row, 2)).toInt(); // third column
+        if(new_selected_price_id != m_last_selected_price_id)
+        {
+            m_last_selected_price_id = new_selected_price_id;
+            ui->m_summ_line_edit->setText(m_prices_model->data(m_prices_model->index(row, 1)).toString());
+        }
     }
 }
+
 
 void BookingDialog::setMode(BookingDialog::BookingMode mode)
 {
@@ -333,8 +356,6 @@ void BookingDialog::updateBlocksQuery(const QString &find_string)
         ui->m_list_view_blocks->hide();
     else
         ui->m_list_view_blocks->show();
-
-
 }
 
 
@@ -371,7 +392,6 @@ void BookingDialog::updatePriceQuery()
     }
     else
         if(ui->m_combo_price->count() > 0)
-
             ui->m_combo_price->setCurrentIndex(0);
 
 }
@@ -382,6 +402,7 @@ void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
     updateMembersQuery(arg1);
     updateBlocksQuery(arg1);
 }
+
 
 void BookingDialog::selectCurrentMemberId(const QModelIndex &index)
 {
@@ -420,12 +441,12 @@ void BookingDialog::on_m_list_view_members_activated(const QModelIndex &index)
 
 void BookingDialog::on_m_list_view_blocks_clicked(const QModelIndex &index)
 {
-   handleCurrentBlockChanged(index, QModelIndex());
+    handleCurrentBlockChanged(index, QModelIndex());
 }
 
 
 void BookingDialog::on_m_list_view_blocks_activated(const QModelIndex &index)
 {
-     handleCurrentBlockChanged(index, QModelIndex());
+    handleCurrentBlockChanged(index, QModelIndex());
     accept();
 }
