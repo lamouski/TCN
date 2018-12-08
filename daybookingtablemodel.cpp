@@ -16,6 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define QF_ID 0
+#define QF_NAME 1
+#define QF_INFO 2
+#define QF_TIMESLOT 3
+#define QF_FIELDID 4
+#define QF_MEMBERID 5
+#define QF_PRICEID 6
+#define QF_ABOID 7
+#define QF_STATUS 8
+#define QF_SUM 9
+
 #include "daybookingtablemodel.h"
 
 #include <QBrush>
@@ -29,6 +40,8 @@
 
 #include "dbmanager.h"
 #include "settings.h"
+
+
 
 DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -55,12 +68,12 @@ bool DayBookingTableModel::queryData()
         int time_mask = field_query.value(2).toInt() & 33554431; // we mask the 25-th bit
         m_fields_time_masks.push_back(time_mask);
         int strange_number = time_mask & (~time_mask + 1);
-        int first_time_slot = (int) log2((float)strange_number);
+        int first_time_slot = (int) log2( (float) strange_number);
         m_first_time_slot = std::min(m_first_time_slot, first_time_slot);
-        int last_time_slot = (int) log2((float)time_mask);
+        int last_time_slot = (int) log2( (float) time_mask);
         m_nr_time_slots = std::max(m_first_time_slot + m_nr_time_slots, last_time_slot) - m_first_time_slot;
     }
-    m_query.prepare("SELECT (surname || ' ' || firstname), info, date, timeslot, fieldid, bookings.sum, memberid, priceid, aboid, status"
+    m_query.prepare("SELECT bookings.id, (surname || ' ' || firstname), info, timeslot, fieldid, memberid, priceid, aboid, status, sum"
                     " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
                     " WHERE date = :day ");
     m_query.bindValue(":day", m_day.toJulianDay());
@@ -74,8 +87,8 @@ bool DayBookingTableModel::queryData()
     m_index_hash.clear();
     int ind = 0;
     while(m_query.next()) {
-        int timeslot = m_query.value(3).toInt();
-        int fieldId = m_query.value(4).toInt();
+        int timeslot = m_query.value(QF_TIMESLOT).toInt();
+        int fieldId = m_query.value(QF_FIELDID).toInt();
         m_index_hash[QPair<int, int>(fieldId, timeslot)] = ind++;
     }
 
@@ -144,11 +157,11 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             if(m_index_hash.contains(index_key))
             {
                 const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
-                QString member_name = m_query.record().value(0).toString();
-                QString booking_info = m_query.record().value(1).toString();
+                QString member_name = m_query.value(QF_NAME).toString();
+                QString booking_info = m_query.value(QF_INFO).toString();
 
-//                int abo_id = m_query.record().value(8).toInt();
-                //double price = m_query.record().value(5).toDouble();
+//                int abo_id = m_query.value(QF_ABOID).toInt();
+                //double price = m_query.value(QF_SUM).toDouble();
                 QString result = !member_name.isEmpty() ? member_name : booking_info;
 //                if(abo_id > 0)
 //                    result += " (Abo)";
@@ -161,8 +174,8 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             if(m_index_hash.contains(index_key))
             {
                 const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
-                int memberId = m_query.record().value(6).toInt();
-                int priceId = m_query.record().value(7).toInt();
+                int memberId = m_query.value(QF_MEMBERID).toInt();
+                int priceId = m_query.value(QF_PRICEID).toInt();
                 if(memberId >= 0)
                 {
                     QPair<int, int> member_price_pair(memberId, priceId);
@@ -170,7 +183,7 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                 }
                 else
                 {
-                    QString info = m_query.record().value(1).toString();
+                    QString info = m_query.value(QF_INFO).toString();
                     QPair<QString, int> info_price_pair(info, priceId);
                     return QVariant::fromValue(info_price_pair);
                 }
@@ -182,13 +195,13 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             {
                 return QBrush(qRgb(242, 242, 242));
             }
-            else if(m_index_hash.contains(index_key))
+            if(m_index_hash.contains(index_key))
             {
                 const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
-                const int status = m_query.record().value(9).toInt();
+                const int status = m_query.value(QF_STATUS).toInt();
                 if(status >= 0) //
                 {
-                    int abo_id = m_query.record().value(8).toInt();
+                    int abo_id = m_query.value(QF_ABOID).toInt();
                     int saturation = 80;
                     switch (index.row() % 3) {
                     case 0:
@@ -210,8 +223,7 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                         base_color = QColor::fromHsl(180, 150, saturation);
                     return QBrush(base_color);
                 }
-            }
-            else
+            }            
             {
                 int minute = (QDateTime(m_day, QTime(index.column() + m_first_time_slot, 0)).toSecsSinceEpoch() -
                               QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
@@ -235,7 +247,7 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                 if(m_index_hash.contains(index_key))
                 {
                    const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
-                   int status = m_query.record().value(9).toInt();
+                   int status = m_query.value(QF_STATUS).toInt();
                    if(status < 0)
                    {
                        QFont standart_font;
@@ -323,7 +335,7 @@ int DayBookingTableModel::aboId(const QModelIndex &index)
     if(m_index_hash.contains(index_key))
     {
         const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
-        return m_query.record().value(8).toInt();
+        return m_query.value(QF_ABOID).toInt();
     }
     return 0;
 }
@@ -340,7 +352,24 @@ int DayBookingTableModel::bookingStatus(const QModelIndex &index)
     if(m_index_hash.contains(index_key))
     {
         const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
-        return m_query.record().value(9).toInt();
+        return m_query.value(QF_STATUS).toInt();
+    }
+    return 0;
+}
+
+int DayBookingTableModel::bookingId(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return 0;
+
+    int row = index.row();
+    int col = index.column();
+
+    QPair<int, int> index_key(m_fields_IDis[row], m_first_time_slot + col);
+    if(m_index_hash.contains(index_key))
+    {
+        const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
+        return m_query.value(QF_ID).toInt();
     }
     return 0;
 }

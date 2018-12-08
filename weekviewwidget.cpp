@@ -83,10 +83,9 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
         return;
 
     QVariant curr_data = m_day_booking_models[day]->data(index, Qt::UserRole);
-
     int booking_status = m_day_booking_models[day]->bookingStatus(index);
 
-    if(flag == NEW_BOOKING && (!curr_data.isNull() || booking_status >= 0))
+    if(!curr_data.isNull() && flag == NEW_BOOKING && booking_status >= 0)
         return;
 
     int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
@@ -138,30 +137,42 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
     if(m_booking_dialog->exec() == QDialog::Accepted)
     {
         BookingData data = m_booking_dialog->getSelectedData();
+        qDebug() << "Selected member id " << data.memberID;
 
-//        int selected_member_id = m_booking_dialog->selectedId();
-//        QString info = m_booking_dialog->info();
-//        int selected_price_id = m_booking_dialog->selectedPrice();
+        BookingSlot slot = { m_day_booking_models[day]->day(),
+                             m_day_booking_models[day]->timeSlot(index.column()),
+                             m_day_booking_models[day]->fieldId(index.row())};
 
-        qDebug() << "Selected member id " << selected_member_id;
+        int old_bookingId;
+        BookingData old_data;
+        bool slot_is_free = DbManager::instance()->bookingSlotIsFree(slot, old_bookingId, old_data);
+
+        if(!slot_is_free)
+        {
+            if(old_data.aboID>0 && flag == NEW_BOOKING)
+            {
+                QMessageBox::information(this, QString(), QString(tr("The Abo Booking can't be direct rebooked. Please uses special funktions.")));
+                return;
+            }
+        }
+
+        if(data.memberID <= 0 && data.booking_info.isEmpty())
+        {
+            QMessageBox::information(this, QString(), QString(tr("The information about bookin is not filled. The booking can't be saved.")));
+            return;
+        }
 
         if(m_booking_dialog->isSingleBooking())
-        {
-
-            int selected_block_id = m_booking_dialog->selectedBlock();
-            singleBooking(day, index, data);
+        {            
+            singleBooking(slot, data);
         }
         else if(m_booking_dialog->isBlockBooking())
         {
-            const int num_of_blocks = m_booking_dialog->numOfBlocks();
-            blockBooking(day, num_of_blocks, index, selected_member_id, selected_price_id, info);
+            blockBooking(slot, data);
         }
         else if(m_booking_dialog->isMultyBooking())
         {
-            const int field_id = m_day_booking_models[day]->fieldId(index.row());
-            const QDate& abo_start_date = m_booking_dialog->aboStartDate();
-            const QDate& abo_end_date = m_booking_dialog->aboEndDate();
-            multiBooking(abo_start_date, abo_end_date, day, field_id, time_slot, selected_member_id, selected_price_id, info);
+            multiBooking(slot, data);
         }
         m_day_booking_models[day]->select();
     }
@@ -176,7 +187,7 @@ void WeekViewWidget::cancleBooking(int day, const QModelIndex &index, WeekViewWi
 
     int booking_status = m_day_booking_models[day]->bookingStatus(index);
 
-    if(flag == NEW_BOOKING && (!curr_data.isNull() || booking_status >= 0))
+    if(flag == NEW_BOOKING && (!curr_data.isNull() || booking_status > 0))
         return;
 
     int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
@@ -192,8 +203,10 @@ void WeekViewWidget::cancleBooking(int day, const QModelIndex &index, WeekViewWi
         }
     }
 
+    int bookingID = m_day_booking_models[day]->bookingId(index);
 
-
+    DbManager::instance()->cancleBooking(bookingID);
+    m_day_booking_models[day]->select();
 }
 
 void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index, const QPoint& pos)
@@ -229,7 +242,7 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
                 [this] () { processBooking(m_selected_day, m_selected_index, CURRENT_BOOKING); } );
 
         m_action_cancle_booking = new QAction(tr("Cancel booking"), this);
-        connect(m_action_change_booking, &QAction::triggered,
+        connect(m_action_cancle_booking, &QAction::triggered,
                 [this] () { cancleBooking(m_selected_day, m_selected_index, CURRENT_BOOKING);});
     }
 
@@ -259,61 +272,45 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
     }
 }
 
-void WeekViewWidget::singleBooking(int day, const QModelIndex &index, const BookingData& data)
+bool WeekViewWidget::singleBooking(const BookingSlot& slot, const BookingData& data)
 {
-    if(data.memberID <= 0 && data.booking_info.isEmpty())
-    {
-        QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
-        return;
-    }
-
-    BookingSlot slot = { m_day_booking_models[day]->day(),
-            m_day_booking_models[day]->timeSlot(index.column()),
-            m_day_booking_models[day]->fieldId(index.row())};
+    bool sucsess = false;
     int old_bookingId;
     BookingData old_data;
     if(DbManager::instance()->bookingSlotIsFree(slot, old_bookingId, old_data))
     {
-
+         sucsess = DbManager::instance()->addBooking(slot, data);
     }
-    DbManager::instance()->addBooking(slot, data);
-
-}
-
-void WeekViewWidget::blockBooking(int day, int num_of_blocks, const QModelIndex &index,
-                                  int member_id, int price_id, const QString &info)
-{
-    if(member_id <= 0 && info.isEmpty())
+    else
     {
-        QMessageBox::information(this, QString(), QString("The information about bookin is not filled. The booking can't be saved."));
-        return;
+        sucsess = DbManager::instance()->updateBooking(old_bookingId, data);
+        if(old_data.blockID > 0)
+        {
+            if(DbManager::instance()->numOfUsedBlocks(old_data.blockID) == 0)
+                sucsess &= DbManager::instance()->deleteBlock(old_data.blockID);
+        }
+        //or
+        //DbManager::instance()->cancleBooking(old_bookingId);
+        //DbManager::instance()->addBooking(slot, data);
     }
-
-
-    int block_id = DbManager::instance()->addBlock(member_id,
-                                                   info,
-                                                   m_day_booking_models[day]->day(),
-                                                   price_id,
-                                                   num_of_blocks);
-
-    DbManager::instance()->addBooking(member_id, info,
-                                      m_day_booking_models[day]->day(),
-                                      m_day_booking_models[day]->timeSlot(index.column()),
-                                      m_day_booking_models[day]->fieldId(index.row()),
-                                      price_id,
-                                      block_id);
+    return sucsess;
 }
 
-void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date, int day_of_the_week,
-                                  int field_id, int time_slot,
-                                  int member_id, int price_id, const QString &info)
+bool  WeekViewWidget::blockBooking(const BookingSlot& slot, const BookingData& data)
 {
-    QDate booking_day = start_date.addDays( day_of_the_week + 1 < start_date.dayOfWeek() ? 7 : 0 +
-                                                  day_of_the_week + 1 - start_date.dayOfWeek());
+    BookingData data_with_block_id = data;
+    data_with_block_id.blockID = DbManager::instance()->addBlock(slot, data);
+    return singleBooking(slot, data_with_block_id);
+}
 
+bool WeekViewWidget::multiBooking(const BookingSlot& slot, const BookingData& data)
+{
+    QDate booking_day = data.aboStart.addDays( slot.date.dayOfWeek() < data.aboStart.dayOfWeek() ? 7 : 0 +
+                                               slot.date.dayOfWeek() - data.aboStart.dayOfWeek());
+    //check if some slots is alredy booked
     QString all_abo_days_str;
     QVector<qint64> all_abo_days;
-    while(booking_day < end_date)
+    while(booking_day < data.aboEnd)
     {
         qint64 julian_day = booking_day.toJulianDay();
         all_abo_days << julian_day;
@@ -328,7 +325,8 @@ void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date
                   " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
                   " WHERE timeslot = %1"
                   " AND fieldid = %2"
-                  " AND date IN (%3)").arg(time_slot).arg(field_id).arg(all_abo_days_str);
+                  " AND aboid != %3"
+                  " AND date IN (%4)").arg(slot.timeSlot).arg(slot.fieldID).arg(data.aboID).arg(all_abo_days_str);
 
     if(query.exec(query_str))
     {
@@ -348,37 +346,43 @@ void WeekViewWidget::multiBooking(const QDate &start_date, const QDate &end_date
         }
         if(!conflicts.isEmpty())
         {
-            QMessageBox::information(this, QString("Booking conflict"),
-                                 QString("The selected time slot is already biooked.")+conflicts);
-            return;
+            QMessageBox::information(this, QString(tr("Booking conflict")),
+                                 QString(tr("The selected time slot is already booked: "))+conflicts);
+            return false;
         }
     }
 
-    int abo_id = 0;
-    if(query.exec("SELECT MAX(aboid) AS max_aboid FROM bookings"))
-        if(query.first())
-            abo_id = query.value(0).toInt() + 1;
 
-    query.prepare("INSERT INTO bookings (info, memberid, date, timeslot, fieldid, priceid, aboid)"
-                  "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :aboid) ;");
+    BookingData data_wiwh_abo_id = data;
+    if(data_wiwh_abo_id.aboID == -1)
+        if(query.exec("SELECT MAX(aboid) AS max_aboid FROM bookings"))
+            if(query.first())
+                data_wiwh_abo_id.aboID = query.value(0).toInt() + 1;
 
-    query.bindValue(":info", info);
-    query.bindValue(":memberid", member_id);
+//    query.prepare("INSERT INTO bookings (info, memberid, date, timeslot, fieldid, priceid, aboid)"
+//                  "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :aboid) ;");
 
-    query.bindValue(":timeslot", time_slot);
-    query.bindValue(":fieldid", field_id);
-    query.bindValue(":priceid", price_id);
-    query.bindValue(":aboid", abo_id);
+//    query.bindValue(":info", info);
+//    query.bindValue(":memberid", member_id);
 
+//    query.bindValue(":timeslot", time_slot);
+//    query.bindValue(":fieldid", field_id);
+//    query.bindValue(":priceid", price_id);
+//    query.bindValue(":aboid", abo_id);
+
+    BookingSlot abo_slot = slot;
     for(qint64 julian_day : all_abo_days)
     {
-        query.bindValue(":date", julian_day);
-        if(!query.exec())
-        { QMessageBox::information(this, QString("Booking error"),
-                                   QString("Error when try to save the multibooking"));
-              return;
+        //query.bindValue(":date", julian_day);
+        abo_slot.date = QDate::fromJulianDay(julian_day);
+
+        if(!singleBooking(abo_slot, data_wiwh_abo_id))
+        { QMessageBox::information(this, QString(tr("Booking error")),
+                                   QString(tr("Error when try to save the multibooking")));
+              return false;
         }
     }
+    return true;
 }
 
 /*

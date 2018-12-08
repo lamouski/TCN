@@ -57,7 +57,8 @@ public:
     void setNumOfTimeSlots(int num_of_time_slots);
 
     int aboId(const QModelIndex &index);    
-    int bookingStatus(const QModelIndex &index);
+    int bookingStatus(const QModelIndex &index);    
+    int bookingId(const QModelIndex &index);
 
 public slots:
     void setPreviousWeek();

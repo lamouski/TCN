@@ -42,11 +42,8 @@ public:
     bool updateBooking(const int bookingId, const BookingData& data);
     bool cancleBooking(const int bookingId);
 
-    int addBlock(const int memberID,
-                 const QString &booking_info,
-                 const QDate &start_date,
-                 const int priceID,
-                 const int numOfBlocks);
+    int addBlock(const BookingSlot& slot, const BookingData& data);
+    int numOfUsedBlocks(int blockID);
     bool deleteBlock(const int blockId);
 
     bool checkDB();

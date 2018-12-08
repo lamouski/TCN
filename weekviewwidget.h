@@ -64,10 +64,9 @@ public:
 protected:
     void showEvent(QShowEvent *);
 
-    void singleBooking(int day, const QModelIndex &index, const BookingData& data);
-    void blockBooking(int day, int num_of_blocks, const QModelIndex &index, const BookingData& data);
-    void multiBooking(const QDate& start_date, const QDate& end_date, int days,
-                      const QModelIndex &index, const BookingData& data);
+    bool singleBooking(const BookingSlot& slot, const BookingData& data);
+    bool blockBooking(const BookingSlot& slot, const BookingData& data);
+    bool multiBooking(const BookingSlot& slot, const BookingData& data);
 
 protected slots:
     void updateGUI();

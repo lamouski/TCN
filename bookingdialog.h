@@ -102,6 +102,8 @@ private:
     int m_last_selected_block_id = -1;
     int m_last_selected_price_id = -1;
 
+    int m_num_of_used_bloks = 0;
+
     int m_days_mask = 255;
 
     enum BookingMode

@@ -63,7 +63,7 @@ void DayReportWidget::update()
 {
     const QDate& date = Settings::currentDate();
     QSqlQuery query;
-    query.prepare("SELECT (surname || ' ' || firstname), info, account_name, account, sum, name, timeslot FROM bookings "
+    query.prepare("SELECT (surname || ' ' || firstname), info, account_name, account, bookings.sum, name, timeslot FROM bookings "
                   "LEFT OUTER JOIN members ON bookings.memberid = members.id "
                   "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "

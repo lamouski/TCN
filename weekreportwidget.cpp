@@ -67,7 +67,7 @@ void WeekReportWidget::update()
     const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
 
     QSqlQuery query;
-    query.prepare("SELECT account_name, account, TOTAL(sum), date FROM bookings "
+    query.prepare("SELECT account_name, account, TOTAL(bookings.sum), date FROM bookings "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "INNER JOIN accounts ON prices.account = accounts.number "
                   "WHERE date between :from_day AND :till_day "

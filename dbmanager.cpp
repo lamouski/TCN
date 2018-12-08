@@ -251,7 +251,7 @@ bool DbManager::bookingSlotIsFree(const BookingSlot& slot, int &bookingId, Booki
                             "WHERE date=%1 "
                             "AND timeslot=%2 "
                             "AND fieldid=%3 "
-                            "AND status>=0;").arg(slot.date.toJulianDay()).arg(slot.timeSlot).arg(slot.fieldID));
+                            "AND (status IS NULL OR status!=-1);").arg(slot.date.toJulianDay()).arg(slot.timeSlot).arg(slot.fieldID));
     if(query.exec())
     {
         if(query.first()) //this field is already booked.
@@ -277,33 +277,56 @@ bool DbManager::bookingSlotIsFree(const BookingSlot& slot, int &bookingId, Booki
 
 bool DbManager::addBooking(const BookingSlot& slot, const BookingData& data)
 {
-   bool success = false;
-   // you should check if args are ok first...
-   QSqlQuery query;
+    bool success = false;
+    // you should check if args are ok first...
+    QSqlQuery query;
 
-   //insert
-   query.prepare("INSERT OR REPLACE INTO bookings "
-                 "( info,  memberid,  date,  timeslot,  fieldid,  priceid,  blockid)"
-          "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :blockid) ;");
-   query.bindValue(":info", data.booking_info);
-   query.bindValue(":memberid", data.memberID);
-   query.bindValue(":date", slot.date.toJulianDay());
-   query.bindValue(":timeslot", slot.timeSlot);
-   query.bindValue(":fieldid", slot.fieldID);
-   query.bindValue(":priceid", data.priceID);
-   query.bindValue(":blockid", data.blockID);
+    QString fields_str, values_str;
+    QTextStream  fields(&fields_str);
+    QTextStream  values(&values_str);
+    if(!data.booking_info.isEmpty())
+    {
+        fields << "info, ";
+        values << "'"<< data.booking_info << "', ";
+    }
+    fields << "memberid, date, timeslot, fieldid, priceid";
+    values << data.memberID << ", "
+           << slot.date.toJulianDay() << ", "
+           << slot.timeSlot << ", "
+           << slot.fieldID << ", "
+           << data.priceID;
 
-   if(query.exec())
-   {
+    if(data.blockID > 0)
+    {
+       fields << ", blockid";
+       values << ", " << data.blockID;
+    }
+    if(data.aboID > 0)
+    {
+       fields << ", aboid";
+       values << ", " << data.aboID;
+    }
+    fields << ", sum";
+    values << ", " << data.sum;
+    if(data.status != 0)
+    {
+       fields << ", status";
+       values << ", " << data.status;
+    }
+
+    query.prepare(QString("INSERT INTO bookings (") + fields.string() + ") "
+                          "VALUES (" + values.string() + ");");
+    if(query.exec())
+    {
        success = true;
-   }
-   else
-   {
+    }
+    else
+    {
         qDebug() << "addBooking error:  "
                  << query.lastError();
-   }
+    }
 
-   return success;
+    return success;
 }
 
 bool DbManager::updateBooking(const int bookingId, const BookingData& data)
@@ -312,18 +335,23 @@ bool DbManager::updateBooking(const int bookingId, const BookingData& data)
 
     QSqlQuery query;
 
-    query.prepare("UPDATE bookings SET "
-                    "info=:info, "
-                    "memberid=:memberid, "
-                    "priceid=:priceid, "
-                    "blockid=:blockid, "
-                    "aboid=NULL "
-                    "WHERE id=:id;");
-    query.bindValue(":info", data.booking_info);
-    query.bindValue(":memberid", data.memberID);
-    query.bindValue(":priceid", data.priceID);
-    query.bindValue(":blockid", data.blockID);
-    query.bindValue(":id", bookingId);
+    query.prepare(QString("UPDATE bookings SET "
+                  "info=%1, "
+                  "memberid=%2, "
+                  "priceid=%3, "
+                  "blockid=%4, "
+                  "aboid=%5, "
+                  "sum=%6, "
+                  "status=%7 "
+                  "WHERE id=%8;")
+                  .arg(data.booking_info.isEmpty() ? "NULL" : data.booking_info)
+                  .arg(data.memberID)
+                  .arg(data.priceID)
+                  .arg(data.blockID <= 0 ? "NULL" : QString("%1").arg(data.blockID))
+                  .arg(data.aboID <= 0 ? "NULL" : QString("%1").arg(data.aboID))
+                  .arg(static_cast<double>(data.sum))
+                  .arg(data.status == 0 ? "NULL" : QString("%1").arg(data.status))
+                  .arg(bookingId));
 
     if(query.exec())
     {
@@ -361,11 +389,7 @@ bool DbManager::cancleBooking(const int bookingId)
 }
 
 
-int DbManager::addBlock(const int memberID,
-                        const QString& booking_info,
-                        const QDate& start_date,
-                        const int priceID,
-                        const int numOfBlocks)
+int DbManager::addBlock(const BookingSlot& slot, const BookingData& data)
 {
     int new_record_id = -1;
     // you should check if args are ok first...
@@ -373,16 +397,16 @@ int DbManager::addBlock(const int memberID,
 
     //insert
 
-    if(numOfBlocks < 2)
+    if(data.numOfBlocks < 2)
         return -1;
 
     query.prepare("INSERT OR REPLACE INTO block_bookings (info, memberid, date, priceid, amount)"
                  "VALUES (:info, :memberid, :date, :priceid, :amount) ;");
-    query.bindValue(":info", booking_info);
-    query.bindValue(":memberid", memberID);
-    query.bindValue(":date", start_date.toJulianDay());
-    query.bindValue(":priceid", priceID);
-    query.bindValue(":amount", numOfBlocks);
+    query.bindValue(":info", data.booking_info);
+    query.bindValue(":memberid", data.memberID);
+    query.bindValue(":date", slot.date.toJulianDay());
+    query.bindValue(":priceid", data.priceID);
+    query.bindValue(":amount", data.numOfBlocks);
     if(query.exec())
     {
        new_record_id = query.lastInsertId().toInt();
@@ -395,6 +419,23 @@ int DbManager::addBlock(const int memberID,
     return new_record_id;
 }
 
+int DbManager::numOfUsedBlocks(int blockID)
+{
+    QSqlQuery query(QString("SELECT count(id) FROM bookings WHERE blockid = %1").arg(blockID));
+    if(query.exec())
+    {
+        if(query.first())
+        {
+             return  query.record().value(0).toInt();
+        }
+    }
+    else
+    {
+         qDebug() << "numOfUsedBlocks error:  "
+                  << query.lastError();
+    }
+    return -1;
+}
 bool DbManager::deleteBlock(const int blockId)
 {
     QSqlQuery query;
@@ -402,7 +443,7 @@ bool DbManager::deleteBlock(const int blockId)
     query.exec(QString("SELECT count(*) FROM bookings "
                        "WHERE blockid=%1;").arg(blockId));
     int used_blocks = -1;
-    if(query.first()) //this field is already booked. update
+    if(query.first())
     {
         used_blocks = query.value(0).toInt();
     }

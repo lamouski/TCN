@@ -55,7 +55,6 @@ BookingDialog::BookingDialog(QWidget *parent) :
     connect(ui->m_list_view_blocks->selectionModel(),
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentBlockChanged);
 
-
     m_prices_model = new QSqlQueryModel(this);
     m_prices_base_query_string = QString("SELECT (price_name || ' - ' || sum) "
                                          " AS info, sum, id, abo, member FROM prices");
@@ -174,11 +173,39 @@ void BookingDialog::setPriceId(int id)
 BookingData BookingDialog::getSelectedData() const
 {
     BookingData data;
-    data.memberID = m_last_selected_member_id;
-    data.booking_info = ui->m_line_edit_name->text();
-    data.priceID = m_last_selected_price_id;
-    data.blockID = m_last_selected_block_id;
-    data.sum = ui->m_summ_line_edit->text().toDouble();
+
+    QModelIndex member_index = ui->m_list_view_members->currentIndex();
+    QModelIndex block_index = ui->m_list_view_blocks->currentIndex();
+    if(member_index.isValid())
+    {
+        data.memberID = m_memberlist_model->record(member_index.row()).value(1).toInt();
+    }
+    if(block_index.isValid())
+    {
+        data.blockID = m_blockslist_model->record(block_index.row()).value(2).toInt();
+        data.priceID = m_blockslist_model->record(block_index.row()).value(3).toInt();
+        data.memberID = m_blockslist_model->record(block_index.row()).value(4).toInt();
+    }
+    if(data.memberID == -1)
+        data.booking_info = ui->m_line_edit_name->text();
+
+    QModelIndex price_index = m_prices_model->index(ui->m_combo_price->currentIndex(), 2);
+    if(price_index.isValid())
+    {
+        data.priceID = m_prices_model->data(price_index).toInt(); // third column
+    }
+
+    data.sum = ui->m_summ_line_edit->text().toFloat();
+
+    if(m_mode == MODE_BLOCK)
+        data.numOfBlocks = ui->m_num_of_blocks_spin_box->value();
+
+    if(m_mode == MODE_ABO)
+    {
+        data.aboStart = ui->m_start_abo_date->date();
+        data.aboEnd = ui->m_end_abo_date->date();
+    }
+    return data;
 }
 
 //int BookingDialog::selectedId() const
@@ -222,13 +249,13 @@ bool BookingDialog::isBlockBooking() const
 }
 
 
-int BookingDialog::numOfBlocks() const
-{
-    if(m_mode == MODE_BLOCK)
-        return ui->m_num_of_blocks_spin_box->value();
-    else
-        return -1;
-}
+//int BookingDialog::numOfBlocks() const
+//{
+//    if(m_mode == MODE_BLOCK)
+//        return ui->m_num_of_blocks_spin_box->value();
+//    else
+//        return -1;
+//}
 
 
 bool BookingDialog::isMultyBooking()
@@ -247,7 +274,10 @@ QDate BookingDialog::aboStartDate() const
 
 
 QDate BookingDialog::aboEndDate() const
-{
+{if(m_mode == MODE_ABO)
+        return ui->m_start_abo_date->date();
+    else
+        return QDate();
     if(m_mode == MODE_ABO)
         return ui->m_end_abo_date->date();
     else
@@ -421,6 +451,7 @@ void BookingDialog::selectCurrentBlockId(const QModelIndex &index)
         m_last_selected_block_id = m_blockslist_model->record(index.row()).value(2).toInt();
         m_last_selected_price_id = m_blockslist_model->record(index.row()).value(3).toInt();
         m_last_selected_member_id = m_blockslist_model->record(index.row()).value(4).toInt();
+        m_num_of_used_bloks = m_blockslist_model->record(index.row()).value(5).toInt();
         setMode(MODE_SINGLE);
     }
 }
