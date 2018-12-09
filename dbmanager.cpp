@@ -344,7 +344,7 @@ bool DbManager::updateBooking(const int bookingId, const BookingData& data)
                   "sum=%6, "
                   "status=%7 "
                   "WHERE id=%8;")
-                  .arg(data.booking_info.isEmpty() ? "NULL" : data.booking_info)
+                  .arg(data.booking_info.isEmpty() ? "NULL" : QString("'%1'").arg(data.booking_info))
                   .arg(data.memberID)
                   .arg(data.priceID)
                   .arg(data.blockID <= 0 ? "NULL" : QString("%1").arg(data.blockID))
@@ -352,6 +352,9 @@ bool DbManager::updateBooking(const int bookingId, const BookingData& data)
                   .arg(static_cast<double>(data.sum))
                   .arg(data.status == 0 ? "NULL" : QString("%1").arg(data.status))
                   .arg(bookingId));
+
+   qDebug()  << query.lastQuery();
+    //qDebug()  << query_str;
 
     if(query.exec())
     {

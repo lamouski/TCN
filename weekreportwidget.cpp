@@ -71,7 +71,8 @@ void WeekReportWidget::update()
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "INNER JOIN accounts ON prices.account = accounts.number "
                   "WHERE date between :from_day AND :till_day "
-                  "AND aboid IS NULL OR aboid = '' "
+                  "AND (aboid IS NULL OR aboid <= 0) "
+                  "AND (status IS NULL OR status != -1) "
                   "GROUP BY account, date ");
     query.bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
     query.bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
@@ -99,7 +100,7 @@ void WeekReportWidget::update()
         QString tmp_string = row_string;
         tmp_string.replace("%account_name%", query.value(0).toString());
         tmp_string.replace("%account%", query.value(1).toString());
-        tmp_string.replace("%sum%", query.value(2).toString() + "€");
+        tmp_string.replace("%sum%", query.value(2).toString() + " €");
         total_sum += query.value(2).toDouble();
         tmp_string.replace("%date%", QDate::fromJulianDay(query.value(3).toInt()).toString("dd.MM.yyyy"));
         html_text.insert(position,tmp_string); position += tmp_string.length();

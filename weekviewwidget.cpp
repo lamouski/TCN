@@ -162,18 +162,25 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
             return;
         }
 
+        bool succses = false;
         if(m_booking_dialog->isSingleBooking())
         {            
-            singleBooking(slot, data);
+            succses = singleBooking(slot, data);
         }
         else if(m_booking_dialog->isBlockBooking())
         {
-            blockBooking(slot, data);
+            succses = blockBooking(slot, data);
         }
         else if(m_booking_dialog->isMultyBooking())
         {
-            multiBooking(slot, data);
+            succses = multiBooking(slot, data);
         }
+
+        if(!succses)
+        {
+            QMessageBox::information(this, QString(), QString(tr("The booking can't be saved.")));
+        }
+
         m_day_booking_models[day]->select();
     }
 }
@@ -283,15 +290,19 @@ bool WeekViewWidget::singleBooking(const BookingSlot& slot, const BookingData& d
     }
     else
     {
-        sucsess = DbManager::instance()->updateBooking(old_bookingId, data);
-        if(old_data.blockID > 0)
+        if(Settings::canclePreviousBookingBeforeUpdate())
         {
-            if(DbManager::instance()->numOfUsedBlocks(old_data.blockID) == 0)
-                sucsess &= DbManager::instance()->deleteBlock(old_data.blockID);
+            sucsess = DbManager::instance()->cancleBooking(old_bookingId);
+            sucsess &= DbManager::instance()->addBooking(slot, data);
         }
-        //or
-        //DbManager::instance()->cancleBooking(old_bookingId);
-        //DbManager::instance()->addBooking(slot, data);
+        else
+            sucsess = DbManager::instance()->updateBooking(old_bookingId, data);
+
+//        if(old_data.blockID > 0)
+//        {
+//            if(DbManager::instance()->numOfUsedBlocks(old_data.blockID) == 0)
+//                sucsess &= DbManager::instance()->deleteBlock(old_data.blockID);
+//        }
     }
     return sucsess;
 }

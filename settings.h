@@ -29,17 +29,17 @@ public:
     static inline const QDate &currentDate()
     {
         return m_instance->m_current_date;
-    };
+    }
 
     static inline bool winterSeason()
     {
         return m_instance->m_winter_season;
-    };
+    }
 
     static inline QDate winterSeasonBegin()
     {
         return m_instance->m_winter_begin;
-    };
+    }
 
     static inline QDate winterSeasonEnd()
     {
@@ -53,17 +53,22 @@ public:
               end = end.addDays( Qt::Sunday - day_of_the_week + 1);
         }
         return end;
-    };
+    }
 
     static inline QDate sommerSeasonBegin()
     {
         return m_instance->m_sommer_begin;
-    };
+    }
 
     static inline QDate sommerSeasonEnd()
     {
         return m_instance->m_winter_begin.addDays(-1);
-    };
+    }
+
+    static inline bool canclePreviousBookingBeforeUpdate()
+    {
+        return m_instance->m_cancel_previous_booking_before_update;
+    }
 
     void setCurrentDate(const QDate& date);
 
@@ -84,6 +89,7 @@ private:
     QDate m_winter_begin;
     QDate m_sommer_begin;
     bool m_season_starts_from_monday;
+    bool m_cancel_previous_booking_before_update;
 
 };
 

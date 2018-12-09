@@ -19,6 +19,7 @@
 #include "memberslistdialog.h"
 #include "ui_memberslistdialog.h"
 
+#include <QMenu>
 #include <QSqlTableModel>
 
 MembersListDialog::MembersListDialog(QWidget *parent) :
@@ -26,6 +27,12 @@ MembersListDialog::MembersListDialog(QWidget *parent) :
     ui(new Ui::MembersListDialog)
 {
     ui->setupUi(this);
+
+    QMenu *pop_up = new QMenu(this);
+    //pop_up->addAction(tr("Edit"), this, &MembersListDialog::edit_current);
+    pop_up->addAction(tr("Copy"), this, &MembersListDialog::copy_current);
+    //pop_up->addAction(tr("Delete"), this, &MembersListDialog::delete_current);
+    ui->m_other_button->setMenu(pop_up);
 
     m_model = new QSqlTableModel(this);
     m_model->setTable("members");
@@ -44,4 +51,26 @@ MembersListDialog::~MembersListDialog()
 {
     delete ui;
     delete m_model;
+}
+
+//void MembersListDialog::delete_current()
+//{
+//    const int row = ui->m_view_members->currentIndex().row();
+//    m_model->removeRows(row, 1);
+//    m_model->select();
+//}
+
+void MembersListDialog::copy_current()
+{
+
+}
+
+void MembersListDialog::on_m_add_button_clicked()
+{
+    const int row = m_model->rowCount();
+    m_model->insertRows(row, 1);
+    QModelIndex index = m_model->index(row, 0);
+    ui->m_view_members->setCurrentIndex(index);
+    //edit_current();
+    //ui->m_view_members->edit(index);
 }

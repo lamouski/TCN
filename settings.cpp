@@ -74,6 +74,13 @@ void Settings::readDataFromDb()
                 else
                     m_season_starts_from_monday = false;
             }
+            else if(id == "cancel_previous_booking_before_update")
+            {
+                if(val == "true")
+                    m_cancel_previous_booking_before_update = true;
+                else
+                    m_cancel_previous_booking_before_update = false;
+            }
         }
     }
 
