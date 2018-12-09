@@ -42,9 +42,9 @@ BookingDialog::BookingDialog(QWidget *parent) :
 
     m_blockslist_model = new QSqlQueryModel(this);
     m_blockslist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name,"
-    "( firstname || ' ' || surname || ' - " +tr("Block")+ "' || amount || ' - " + tr("Used") + " ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id )) AS info_string, "
+    "( firstname || ' ' || surname || ' - " +tr("Block")+ "' || amount || ' - " + tr("Used") + " ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) )) AS info_string, "
     "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
-    "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id ) AS used_amount "
+    "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) ) AS used_amount "
     "FROM block_bookings "
     "LEFT OUTER JOIN members ON block_bookings.memberid = members.id "
     "WHERE amount > used_amount ");
@@ -208,39 +208,11 @@ BookingData BookingDialog::getSelectedData() const
     return data;
 }
 
-//int BookingDialog::selectedId() const
-//{
-//    return m_last_selected_member_id;
-//}
-
 
 bool BookingDialog::isSingleBooking() const
 {
     return m_mode == MODE_SINGLE;
 }
-
-
-//int BookingDialog::selectedPrice() const
-//{
-//    return m_last_selected_price_id;
-//}
-
-
-//int BookingDialog::selectedBlock() const
-//{
-//    return m_last_selected_block_id;
-//}
-
-//float BookingDialog::sum() const
-//{
-//    return ui->m_summ_line_edit->text().toFloat();
-//}
-
-
-//QString BookingDialog::info() const
-//{
-//    return ui->m_line_edit_name->text();
-//}
 
 
 bool BookingDialog::isBlockBooking() const
@@ -249,40 +221,28 @@ bool BookingDialog::isBlockBooking() const
 }
 
 
-//int BookingDialog::numOfBlocks() const
-//{
-//    if(m_mode == MODE_BLOCK)
-//        return ui->m_num_of_blocks_spin_box->value();
-//    else
-//        return -1;
-//}
-
-
 bool BookingDialog::isMultyBooking()
 {
     return m_mode == MODE_ABO;
 }
 
 
-QDate BookingDialog::aboStartDate() const
-{
-    if(m_mode == MODE_ABO)
-        return ui->m_start_abo_date->date();
-    else
-        return QDate();
-}
+//QDate BookingDialog::aboStartDate() const
+//{
+//    if(m_mode == MODE_ABO)
+//        return ui->m_start_abo_date->date();
+//    else
+//        return QDate();
+//}
 
 
-QDate BookingDialog::aboEndDate() const
-{if(m_mode == MODE_ABO)
-        return ui->m_start_abo_date->date();
-    else
-        return QDate();
-    if(m_mode == MODE_ABO)
-        return ui->m_end_abo_date->date();
-    else
-        return QDate();
-}
+//QDate BookingDialog::aboEndDate() const
+//{
+//    if(m_mode == MODE_ABO)
+//        return ui->m_end_abo_date->date();
+//    else
+//        return QDate();
+//}
 
 
 void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
@@ -360,11 +320,13 @@ void BookingDialog::updateMembersQuery(const QString &find_string)
     if(m_memberlist_model->rowCount() == 1) //one with entered name
     {
        m_last_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
+       QModelIndex index = m_memberlist_model->index(0, 1);
+       //ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
+       //ui->m_list_view_members->setCurrentIndex(index);
     }
     else if(m_memberlist_model->rowCount() == 0) //no member with entered name
     {
        m_last_selected_member_id = -1;
-
     }
     else
     {

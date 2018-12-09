@@ -63,11 +63,11 @@ public:
 //    float sum() const;
 
     bool isBlockBooking() const;
-    int numOfBlocks() const;
+    //int numOfBlocks() const;
 
     bool isMultyBooking();
-    QDate aboStartDate() const;
-    QDate aboEndDate() const;
+    //QDate aboStartDate() const;
+    //QDate aboEndDate() const;
 
 
 

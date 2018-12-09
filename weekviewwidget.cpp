@@ -305,7 +305,7 @@ bool  WeekViewWidget::blockBooking(const BookingSlot& slot, const BookingData& d
 
 bool WeekViewWidget::multiBooking(const BookingSlot& slot, const BookingData& data)
 {
-    QDate booking_day = data.aboStart.addDays( slot.date.dayOfWeek() < data.aboStart.dayOfWeek() ? 7 : 0 +
+    QDate booking_day = data.aboStart.addDays( (slot.date.dayOfWeek() < data.aboStart.dayOfWeek() ? 7 : 0) +
                                                slot.date.dayOfWeek() - data.aboStart.dayOfWeek());
     //check if some slots is alredy booked
     QString all_abo_days_str;

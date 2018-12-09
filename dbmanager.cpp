@@ -421,7 +421,7 @@ int DbManager::addBlock(const BookingSlot& slot, const BookingData& data)
 
 int DbManager::numOfUsedBlocks(int blockID)
 {
-    QSqlQuery query(QString("SELECT count(id) FROM bookings WHERE blockid = %1").arg(blockID));
+    QSqlQuery query(QString("SELECT count(id) FROM bookings WHERE blockid = %1 AND (status IS NULL OR status!=-1) ").arg(blockID));
     if(query.exec())
     {
         if(query.first())
