@@ -353,8 +353,7 @@ bool DbManager::updateBooking(const int bookingId, const BookingData& data)
                   .arg(data.status == 0 ? "NULL" : QString("%1").arg(data.status))
                   .arg(bookingId));
 
-   qDebug()  << query.lastQuery();
-    //qDebug()  << query_str;
+   //qDebug()  << query.lastQuery();
 
     if(query.exec())
     {

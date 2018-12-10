@@ -82,19 +82,23 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
     if(!m_day_booking_models[day])
         return;
 
-    QVariant curr_data = m_day_booking_models[day]->data(index, Qt::UserRole);
-    int booking_status = m_day_booking_models[day]->bookingStatus(index);
+    QVariant curr_data_var = m_day_booking_models[day]->data(index, Qt::UserRole);
+    BookingIdDataPair curr_data;
+    if(!curr_data_var.isNull())
+        curr_data = curr_data_var.value<BookingIdDataPair>();
+    else
+        curr_data.first = -1;
 
-    if(!curr_data.isNull() && flag == NEW_BOOKING && booking_status >= 0)
+    if(flag == NEW_BOOKING && curr_data.first > 0  && curr_data.second.status >= 0)
         return;
 
-    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
+    long long rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
        QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
        QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
 
-    if(rest_minutes < 0)
+    if( rest_minutes < 0 )
     {
-        if(booking_status > 0) //
+        if( curr_data.second.status > 0 ) //
         {
             QMessageBox::information(this, QString(), QString(tr("This booking is already entered in the cash register. It can't be changed.")));
             return;
@@ -110,24 +114,9 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
     m_booking_dialog->setField(m_day_booking_models[day]->fieldName(index.row()));
     m_booking_dialog->setTimeslot(time_slot);
 
-    if(!curr_data.isNull())
+    if(curr_data.first > 0)
     {
-        if(curr_data.canConvert<QPair<int, int> >()) //the booking for member
-        {
-            QPair<int, int> member_price_pair = curr_data.value<QPair<int, int> >();
-            m_booking_dialog->setMemberId(member_price_pair.first);
-            m_booking_dialog->setPriceId(member_price_pair.second);
-        }
-        else if(curr_data.canConvert<QPair<QString, int> >()) //the booking for others
-        {
-            QPair<QString, int> info_price_pair = curr_data.value<QPair<QString, int> >();
-            m_booking_dialog->setInfo(info_price_pair.first);
-            m_booking_dialog->setPriceId(info_price_pair.second);
-        }
-        else
-        {
-             m_booking_dialog->reset();
-        }
+        m_booking_dialog->setData(curr_data.second);
     }
     else
     {

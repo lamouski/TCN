@@ -24,8 +24,9 @@
 #define QF_MEMBERID 5
 #define QF_PRICEID 6
 #define QF_ABOID 7
-#define QF_STATUS 8
-#define QF_SUM 9
+#define QF_BLOCKID 8
+#define QF_STATUS 9
+#define QF_SUM 10
 
 #include "daybookingtablemodel.h"
 
@@ -40,8 +41,6 @@
 
 #include "dbmanager.h"
 #include "settings.h"
-
-
 
 DayBookingTableModel::DayBookingTableModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -73,7 +72,7 @@ bool DayBookingTableModel::queryData()
         int last_time_slot = (int) log2( (float) time_mask);
         m_nr_time_slots = std::max(m_first_time_slot + m_nr_time_slots, last_time_slot) - m_first_time_slot;
     }
-    m_query.prepare("SELECT bookings.id, (surname || ' ' || firstname), info, timeslot, fieldid, memberid, priceid, aboid, status, sum"
+    m_query.prepare("SELECT bookings.id, (surname || ' ' || firstname), info, timeslot, fieldid, memberid, priceid, aboid, blockid, status, sum"
                     " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
                     " WHERE date = :day ");
     m_query.bindValue(":day", m_day.toJulianDay());
@@ -174,19 +173,20 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
             if(m_index_hash.contains(index_key))
             {
                 const_cast<QSqlQuery&>(m_query).seek(m_index_hash[index_key]);
-                int memberId = m_query.value(QF_MEMBERID).toInt();
-                int priceId = m_query.value(QF_PRICEID).toInt();
-                if(memberId >= 0)
-                {
-                    QPair<int, int> member_price_pair(memberId, priceId);
-                    return QVariant::fromValue(member_price_pair);
-                }
-                else
-                {
-                    QString info = m_query.value(QF_INFO).toString();
-                    QPair<QString, int> info_price_pair(info, priceId);
-                    return QVariant::fromValue(info_price_pair);
-                }
+                BookingData data;
+
+                data.memberID = m_query.value(QF_MEMBERID).toInt();
+                data.priceID = m_query.value(QF_PRICEID).toInt();
+                data.booking_info = m_query.value(QF_INFO).toString();
+                data.sum = m_query.value(QF_SUM).toFloat();
+                data.blockID = m_query.value(QF_BLOCKID).toInt();
+                data.aboID = m_query.value(QF_ABOID).toInt();
+                data.status = m_query.value(QF_STATUS).toInt();
+
+                int bookingId = m_query.value(QF_ID).toInt();
+
+                return QVariant::fromValue<BookingIdDataPair>(BookingIdDataPair(bookingId, data));
+
             }
             else
                 return QVariant();
@@ -235,7 +235,6 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                     return QBrush(qRgb(255, 153, 0));
                 return QBrush(qRgb(255, 242, 230));
             }
-            break;
         case Qt::TextAlignmentRole:
             if(m_index_hash.contains(index_key))
             {

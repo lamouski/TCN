@@ -21,7 +21,7 @@
 
 #include <QDate>
 #include <QString>
-
+#include <QMetaType>
 
 struct BookingSlot
 {
@@ -47,5 +47,8 @@ struct BookingData
     //for abo buchung
     QDate aboStart, aboEnd;
 };
+
+typedef QPair<int, BookingData> BookingIdDataPair;
+Q_DECLARE_METATYPE(BookingIdDataPair);
 
 #endif // BOOKINGDATA_H

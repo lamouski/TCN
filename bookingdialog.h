@@ -43,9 +43,10 @@ public slots:
     void setTimeslot(int timeSlot);
     void setDay(const QDate& date);
 
-    void setMemberId(int id);
-    void setPriceId(int id);
-    void setInfo(const QString& info);
+    void setData(const BookingData &data);
+//    void setMemberId(int id);
+//    void setPriceId(int id);
+//    void setInfo(const QString& info);
 
     void updateMembersQuery(const QString &find_string);
     void updateBlocksQuery(const QString &find_string);
@@ -68,8 +69,6 @@ public:
     bool isMultyBooking();
     //QDate aboStartDate() const;
     //QDate aboEndDate() const;
-
-
 
 protected slots:
     void on_m_line_edit_name_textEdited(const QString &arg1);
