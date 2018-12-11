@@ -21,6 +21,7 @@
 
 #include <QDate>
 #include <QPushButton>
+#include <QSqlQuery>
 #include <QWidget>
 
 namespace Ui {
@@ -38,12 +39,17 @@ public:
     QPushButton *getReturnButton() const;
 
 protected:
+    void updateQuery();
     void update();    
     void showEvent(QShowEvent *);
+
+protected slots:
+    void exportCVS();
 
 private:
     Ui::WeekReportWidget *ui;
 
+    QSqlQuery m_query;
     QString m_template_str;
 };
 

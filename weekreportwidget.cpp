@@ -22,6 +22,9 @@
 #include <QFile>
 #include <QTextCodec>
 #include <QDir>
+#include <QMenu>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "weekreportwidget.h"
 #include "ui_weekreportwidget.h"
@@ -42,6 +45,12 @@ WeekReportWidget::WeekReportWidget(QWidget *parent) :
     QTextCodec *codec = QTextCodec::codecForHtml(data);
     m_template_str = codec->toUnicode(data);
 
+    QMenu* mode_menu = new QMenu(this);
+    mode_menu->addAction(QString(tr("Export as txt (CVS)")), [this](){ exportCVS();});
+    ui->m_button_extended->setMenu(mode_menu);
+
+
+
 }
 
 WeekReportWidget::~WeekReportWidget()
@@ -59,30 +68,42 @@ void WeekReportWidget::showEvent(QShowEvent */*e*/)
     update();
 }
 
-void WeekReportWidget::update()
+
+void WeekReportWidget::updateQuery()
 {
     const QDate& date = Settings::currentDate();
     //current week handling functions
     const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
     const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
 
-    QSqlQuery query;
-    query.prepare("SELECT account_name, account, TOTAL(bookings.sum), date FROM bookings "
+    m_query.prepare("SELECT account_name, account, TOTAL(bookings.sum), date FROM bookings "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "INNER JOIN accounts ON prices.account = accounts.number "
-                  "WHERE date between :from_day AND :till_day "
+                  "WHERE (date between :from_day AND :till_day) "
                   "AND (aboid IS NULL OR aboid <= 0) "
                   "AND (status IS NULL OR status != -1) "
                   "GROUP BY account, date ");
-    query.bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
-    query.bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
-    if(!query.exec())
+    m_query.bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
+    m_query.bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
+    if(!m_query.exec())
     {
-        qDebug() << "query day " << date.toString("yyyy-MM-dd") << " bookings error:  "
-              << query.lastError();
+
+        qDebug() << "query week " << date.toString("yyyy-MM-dd") << " bookings error:  "
+              << m_query.lastError();
+
+        qDebug() << m_query.lastQuery();
         return;
     }
+}
 
+void WeekReportWidget::update()
+{
+    updateQuery();
+
+    const QDate& date = Settings::currentDate();
+    //current week handling functions
+    const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
+    const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
 
     QString html_text = m_template_str;
     html_text.replace("%from_datum%", firstDayOfCurrientWeek.toString("dd.MM.yyyy"));
@@ -95,17 +116,47 @@ void WeekReportWidget::update()
     QString row_string = html_text.mid(position+table_row_start_tag.length(), end_position - position - table_row_start_tag.length());
     html_text.remove(position, end_position - position + table_row_end_tag.length());
     double total_sum = 0.0;
-    while(query.next())
+    while(m_query.next())
     {
         QString tmp_string = row_string;
-        tmp_string.replace("%account_name%", query.value(0).toString());
-        tmp_string.replace("%account%", query.value(1).toString());
-        tmp_string.replace("%sum%", query.value(2).toString() + " €");
-        total_sum += query.value(2).toDouble();
-        tmp_string.replace("%date%", QDate::fromJulianDay(query.value(3).toInt()).toString("dd.MM.yyyy"));
+        tmp_string.replace("%account_name%", m_query.value(0).toString());
+        tmp_string.replace("%account%", m_query.value(1).toString());
+        tmp_string.replace("%sum%", m_query.value(2).toString() + " €");
+        total_sum += m_query.value(2).toDouble();
+        tmp_string.replace("%date%", QDate::fromJulianDay(m_query.value(3).toInt()).toString("dd.MM.yyyy"));
         html_text.insert(position,tmp_string); position += tmp_string.length();
     }
     html_text.replace("%total_sum%", QString("%1 €").arg(total_sum));
     ui->m_text_editor->setHtml(html_text);
 
+}
+
+void WeekReportWidget::exportCVS()
+{
+    QFileDialog fileDialog(this, tr("Export TXT Directory"));
+    fileDialog.setFileMode(QFileDialog::Directory);
+    if (fileDialog.exec() != QDialog::Accepted)
+        return;
+    QString dirName = fileDialog.selectedFiles().first();
+
+    QFile file(dirName+Settings::weekReportRevenuesFilename());
+    if (file.open(QFile::WriteOnly | QFile::Truncate))
+    {
+        QTextStream stream(&file);
+        bool new_record = m_query.first();
+        while(new_record)
+        {
+            stream << m_query.value(0).toString() << ";";
+            stream << m_query.value(1).toString() << ";";
+            stream << m_query.value(2).toString() + " €" << ";";
+            stream << QDate::fromJulianDay(m_query.value(3).toInt()).toString("dd.MM.yyyy") << ";";
+            new_record = m_query.first();
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, QString(), QString(tr("The Revenues file can't be created.")));
+        return;
+    }
+    file.close();
 }

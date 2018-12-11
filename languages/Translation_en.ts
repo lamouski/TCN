@@ -44,27 +44,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="45"/>
+        <location filename="../bookingdialog.cpp" line="47"/>
         <source>Block</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="45"/>
+        <location filename="../bookingdialog.cpp" line="47"/>
         <source>Used</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="66"/>
+        <location filename="../bookingdialog.cpp" line="67"/>
         <source>Single booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="67"/>
+        <location filename="../bookingdialog.cpp" line="68"/>
         <source>Block booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="68"/>
+        <location filename="../bookingdialog.cpp" line="69"/>
         <source>Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
@@ -493,78 +493,78 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="99"/>
-        <location filename="../weekviewwidget.cpp" line="208"/>
+        <location filename="../weekviewwidget.cpp" line="103"/>
+        <location filename="../weekviewwidget.cpp" line="197"/>
         <source>This booking is already entered in the cash register. It can&apos;t be changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="154"/>
+        <location filename="../weekviewwidget.cpp" line="143"/>
         <source>The Abo Booking can&apos;t be direct rebooked. Please uses special funktions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="161"/>
+        <location filename="../weekviewwidget.cpp" line="150"/>
         <source>The information about bookin is not filled. The booking can&apos;t be saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="181"/>
+        <location filename="../weekviewwidget.cpp" line="170"/>
         <source>The booking can&apos;t be saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="229"/>
+        <location filename="../weekviewwidget.cpp" line="218"/>
         <source>Context menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="231"/>
+        <location filename="../weekviewwidget.cpp" line="220"/>
         <source>Change currient Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="235"/>
+        <location filename="../weekviewwidget.cpp" line="224"/>
         <source>Change complet Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="239"/>
+        <location filename="../weekviewwidget.cpp" line="228"/>
         <source>Cancel currient Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="243"/>
+        <location filename="../weekviewwidget.cpp" line="232"/>
         <source>Cancel complet Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="247"/>
+        <location filename="../weekviewwidget.cpp" line="236"/>
         <source>Change booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="251"/>
+        <location filename="../weekviewwidget.cpp" line="240"/>
         <source>Cancel booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="360"/>
+        <location filename="../weekviewwidget.cpp" line="349"/>
         <source>Booking conflict</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="361"/>
+        <location filename="../weekviewwidget.cpp" line="350"/>
         <source>The selected time slot is already booked: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="391"/>
+        <location filename="../weekviewwidget.cpp" line="380"/>
         <source>Booking error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="392"/>
+        <location filename="../weekviewwidget.cpp" line="381"/>
         <source>Error when try to save the multibooking</source>
         <translation type="unfinished"></translation>
     </message>

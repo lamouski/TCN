@@ -70,6 +70,16 @@ public:
         return m_instance->m_cancel_previous_booking_before_update;
     }
 
+    static inline QString weekReportRevenuesFilename()
+    {
+        return m_instance->m_week_report_revenues_filename;
+    }
+
+    static inline QString weekReportCostsFilename()
+    {
+        return m_instance->m_week_report_costs_filename;
+    }
+
     void setCurrentDate(const QDate& date);
 
     static Settings* instance();
@@ -90,6 +100,9 @@ private:
     QDate m_sommer_begin;
     bool m_season_starts_from_monday;
     bool m_cancel_previous_booking_before_update;
+
+    QString m_week_report_revenues_filename;
+    QString m_week_report_costs_filename;
 
 };
 

@@ -97,9 +97,9 @@ private:
 
     int m_timeslot;
 
-    int m_last_selected_member_id = -1;
-    int m_last_selected_block_id = -1;
-    int m_last_selected_price_id = -1;
+    int m_selected_member_id = -1;
+    int m_selected_block_id = -1;
+    int m_selected_price_id = -1;
 
     int m_num_of_used_bloks = 0;
 
@@ -115,8 +115,8 @@ private:
     BookingMode m_mode = MODE_SINGLE;
     void setMode(BookingMode mode);
 
-    void selectCurrentMemberId(const QModelIndex &index);
-    void selectCurrentBlockId(const QModelIndex &index);
+    void selectCurrentMemberId();
+    void selectCurrentBlockId();
 
 };
 

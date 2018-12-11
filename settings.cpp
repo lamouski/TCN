@@ -81,6 +81,14 @@ void Settings::readDataFromDb()
                 else
                     m_cancel_previous_booking_before_update = false;
             }
+            else if(id == "week_report_revenues_filename")
+            {
+                m_week_report_revenues_filename = val;
+            }
+            else if(id == "week_report_costs_filename")
+            {
+                m_week_report_costs_filename = val;
+            }
         }
     }
 
