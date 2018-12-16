@@ -23,11 +23,14 @@
 #include "bookingdialog.h"
 #include "daybookingtablemodel.h"
 #include "settings.h"
+#include "weekviewwidget.h"
 
 #include <QTableWidget>
 #include <QDebug>
 #include <QMessageBox>
 #include <QMenu>
+#include <QTextCodec>
+#include <QDir>
 
 WeekViewWidget::WeekViewWidget(QWidget *parent) :
     QWidget(parent),
@@ -171,6 +174,8 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
         }
 
         m_day_booking_models[day]->select();
+        if(Settings::exportBookingTableHtml())
+            exportBookingWeekHtml();
     }
 }
 
@@ -203,6 +208,8 @@ void WeekViewWidget::cancleBooking(int day, const QModelIndex &index, WeekViewWi
 
     DbManager::instance()->cancleBooking(bookingID);
     m_day_booking_models[day]->select();
+    if(Settings::exportBookingTableHtml())
+        exportBookingWeekHtml();
 }
 
 void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index, const QPoint& pos)
@@ -469,4 +476,105 @@ void WeekViewWidget::on_m_button_previous_week_clicked()
 void WeekViewWidget::on_m_button_next_week_clicked()
 {
     setCurrentDate(Settings::currentDate().addDays(7));
+}
+
+
+void WeekViewWidget::exportBookingWeekHtml()
+{
+
+   //initialisation
+    QString curr_dir = QDir::currentPath();
+    QFile file(curr_dir+"/db/fields_availability.htm");
+    if (!file.open(QFile::ReadOnly))
+    {
+        //template_str = "fields_availability.htm template is not found";
+        QMessageBox::information(this, QString(), QString(tr("The file fields_availability.htm template is not found. Please check the settings.")));
+        return;
+    }
+
+    QByteArray data = file.readAll();
+    QTextCodec *codec = QTextCodec::codecForHtml(data);
+    QString template_str = codec->toUnicode(data);
+    file.close();
+
+
+    //for result
+    QString fileName = Settings::bookingTableHtmlPath();
+    file.setFileName(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+    {
+        QMessageBox::information(this, QString(), QString(tr("The file for export %1 can't be created. Please check the settings.")));
+        return;
+    }
+    QTextStream stream(&file);
+
+    //
+    QDateTime curr_moment = QDateTime::currentDateTime();
+    const QDate& date = curr_moment.date();
+
+    QString html_text = template_str;
+
+    const QString table_start_tag("%table_start%");
+    int position = html_text.indexOf(table_start_tag);
+    const QString table_end_tag("%table_end%");
+    int end_position = html_text.indexOf(table_end_tag);
+    QString table_string = html_text.mid(position+table_start_tag.length(), end_position - position - table_start_tag.length());
+    QString doc_begin = html_text.left(position);
+    QString doc_end = html_text.mid(end_position + table_end_tag.length());
+
+
+    const QString table_row_start_tag("%table_row_start%");
+    position = table_string.indexOf(table_row_start_tag);
+    const QString table_row_end_tag("%table_row_end%");
+    end_position = table_string.indexOf(table_row_end_tag);
+    QString row_string = table_string.mid(position+table_row_start_tag.length(), end_position - position - table_row_start_tag.length());
+    table_string.remove(position, end_position - position + table_row_end_tag.length());
+
+    DayBookingTableModel day_booking_model;
+
+    doc_begin.replace("%last_update_day%", date.toString("dd.MM.yyyy"));
+    doc_begin.replace("%last_update_time%", curr_moment.time().toString("hh:mm:ss"));
+    stream << doc_begin;
+
+    for(int days_count = 0; days_count < 7; days_count ++)
+    {
+        QDate table_date = date.addDays(days_count);
+
+        day_booking_model.setDay(table_date);
+        int rows = day_booking_model.rowCount();
+        //int cols = day_booking_model.columnCount();
+
+        QString tmp_table_string = table_string;
+        QString day_info_key = "\%day_information\%";
+        QString day_info_string = table_date.toString("dddd, dd MMMM yyyy");
+        tmp_table_string.replace(day_info_key, day_info_string);
+        int tmp_position = position - day_info_key.length() + day_info_string.length();
+        for(int row = 0; row < rows; row++)
+        {
+            QString tmp_string = row_string;
+            tmp_string.replace("%field_name%", day_booking_model.fieldName(row));
+            int first_time_slot = day_booking_model.timeSlot(0);
+            for (int time_slot = 8; time_slot < 23; time_slot++)
+            {
+                int col = time_slot - first_time_slot;
+                QModelIndex index = day_booking_model.index(row, col);
+                int booking_id  = day_booking_model.bookingId(index);
+                int booking_status = day_booking_model.bookingStatus(index);
+                QString col_key = QString("\%data%1\%").arg(time_slot);
+                if(booking_id > 0 && booking_status >= 0)
+                    tmp_string.replace(col_key, tr("Booked"));
+                else
+                    tmp_string.replace(col_key, "");
+            }
+
+            tmp_table_string.insert(tmp_position,tmp_string); tmp_position += tmp_string.length();
+
+        }
+
+        stream << tmp_table_string;
+    }
+
+    stream << doc_end;
+
+    file.close();
 }

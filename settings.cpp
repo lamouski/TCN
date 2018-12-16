@@ -89,6 +89,17 @@ void Settings::readDataFromDb()
             {
                 m_week_report_costs_filename = val;
             }
+            else if(id == "export_booking_table_html")
+            {
+                if(val == "true")
+                    m_export_booking_table_html = true;
+                else
+                    m_export_booking_table_html = false;
+            }
+            else if(id == "booking_table_html_path")
+            {
+                m_booking_table_html_path = val;
+            }
         }
     }
 

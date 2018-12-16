@@ -80,6 +80,16 @@ public:
         return m_instance->m_week_report_costs_filename;
     }
 
+    static inline bool exportBookingTableHtml()
+    {
+        return m_instance->m_export_booking_table_html;
+    }
+
+    static inline QString bookingTableHtmlPath()
+    {
+        return m_instance->m_booking_table_html_path;
+    }
+
     void setCurrentDate(const QDate& date);
 
     static Settings* instance();
@@ -103,6 +113,9 @@ private:
 
     QString m_week_report_revenues_filename;
     QString m_week_report_costs_filename;
+
+    bool m_export_booking_table_html;
+    QString m_booking_table_html_path;
 
 };
 

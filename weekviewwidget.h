@@ -57,7 +57,9 @@ public:
 
     QPushButton *getReturnButton() const;
 
-    public slots:
+    void exportBookingWeekHtml();
+
+public slots:
     //
     void setCurrentDate(QDate date);
 

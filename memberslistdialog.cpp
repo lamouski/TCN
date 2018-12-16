@@ -28,22 +28,22 @@ MembersListDialog::MembersListDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QMenu *pop_up = new QMenu(this);
+    //QMenu *pop_up = new QMenu(this);
     //pop_up->addAction(tr("Edit"), this, &MembersListDialog::edit_current);
-    pop_up->addAction(tr("Copy"), this, &MembersListDialog::copy_current);
+    //pop_up->addAction(tr("Copy"), this, &MembersListDialog::copy_current);
     //pop_up->addAction(tr("Delete"), this, &MembersListDialog::delete_current);
-    ui->m_other_button->setMenu(pop_up);
+    //ui->m_other_button->setMenu(pop_up);
 
     m_model = new QSqlTableModel(this);
     m_model->setTable("members");
     m_model->select();
 
-    //m_model->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    m_model->setHeaderData(0, Qt::Horizontal, tr("Member number"));
     m_model->setHeaderData(1, Qt::Horizontal, tr("First name"));
     m_model->setHeaderData(2, Qt::Horizontal, tr("Last name"));
 
     ui->m_view_members->setModel(m_model);
-    ui->m_view_members->hideColumn(0);
+    //ui->m_view_members->hideColumn(0);
     ui->m_view_members->resizeColumnsToContents();
 }
 

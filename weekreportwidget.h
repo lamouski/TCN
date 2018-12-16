@@ -49,7 +49,7 @@ protected slots:
 private:
     Ui::WeekReportWidget *ui;
 
-    QSqlQuery m_query;
+    QSqlQuery* m_query = nullptr;
     QString m_template_str;
 };
 

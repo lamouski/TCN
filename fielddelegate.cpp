@@ -163,35 +163,41 @@ bool FieldDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
             return QSqlRelationalDelegate::editorEvent(event, model, option, index);
         case DAYS_MASK_COLUMN:
             if (event->type() == QEvent::MouseButtonPress) {
-                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-                int days = model->data(index, Qt::DisplayRole).toInt();
-                int day = qBound(0, int(qreal(mouseEvent->pos().x()
-                             - option.rect.x()) / 22), 7);
-                if(days & (1 << day))
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);                
+                if(mouseEvent->button() == Qt::RightButton)
                 {
-                    days = days & ~(1 << day);
+                    int days = model->data(index, Qt::DisplayRole).toInt();
+                    int day = qBound(0, int(qreal(mouseEvent->pos().x()
+                                 - option.rect.x()) / 22), 7);
+                    if(days & (1 << day))
+                    {
+                        days = days & ~(1 << day);
+                    }
+                    else
+                    {
+                        days = days | (1 << day);
+                    }
+                    model->setData(index, QVariant(days), Qt::EditRole);
+                    return false; //so that the selection can change
                 }
-                else
-                {
-                    days = days | (1 << day);
-                }
-                model->setData(index, QVariant(days), Qt::EditRole);
-                return false; //so that the selection can change
             }
         break;
 
         case SEASONS_MASK_COLUMN:
             if (event->type() == QEvent::MouseButtonPress) {
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-                int seasons = model->data(index, Qt::DisplayRole).toInt();
-                int season = qBound(0, int(qreal(mouseEvent->pos().x()
-                             - option.rect.x()) / 22), 1);
-                if(seasons & (1 << season))
-                    seasons = seasons & ~(1 << season);
-                else
-                    seasons = seasons | (1 << season);
-                model->setData(index, QVariant(seasons), Qt::EditRole);
-                return false; //so that the selection can change
+                if(mouseEvent->button() == Qt::RightButton)
+                {
+                    int seasons = model->data(index, Qt::DisplayRole).toInt();
+                    int season = qBound(0, int(qreal(mouseEvent->pos().x()
+                                 - option.rect.x()) / 22), 1);
+                    if(seasons & (1 << season))
+                        seasons = seasons & ~(1 << season);
+                    else
+                        seasons = seasons | (1 << season);
+                    model->setData(index, QVariant(seasons), Qt::EditRole);
+                    return false; //so that the selection can change
+                }
             }
     }
 

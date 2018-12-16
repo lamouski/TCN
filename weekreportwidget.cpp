@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include "dbmanager.h"
 #include "weekreportwidget.h"
 #include "ui_weekreportwidget.h"
 #include "settings.h"
@@ -50,12 +51,13 @@ WeekReportWidget::WeekReportWidget(QWidget *parent) :
     ui->m_button_extended->setMenu(mode_menu);
 
 
-
 }
 
 WeekReportWidget::~WeekReportWidget()
 {
     delete ui;
+    if(m_query)
+        delete m_query;
 }
 
 QPushButton *WeekReportWidget::getReturnButton() const
@@ -71,27 +73,29 @@ void WeekReportWidget::showEvent(QShowEvent */*e*/)
 
 void WeekReportWidget::updateQuery()
 {
+    if(!m_query)
+         m_query = new QSqlQuery();
     const QDate& date = Settings::currentDate();
     //current week handling functions
     const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
     const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
 
-    m_query.prepare("SELECT account_name, account, TOTAL(bookings.sum), date FROM bookings "
+    m_query->prepare("SELECT account_name, account, TOTAL(bookings.sum), date FROM bookings "
                   "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                   "INNER JOIN accounts ON prices.account = accounts.number "
                   "WHERE (date between :from_day AND :till_day) "
                   "AND (aboid IS NULL OR aboid <= 0) "
                   "AND (status IS NULL OR status != -1) "
-                  "GROUP BY account, date ");
-    m_query.bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
-    m_query.bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
-    if(!m_query.exec())
+                  "GROUP BY date, account ");
+    m_query->bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
+    m_query->bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
+    if(!m_query->exec())
     {
 
         qDebug() << "query week " << date.toString("yyyy-MM-dd") << " bookings error:  "
-              << m_query.lastError();
+              << m_query->lastError();
 
-        qDebug() << m_query.lastQuery();
+        qDebug() << m_query->lastQuery();
         return;
     }
 }
@@ -116,14 +120,14 @@ void WeekReportWidget::update()
     QString row_string = html_text.mid(position+table_row_start_tag.length(), end_position - position - table_row_start_tag.length());
     html_text.remove(position, end_position - position + table_row_end_tag.length());
     double total_sum = 0.0;
-    while(m_query.next())
+    while(m_query->next())
     {
         QString tmp_string = row_string;
-        tmp_string.replace("%account_name%", m_query.value(0).toString());
-        tmp_string.replace("%account%", m_query.value(1).toString());
-        tmp_string.replace("%sum%", m_query.value(2).toString() + " €");
-        total_sum += m_query.value(2).toDouble();
-        tmp_string.replace("%date%", QDate::fromJulianDay(m_query.value(3).toInt()).toString("dd.MM.yyyy"));
+        tmp_string.replace("%account_name%", m_query->value(0).toString());
+        tmp_string.replace("%account%", m_query->value(1).toString());
+        tmp_string.replace("%sum%", m_query->value(2).toString() + " €");
+        total_sum += m_query->value(2).toDouble();
+        tmp_string.replace("%date%", QDate::fromJulianDay(m_query->value(3).toInt()).toString("dd.MM.yyyy"));
         html_text.insert(position,tmp_string); position += tmp_string.length();
     }
     html_text.replace("%total_sum%", QString("%1 €").arg(total_sum));
@@ -139,18 +143,19 @@ void WeekReportWidget::exportCVS()
         return;
     QString dirName = fileDialog.selectedFiles().first();
 
-    QFile file(dirName+Settings::weekReportRevenuesFilename());
-    if (file.open(QFile::WriteOnly | QFile::Truncate))
+    QFile file(dirName+"/"+Settings::weekReportRevenuesFilename());
+    if (file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
     {
         QTextStream stream(&file);
-        bool new_record = m_query.first();
+        bool new_record = m_query->first();
         while(new_record)
         {
-            stream << m_query.value(0).toString() << ";";
-            stream << m_query.value(1).toString() << ";";
-            stream << m_query.value(2).toString() + " €" << ";";
-            stream << QDate::fromJulianDay(m_query.value(3).toInt()).toString("dd.MM.yyyy") << ";";
-            new_record = m_query.first();
+            stream << m_query->value(0).toString() << ";";
+            stream << m_query->value(1).toString() << ";";
+            stream << m_query->value(2).toString() + " €" << ";";
+            stream << QDate::fromJulianDay(m_query->value(3).toInt()).toString("dd.MM.yyyy") << ";";
+            stream << endl;
+            new_record = m_query->next();
         }
     }
     else
