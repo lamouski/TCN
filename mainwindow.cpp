@@ -75,21 +75,30 @@ MainWindow::~MainWindow()
 void MainWindow::on_m_button_members_clicked()
 {
     if(!m_members_list_dialog)
+    {
         m_members_list_dialog = new MembersListDialog();
+        m_members_list_dialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+    }
     m_members_list_dialog->show();
 }
 
 void MainWindow::on_m_button_fields_clicked()
 {
     if(!m_fields_list_dialog)
+    {
         m_fields_list_dialog = new FieldListDialog();
+        m_fields_list_dialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+    }
     m_fields_list_dialog->show();
 }
 
 void MainWindow::on_m_button_prices_clicked()
 {
     if(!m_prices_list_dialog)
+    {
         m_prices_list_dialog = new PriceListDialog();
+        m_prices_list_dialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+    }
     m_prices_list_dialog->show();
 }
 

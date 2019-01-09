@@ -174,7 +174,7 @@ void WeekViewWidget::processBooking(int day, const QModelIndex &index, Processin
         }
 
         m_day_booking_models[day]->select();
-        if(Settings::exportBookingTableHtml())
+        if(Settings::getBool("export_booking_table_html"))
             exportBookingWeekHtml();
     }
 }
@@ -208,7 +208,7 @@ void WeekViewWidget::cancleBooking(int day, const QModelIndex &index, WeekViewWi
 
     DbManager::instance()->cancleBooking(bookingID);
     m_day_booking_models[day]->select();
-    if(Settings::exportBookingTableHtml())
+    if(Settings::getBool("export_booking_table_html"))
         exportBookingWeekHtml();
 }
 
@@ -286,7 +286,7 @@ bool WeekViewWidget::singleBooking(const BookingSlot& slot, const BookingData& d
     }
     else
     {
-        if(Settings::canclePreviousBookingBeforeUpdate())
+        if(Settings::getBool("cancel_previous_booking_before_update"))
         {
             sucsess = DbManager::instance()->cancleBooking(old_bookingId);
             sucsess &= DbManager::instance()->addBooking(slot, data);
@@ -499,7 +499,7 @@ void WeekViewWidget::exportBookingWeekHtml()
 
 
     //for result
-    QString fileName = Settings::bookingTableHtmlPath();
+    QString fileName = Settings::getString("booking_table_html_path");
     file.setFileName(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
     {

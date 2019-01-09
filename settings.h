@@ -20,6 +20,9 @@
 #define SETTINGS_H
 
 #include <QDate>
+#include <QMap>
+#include <QString>
+#include <QVariant>
 
 class Settings
 {
@@ -29,6 +32,26 @@ public:
     static inline const QDate &currentDate()
     {
         return m_instance->m_current_date;
+    }
+
+    static inline int getInt(const QString & setting_key)
+    {
+        return m_instance->m_settings_map[setting_key].toInt();
+    }
+
+    static inline QString getString(const QString & setting_key)
+    {
+        return m_instance->m_settings_map[setting_key].toString();
+    }
+
+    static inline bool getBool(const QString & setting_key)
+    {
+        return m_instance->m_settings_map[setting_key].toBool();
+    }
+
+    static inline QDate getDate(const QString & setting_key)
+    {
+        return m_instance->m_settings_map[setting_key].value<QDate>();
     }
 
     static inline bool winterSeason()
@@ -43,16 +66,7 @@ public:
 
     static inline QDate winterSeasonEnd()
     {
-        QDate end =  m_instance->m_sommer_begin.addYears(1).addDays(-1);
-        if(m_instance->m_season_starts_from_monday)
-        {
-            int day_of_the_week = end.dayOfWeek();
-            if(day_of_the_week < 3)
-              end = end.addDays( Qt::Monday - day_of_the_week );
-            else
-              end = end.addDays( Qt::Sunday - day_of_the_week + 1);
-        }
-        return end;
+        return m_instance->m_winter_end;
     }
 
     static inline QDate sommerSeasonBegin()
@@ -62,32 +76,7 @@ public:
 
     static inline QDate sommerSeasonEnd()
     {
-        return m_instance->m_winter_begin.addDays(-1);
-    }
-
-    static inline bool canclePreviousBookingBeforeUpdate()
-    {
-        return m_instance->m_cancel_previous_booking_before_update;
-    }
-
-    static inline QString weekReportRevenuesFilename()
-    {
-        return m_instance->m_week_report_revenues_filename;
-    }
-
-    static inline QString weekReportCostsFilename()
-    {
-        return m_instance->m_week_report_costs_filename;
-    }
-
-    static inline bool exportBookingTableHtml()
-    {
-        return m_instance->m_export_booking_table_html;
-    }
-
-    static inline QString bookingTableHtmlPath()
-    {
-        return m_instance->m_booking_table_html_path;
+        return m_instance->m_sommer_end;
     }
 
     void setCurrentDate(const QDate& date);
@@ -97,25 +86,21 @@ public:
 public:
     void readDataFromDb();
 
+protected:
+    void settingsPreprocessing();
 private:
     void setSeason();
 
 private:
     static Settings* m_instance;
 
+    QMap<QString, QVariant> m_settings_map;
+
     QDate m_current_date;
     bool m_winter_season;
 
-    QDate m_winter_begin;
-    QDate m_sommer_begin;
-    bool m_season_starts_from_monday;
-    bool m_cancel_previous_booking_before_update;
-
-    QString m_week_report_revenues_filename;
-    QString m_week_report_costs_filename;
-
-    bool m_export_booking_table_html;
-    QString m_booking_table_html_path;
+    QDate m_winter_begin, m_winter_end;
+    QDate m_sommer_begin, m_sommer_end;
 
 };
 

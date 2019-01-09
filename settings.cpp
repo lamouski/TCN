@@ -17,6 +17,7 @@
  */
 
 #include "settings.h"
+#include "settings.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -46,77 +47,96 @@ void Settings::readDataFromDb()
         while(query.next())
         {
             QString id = query.record().value(0).toString();
-            QString val = query.record().value(1).toString();
-            if(id =="winter_start")
+            QVariant val = query.record().value(1);
+            int type = query.record().value(2).toInt();
+
+            QVariant vr_value;
+
+            switch(type)
             {
-                QStringList values = val.split(".");
-                if(values.size()>=2)
+            case 0: //int
+                vr_value.setValue(val.toInt());
+                break;
+            case 1: //bool
+                if(val.toString() == "true")
+                    vr_value.setValue(true);
+                else
+                    vr_value.setValue(false);
+                break;
+            case 2: default:
+                vr_value.setValue(val.toString());
+                break;
+            case 3: //date
+            {
+                QStringList values = val.toString().split(".");
+                if(values.size() >= 2)
                 {
                     int day = values[0].toInt();
                     int month = values[1].toInt();
-                    m_winter_begin = QDate(m_current_date.year(), month, day);
+                    int year = values.size() > 2 ? values[2].toInt() : m_current_date.year();
+                    vr_value.setValue(QDate(year, month, day));
                 }
             }
-            else if(id == "sommer_start")
-            {
-                QStringList values = val.split(".");
-                if(values.size()>=2)
-                {
-                    int day = values[0].toInt();
-                    int month = values[1].toInt();
-                    m_sommer_begin = QDate(m_current_date.year(), month, day);
-                }
+                break;
             }
-            else if (id == "sesason_starts_from_monday")
-            {
-                if(val == "true")
-                    m_season_starts_from_monday = true;
-                else
-                    m_season_starts_from_monday = false;
-            }
-            else if(id == "cancel_previous_booking_before_update")
-            {
-                if(val == "true")
-                    m_cancel_previous_booking_before_update = true;
-                else
-                    m_cancel_previous_booking_before_update = false;
-            }
-            else if(id == "week_report_revenues_filename")
-            {
-                m_week_report_revenues_filename = val;
-            }
-            else if(id == "week_report_costs_filename")
-            {
-                m_week_report_costs_filename = val;
-            }
-            else if(id == "export_booking_table_html")
-            {
-                if(val == "true")
-                    m_export_booking_table_html = true;
-                else
-                    m_export_booking_table_html = false;
-            }
-            else if(id == "booking_table_html_path")
-            {
-                m_booking_table_html_path = val;
-            }
+
+            m_settings_map[id] = vr_value;
         }
     }
 
-    if(m_season_starts_from_monday)
+    settingsPreprocessing();
+}
+
+
+void Settings::settingsPreprocessing()
+{
+    m_sommer_begin = m_settings_map["sommer_start"].toDate();
+    m_winter_begin = m_settings_map["winter_start"].toDate();
+
+    if(m_current_date < m_sommer_begin)
+    {
+        m_sommer_end = m_winter_begin.addDays(-1);
+        m_winter_begin = m_winter_begin.addYears(-1);
+        m_winter_end = m_sommer_begin.addDays(-1);
+    }
+    else if (m_current_date < m_winter_begin)
+    {
+        m_sommer_end = m_winter_begin.addDays(-1);
+        m_winter_end = m_sommer_begin.addYears(1).addDays(-1);
+    }
+    else
+    {
+        m_sommer_begin = m_sommer_begin.addYears(1);
+        m_winter_end = m_sommer_begin.addDays(-1);
+        m_sommer_end = m_winter_begin.addYears(1).addDays(-1);
+    }
+
+    if(m_settings_map["season_starts_from_monday"].toBool())
     {
         int day_of_the_week = m_winter_begin.dayOfWeek();
-        if(day_of_the_week < 3)
+        if(day_of_the_week < 4)
           m_winter_begin = m_winter_begin.addDays( Qt::Monday - day_of_the_week );
         else
           m_winter_begin = m_winter_begin.addDays( Qt::Sunday - day_of_the_week + 1);
 
-        day_of_the_week = m_sommer_begin.dayOfWeek();
+        day_of_the_week = m_winter_end.dayOfWeek();
         if(day_of_the_week < 3)
+          m_winter_end = m_winter_end.addDays( Qt::Monday - day_of_the_week - 1);
+        else
+          m_winter_end = m_winter_end.addDays( Qt::Sunday - day_of_the_week);
+
+        day_of_the_week = m_sommer_begin.dayOfWeek();
+        if(day_of_the_week < 4)
           m_sommer_begin = m_sommer_begin.addDays( Qt::Monday - day_of_the_week );
         else
           m_sommer_begin = m_sommer_begin.addDays( Qt::Sunday - day_of_the_week + 1);
-    }
+
+        day_of_the_week = m_sommer_end.dayOfWeek();
+        if(day_of_the_week < 3)
+          m_sommer_end = m_sommer_end.addDays( Qt::Monday - day_of_the_week - 1);
+        else
+          m_sommer_end = m_sommer_end.addDays( Qt::Sunday - day_of_the_week);
+     }
 
     setSeason();
 }

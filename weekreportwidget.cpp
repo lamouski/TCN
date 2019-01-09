@@ -142,8 +142,8 @@ void WeekReportWidget::exportCVS()
     if (fileDialog.exec() != QDialog::Accepted)
         return;
     QString dirName = fileDialog.selectedFiles().first();
-
-    QFile file(dirName+"/"+Settings::weekReportRevenuesFilename());
+    QString kassa_account = Settings::getString("cash_register_account");
+    QFile file(dirName+"/"+Settings::getString("week_report_revenues_filename"));
     if (file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
     {
         QTextStream stream(&file);
@@ -154,6 +154,7 @@ void WeekReportWidget::exportCVS()
             stream << m_query->value(1).toString() << ";";
             stream << m_query->value(2).toString() + " €" << ";";
             stream << QDate::fromJulianDay(m_query->value(3).toInt()).toString("dd.MM.yyyy") << ";";
+            stream << kassa_account << ";";
             stream << endl;
             new_record = m_query->next();
         }

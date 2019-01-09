@@ -284,6 +284,7 @@ void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const 
         ui->m_line_edit_name->setText(m_blockslist_model->record(current.row()).value(0).toString());
         ui->m_list_view_members->clearSelection();
         updatePriceQuery();
+        ui->m_summ_line_edit->setText("0");
     }
 }
 
@@ -305,10 +306,15 @@ void BookingDialog::on_m_combo_price_currentIndexChanged(int row)
 void BookingDialog::setMode(BookingDialog::BookingMode mode)
 {
     m_mode = mode;
+    ui->m_preis_widget->setVisible(m_mode != MODE_ABO);
     ui->m_block_date_widget->setVisible(m_mode == MODE_BLOCK);
     ui->m_abo_date_widget->setVisible(m_mode == MODE_ABO);
 
-    updatePriceQuery();
+    if(m_mode != MODE_ABO)
+        updatePriceQuery();
+    if(m_mode == MODE_BLOCK)
+        ui->m_summ_line_edit->setText(QString("50"));
+
 }
 
 
