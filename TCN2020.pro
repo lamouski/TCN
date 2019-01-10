@@ -41,7 +41,8 @@ SOURCES += \
     weekreportwidget.cpp \
     servicedialog.cpp \
     settings.cpp \
-    pricestablemodel.cpp
+    pricestablemodel.cpp \
+    kassaviewwidget.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -61,7 +62,8 @@ HEADERS += \
     servicedialog.h \
     settings.h \
     pricestablemodel.h \
-    bookingdata.h
+    bookingdata.h \
+    kassaviewwidget.h
 
 FORMS += \
         mainwindow.ui \
@@ -73,7 +75,8 @@ FORMS += \
     pricelistdialog.ui \
     texteditor.ui \
     weekreportwidget.ui \
-    servicedialog.ui
+    servicedialog.ui \
+    kassaviewwidget.ui
 
 RESOURCES += \
     tcn2020.qrc
