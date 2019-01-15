@@ -50,6 +50,11 @@ MainWindow::MainWindow(QWidget *parent) :
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_week_view);});
     connect(ui->m_week_view->getReturnButton(), &QPushButton::clicked,
             [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
+
+    connect(ui->m_button_kassa, &QPushButton::clicked,
+            [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_cash_register_view);});
+    connect(ui->m_cash_register_view->getReturnButton(), &QPushButton::clicked,
+            [this](){ui->m_stacked_widget->setCurrentWidget(ui->m_main_view);});
     connect(ui->m_button_day_report, &QPushButton::clicked,
             [this](){
                 ui->m_stacked_widget->setCurrentWidget(ui->m_day_report_view);

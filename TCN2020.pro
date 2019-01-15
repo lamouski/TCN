@@ -42,7 +42,8 @@ SOURCES += \
     servicedialog.cpp \
     settings.cpp \
     pricestablemodel.cpp \
-    kassaviewwidget.cpp
+    kassaviewwidget.cpp \
+    daykassatablemodel.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS += \
     settings.h \
     pricestablemodel.h \
     bookingdata.h \
-    kassaviewwidget.h
+    kassaviewwidget.h \
+    daykassatablemodel.h
 
 FORMS += \
         mainwindow.ui \

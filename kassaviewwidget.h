@@ -1,6 +1,9 @@
 #ifndef KASSAVIEWWIDGET_H
 #define KASSAVIEWWIDGET_H
 
+#include "daykassatablemodel.h"
+
+#include <QPushButton>
 #include <QWidget>
 
 namespace Ui {
@@ -15,6 +18,17 @@ public:
     explicit KassaViewWidget(QWidget *parent = nullptr);
     ~KassaViewWidget();
 
+    QPushButton *getReturnButton() const;
+
+protected:
+    void updateGUI();
+
+    void showEvent(QShowEvent *);
+
+    void fillCurrentDay();
+
+    DayKassaTableModel *m_revenue_model = nullptr;
+    DayKassaTableModel *m_costs_model = nullptr;
 private:
     Ui::KassaViewWidget *ui;
 };

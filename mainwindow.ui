@@ -358,7 +358,7 @@ QPushButton:pressed {
        </layout>
       </widget>
       <widget class="WeekViewWidget" name="m_week_view"/>
-      <widget class="KassaViewWidget" name="m_cash_registerview"/>
+      <widget class="KassaViewWidget" name="m_cash_register_view"/>
       <widget class="DayReportWidget" name="m_day_report_view"/>
       <widget class="WeekReportWidget" name="m_week_report_view"/>
      </widget>

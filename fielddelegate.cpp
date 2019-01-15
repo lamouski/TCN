@@ -204,8 +204,8 @@ bool FieldDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
     return true;
 }
 
-QWidget *FieldDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                                    const QModelIndex &index) const
+QWidget *FieldDelegate::createEditor(QWidget */*parent*/, const QStyleOptionViewItem &/*option*/,
+                                    const QModelIndex &/*index*/) const
 {
 //    if (index.column() != 4)
 //        return QSqlRelationalDelegate::createEditor(parent, option, index);
