@@ -23,6 +23,8 @@
 #include <QSqlError>
 #include <QSqlRecord>
 
+#include <math.h>
+
 FieldsTableModel::FieldsTableModel(QObject *parent)
                                    : QAbstractTableModel(parent)
 {

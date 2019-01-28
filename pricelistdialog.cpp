@@ -20,6 +20,10 @@
 #include "ui_pricelistdialog.h"
 
 #include <QMenu>
+#include <QMessageBox>
+#include <QSqlError>
+#include <QSqlRelationalDelegate>
+#include <QSqlRelationalTableModel>
 #include <QSqlTableModel>
 
 PriceListDialog::PriceListDialog(QWidget *parent) :
@@ -34,9 +38,13 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     pop_up->addAction(tr("Delete"), this, &PriceListDialog::delete_current);
     ui->m_other_button->setMenu(pop_up);
 
-    m_model = new QSqlTableModel(this);
+    m_model = new QSqlRelationalTableModel(this);
     m_model->setTable("prices");
-    m_model->select();
+
+    m_model->setJoinMode(QSqlRelationalTableModel::LeftJoin);
+    int revenueIdx = m_model->fieldIndex("revenue");
+
+    m_model->setRelation(revenueIdx, QSqlRelation("revenues", "id", "type"));
 
     //m_model->setHeaderData(0, Qt::Horizontal, tr("ID"));
     m_model->setHeaderData(1, Qt::Horizontal, tr("Name"));
@@ -49,8 +57,19 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     m_model->setHeaderData(8, Qt::Horizontal, tr("Till"));
     m_model->setHeaderData(9, Qt::Horizontal, tr("Summe"));
     m_model->setHeaderData(10, Qt::Horizontal, tr("Account"));
+    m_model->setHeaderData(11, Qt::Horizontal, tr("Revenue type"));
+
+
+    // Populate the model:
+    if (!m_model->select())
+    {
+        QMessageBox::critical(this, "Unable to initialize Pricedialog",
+                    "Error initializing database: " + m_model->lastError().text());
+        return;
+    }
 
     ui->m_view_prices->setModel(m_model);
+    ui->m_view_prices->setItemDelegate(new QSqlRelationalDelegate(ui->m_view_prices));
     ui->m_view_prices->hideColumn(0);
     //ui->m_view_prices->setItemDelegate(new PricesDelegate(ui->m_view_prices));
     ui->m_view_prices->resizeColumnsToContents();

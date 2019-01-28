@@ -14,23 +14,23 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="1">
-    <widget class="QTableView" name="m_revenue_table_view"/>
-   </item>
-   <item row="3" column="1">
-    <widget class="QLabel" name="label">
+   <item row="3" column="2">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Revenue</string>
+      <string>Costs</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
-    <widget class="QLabel" name="label_2">
+   <item row="4" column="2">
+    <widget class="QTableView" name="m_costs_table_view"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Costs</string>
+      <string>Revenue</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -119,8 +119,124 @@
      </layout>
     </widget>
    </item>
-   <item row="4" column="2">
-    <widget class="QTableView" name="m_costs_table_view"/>
+   <item row="4" column="1">
+    <widget class="QTableView" name="m_revenue_table_view"/>
+   </item>
+   <item row="5" column="1">
+    <widget class="QWidget" name="widget_3" native="true">
+     <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,3,2,1">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Add Erlöse</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLineEdit" name="lineEdit"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="lineEdit_2"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Info</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Art</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Betrag</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QWidget" name="widget_4" native="true">
+     <layout class="QGridLayout" name="gridLayout_3" columnstretch="3,3,2,1">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>Add Kosten</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_2"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLineEdit" name="lineEdit_3"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="lineEdit_4"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Info</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Art</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Betrag</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
