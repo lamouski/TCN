@@ -63,14 +63,15 @@ void DayReportWidget::update()
 {
     const QDate& date = Settings::currentDate();
     QSqlQuery query;
-    query.prepare("SELECT (surname || ' ' || firstname), info, account_name, account, bookings.sum, name, timeslot, status FROM bookings "
+    query.prepare("SELECT (surname || ' ' || firstname) as name_info, bookings.info, revenues.type, revenues.account, cash_register.sum, fields.name, timeslot, status FROM bookings "
                   "LEFT OUTER JOIN members ON bookings.memberid = members.id "
                   "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
-                  "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
-                  "LEFT OUTER JOIN accounts ON prices.account = accounts.number "
-                  "WHERE date = :day "
+                  "LEFT OUTER JOIN cash_register ON bookings.status = cash_register.id "
+                  "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
+                  "WHERE bookings.date = :day "
                   "AND (aboid IS NULL OR aboid <= 0)");
     query.bindValue(":day", date.toJulianDay());
+//"LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
     if(!query.exec())
     {
         qDebug() << "query day " <<date.toString("yyyy-MM-dd") << " bookings error:  "
@@ -103,14 +104,19 @@ void DayReportWidget::update()
         tmp_string.replace("%full_name%", full_name);
         tmp_string.replace("%account_name%", query.value(2).toString());
         tmp_string.replace("%account%", query.value(3).toString());
-        if(query.value(7).toInt() != -1) //canceled
+        int status = query.value(7).toInt();
+        switch(status)
         {
+        case -1: //canceled
+            tmp_string.replace("%sum%", tr("(Canceled)"));
+            break;
+        case 0:
+            tmp_string.replace("%sum%", tr("(Not paid)"));
+            break;
+        default:
             tmp_string.replace("%sum%", query.value(4).toString() + " €");
             total_sum += query.value(4).toDouble();
-        }
-        else
-        {
-            tmp_string.replace("%sum%", tr("(Canceled)"));
+            break;
         }
         tmp_string.replace("%field_name%", query.value(5).toString());
         tmp_string.replace("%time_slot%", query.value(6).toString());

@@ -22,7 +22,7 @@
 #include <QDialog>
 #include <QModelIndex>
 
-class QSqlRelationalTableModel;
+#include <QSqlRelationalTableModel>
 
 namespace Ui {
 class PriceListDialog;
@@ -49,6 +49,8 @@ private slots:
 private:
     Ui::PriceListDialog *ui;
     QSqlRelationalTableModel* m_model;
+
+    QSqlRelation m_revenue_relation;
 
     QModelIndex m_edited_index;
 };

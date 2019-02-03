@@ -79,6 +79,32 @@ QPushButton *WeekViewWidget::getReturnButton() const
     return ui->m_button_back_to_main_menu;
 }
 
+void WeekViewWidget::markBookingAsPaid(int day, const QModelIndex &index)
+{
+    if(!m_day_booking_models[day])
+        return;
+
+    QVariant curr_data_var = m_day_booking_models[day]->data(index, Qt::UserRole);
+    BookingIdDataPair curr_data;
+    if(!curr_data_var.isNull())
+        curr_data = curr_data_var.value<BookingIdDataPair>();
+    else
+       return;
+
+    int booking_status = curr_data.second.status;
+    if(booking_status > 0)
+    {
+        QMessageBox::information(this, QString(), QString(tr("This booking is already entered in the cash register.")));
+        return;
+    }
+
+    int bookingID = m_day_booking_models[day]->bookingId(index);
+
+    DbManager::instance()->markBookingAsPaid(bookingID);
+    m_day_booking_models[day]->select();
+    if(Settings::getBool("export_booking_table_html"))
+        exportBookingWeekHtml();
+}
 
 void WeekViewWidget::processBooking(int day, const QModelIndex &index, ProcessingFlag flag)
 {
@@ -224,6 +250,11 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
     {
         m_contextMenu = new QMenu(tr("Context menu"), this);
 
+        m_action_mark_paid = new QAction(tr("Mark as paid"), this);
+        connect(m_action_mark_paid, &QAction::triggered,
+                [this] () { markBookingAsPaid(m_selected_day, m_selected_index ); });
+
+
         m_action_change_abo_cur = new QAction(tr("Change currient Abo booking"), this);
         connect(m_action_change_abo_cur, &QAction::triggered,
                 [this] () { processBooking(m_selected_day, m_selected_index, CURRENT_BOOKING ); });
@@ -266,6 +297,8 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
         }
         else
         {
+            m_contextMenu->addAction(m_action_mark_paid);
+            m_contextMenu->addSeparator();
             m_contextMenu->addAction(m_action_change_booking);
             m_contextMenu->addSeparator();
             m_contextMenu->addAction(m_action_cancle_booking);

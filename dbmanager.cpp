@@ -367,6 +367,75 @@ bool DbManager::updateBooking(const int bookingId, const BookingData& data)
     return success;
 }
 
+bool DbManager::markBookingAsPaid(const int bookingId)
+{
+    bool success = false;
+    QSqlQuery booking_query;
+    booking_query.prepare("SELECT date, info, (surname || ' ' || firstname) as name_info, revenue, bookings.sum, status FROM bookings "
+                          "LEFT OUTER JOIN members ON bookings.memberid = members.id "
+                          "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
+                          "WHERE  bookings.id=:id;");
+    booking_query.bindValue(":id", bookingId);
+    if(!booking_query.exec())
+    {
+        qDebug() << "markBookingAsPaid error:  "
+                 << booking_query.lastError();
+       return false;
+    }
+
+    QString fields_str, values_str;
+    QTextStream  fields(&fields_str);
+    QTextStream  values(&values_str);
+    if(booking_query.first())
+    {
+        QSqlRecord record = booking_query.record();
+        fields << "date, operation, info, account, sum";
+        values << record.value("date").toString()<< ", " << "0"<< ", ";
+        if(!record.value("info").toString().isEmpty())
+        {
+            values << "'"<< record.value("info").toString() << "', ";
+        }
+        else
+        {
+            values << "'"<< record.value("name_info").toString() << "', ";
+        }
+        values << record.value("revenue").toString() << ", "
+           << record.value("sum").toString() ;
+        QSqlQuery query;
+        query.prepare(QString("INSERT INTO cash_register (") + fields.string() + QString(") "
+                              "VALUES (") + values.string() + ");");
+
+        int new_record_id = 0;
+        if(query.exec())
+        {
+           new_record_id = query.lastInsertId().toInt();
+        }
+        else
+        {
+            qDebug() << "markBookingAsPaid (insert into cash register) error:  "
+                     << query.lastError();
+        }
+
+        query.prepare("UPDATE bookings SET "
+                    "status=:status "
+                    "WHERE id=:id;");
+        query.bindValue(":status", new_record_id);
+        query.bindValue(":id", bookingId);
+
+
+        if(query.exec())
+        {
+            success = true;
+        }
+        else
+        {
+             qDebug() << "markBookingAsPaid error:  "
+                      << query.lastError();
+        }
+    }
+    return success;
+}
+
 bool DbManager::cancleBooking(const int bookingId)
 {
     bool success = false;

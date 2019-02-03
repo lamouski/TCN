@@ -72,5 +72,5 @@ void MembersListDialog::on_m_add_button_clicked()
     QModelIndex index = m_model->index(row, 0);
     ui->m_view_members->setCurrentIndex(index);
     //edit_current();
-    //ui->m_view_members->edit(index);
+    ui->m_view_members->edit(index);
 }

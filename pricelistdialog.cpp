@@ -44,7 +44,8 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     m_model->setJoinMode(QSqlRelationalTableModel::LeftJoin);
     int revenueIdx = m_model->fieldIndex("revenue");
 
-    m_model->setRelation(revenueIdx, QSqlRelation("revenues", "id", "type"));
+    //m_revenue_relation = QSqlRelation("revenues", "id", "type, account");
+    m_model->setRelation(revenueIdx, QSqlRelation("revenues", "id", "type"));/*, account*/
 
     //m_model->setHeaderData(0, Qt::Horizontal, tr("ID"));
     m_model->setHeaderData(1, Qt::Horizontal, tr("Name"));
@@ -56,8 +57,8 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     m_model->setHeaderData(7, Qt::Horizontal, tr("From"));
     m_model->setHeaderData(8, Qt::Horizontal, tr("Till"));
     m_model->setHeaderData(9, Qt::Horizontal, tr("Summe"));
-    m_model->setHeaderData(10, Qt::Horizontal, tr("Account"));
-    m_model->setHeaderData(11, Qt::Horizontal, tr("Revenue type"));
+    m_model->setHeaderData(10, Qt::Horizontal, tr("Revenue type"));
+    m_model->setHeaderData(11, Qt::Horizontal, tr("Account"));
 
 
     // Populate the model:
@@ -73,6 +74,7 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     ui->m_view_prices->hideColumn(0);
     //ui->m_view_prices->setItemDelegate(new PricesDelegate(ui->m_view_prices));
     ui->m_view_prices->resizeColumnsToContents();
+    ui->m_view_prices->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(ui->m_view_prices->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &PriceListDialog::handleCurrentChanged);
@@ -91,6 +93,7 @@ void PriceListDialog::edit_current()
     if(index.isValid())
     {
         m_edited_index = index;
+        //m_model->setRelation(m_model->fieldIndex("revenue"), QSqlRelation("revenues", "id", "type"));
         ui->m_view_prices->edit(index);
         ui->m_view_prices->setEditTriggers(QAbstractItemView::AllEditTriggers);
     }
@@ -121,8 +124,9 @@ void PriceListDialog::handleCurrentChanged(const QModelIndex &current, const QMo
 {
     if(current.row() != m_edited_index.row())
     {
-        ui->m_view_prices->closePersistentEditor(current);
+        ui->m_view_prices->closePersistentEditor(m_edited_index);
         ui->m_view_prices->setEditTriggers(QAbstractItemView::NoEditTriggers);
         m_edited_index = QModelIndex();
+
     }
 }

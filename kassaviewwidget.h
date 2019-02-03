@@ -1,10 +1,11 @@
 #ifndef KASSAVIEWWIDGET_H
 #define KASSAVIEWWIDGET_H
 
-#include "daykassatablemodel.h"
-
+#include <QModelIndex>
 #include <QPushButton>
 #include <QWidget>
+
+class QSqlRelationalTableModel;
 
 namespace Ui {
 class KassaViewWidget;
@@ -27,10 +28,24 @@ protected:
 
     void fillCurrentDay();
 
-    DayKassaTableModel *m_revenue_model = nullptr;
-    DayKassaTableModel *m_costs_model = nullptr;
+    QSqlRelationalTableModel  *m_revenue_model = nullptr;
+    QSqlRelationalTableModel  *m_costs_model = nullptr;
+
+private slots:
+    void on_m_add_revenue_clicked();
+    void on_m_add_cost_clicked();
+
+    void edit_current_revenue();
+    void delete_current_revenue();
+    void handleCurrentRevenueChanged(const QModelIndex &current, const QModelIndex &previous);
+
+    void handleCurrentExpenseChanged(const QModelIndex &current, const QModelIndex &previous);
+
 private:
     Ui::KassaViewWidget *ui;
+
+    QModelIndex m_edited_revenue_index;
+    QModelIndex m_edited_expence_index;
 };
 
 #endif // KASSAVIEWWIDGET_H

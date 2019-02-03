@@ -204,25 +204,28 @@ QVariant DayBookingTableModel::data(const QModelIndex &index, int role) const
                 if(status >= 0) //
                 {
                     int abo_id = m_query.value(QF_ABOID).toInt();
-                    int saturation = 80;
+                    int lightnes = 80;
                     switch (index.row() % 3) {
                     case 0:
-                        saturation = 160;// 80%
+                        lightnes = 160;// 80%
                         break;
                     case 1:
-                        saturation = 191; //~75%
+                        lightnes = 191; //~75%
                         break;
                     case 2:
-                        saturation = 179; //~70%
+                        lightnes = 179; //~70%
                         break;
                     default:
                         break;
                     }
                     QColor base_color;
                     if(abo_id <= 0)
-                        base_color = QColor::fromHsl(120, 150, saturation);
+                        if(status == 0)
+                            base_color = QColor::fromHsl(60, 150, lightnes);
+                        else
+                            base_color = QColor::fromHsl(120, 150, lightnes);
                     else
-                        base_color = QColor::fromHsl(180, 150, saturation);
+                        base_color = QColor::fromHsl(180, 150, lightnes);
                     return QBrush(base_color);
                 }
             }            

@@ -80,13 +80,19 @@ void WeekReportWidget::updateQuery()
     const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
     const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
 
-    m_query->prepare("SELECT account_name, account, TOTAL(bookings.sum), date FROM bookings "
-                  "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
-                  "INNER JOIN accounts ON prices.account = accounts.number "
+//    m_query->prepare("SELECT type, account, TOTAL(bookings.sum), date FROM bookings "
+//                  "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
+//                  "INNER JOIN revenues ON prices.revenue = revenues.id "
+//                  "WHERE (date between :from_day AND :till_day) "
+//                  "AND (aboid IS NULL OR aboid <= 0) "
+//                  "AND (status IS NULL OR status != -1) "
+//                  "GROUP BY date, account ");
+
+    m_query->prepare("SELECT revenues.type, revenues.account, TOTAL(sum), date FROM cash_register "
+                  "INNER JOIN revenues ON cash_register.account = revenues.id "
                   "WHERE (date between :from_day AND :till_day) "
-                  "AND (aboid IS NULL OR aboid <= 0) "
-                  "AND (status IS NULL OR status != -1) "
-                  "GROUP BY date, account ");
+                  "AND operation=0 "
+                  "GROUP BY date, revenues.type, revenues.account ");
     m_query->bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
     m_query->bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
     if(!m_query->exec())
