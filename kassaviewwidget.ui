@@ -154,7 +154,7 @@
        <widget class="QPushButton" name="m_add_revenue">
         <property name="minimumSize">
          <size>
-          <width>50</width>
+          <width>54</width>
           <height>50</height>
          </size>
         </property>
@@ -214,6 +214,9 @@ QToolButton:pressed {
         <property name="text">
          <string>...</string>
         </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
@@ -267,7 +270,7 @@ QToolButton:pressed {
        <widget class="QPushButton" name="m_add_cost">
         <property name="minimumSize">
          <size>
-          <width>50</width>
+          <width>54</width>
           <height>50</height>
          </size>
         </property>
@@ -326,6 +329,9 @@ QToolButton:pressed {
         </property>
         <property name="text">
          <string>...</string>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonTextBesideIcon</enum>

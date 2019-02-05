@@ -29,7 +29,8 @@ protected:
     void fillCurrentDay();
 
     QSqlRelationalTableModel  *m_revenue_model = nullptr;
-    QSqlRelationalTableModel  *m_costs_model = nullptr;
+    QSqlRelationalTableModel  *m_expence_model = nullptr;
+
 
 private slots:
     void on_m_add_revenue_clicked();
@@ -39,6 +40,8 @@ private slots:
     void delete_current_revenue();
     void handleCurrentRevenueChanged(const QModelIndex &current, const QModelIndex &previous);
 
+    void edit_current_expense();
+    void delete_current_expense();
     void handleCurrentExpenseChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
