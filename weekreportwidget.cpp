@@ -80,19 +80,10 @@ void WeekReportWidget::updateQuery()
     const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
     const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
 
-//    m_query->prepare("SELECT type, account, TOTAL(bookings.sum), date FROM bookings "
-//                  "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
-//                  "INNER JOIN revenues ON prices.revenue = revenues.id "
-//                  "WHERE (date between :from_day AND :till_day) "
-//                  "AND (aboid IS NULL OR aboid <= 0) "
-//                  "AND (status IS NULL OR status != -1) "
-//                  "GROUP BY date, account ");
-
-    m_query->prepare("SELECT revenues.type, revenues.account, TOTAL(sum), date FROM cash_register "
+    m_query->prepare("SELECT operation, revenues.type, revenues.account, TOTAL(sum), date FROM cash_register "
                   "INNER JOIN revenues ON cash_register.account = revenues.id "
                   "WHERE (date between :from_day AND :till_day) "
-                  "AND operation=0 "
-                  "GROUP BY date, revenues.type, revenues.account ");
+                  "GROUP BY operation, date, revenues.type, revenues.account ");
     m_query->bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
     m_query->bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
     if(!m_query->exec())
@@ -125,18 +116,30 @@ void WeekReportWidget::update()
     int end_position = html_text.indexOf(table_row_end_tag);
     QString row_string = html_text.mid(position+table_row_start_tag.length(), end_position - position - table_row_start_tag.length());
     html_text.remove(position, end_position - position + table_row_end_tag.length());
-    double total_sum = 0.0;
+    double total_sum_revenues = 0.0;
+    double total_sum_expenses = 0.0;
     while(m_query->next())
     {
         QString tmp_string = row_string;
-        tmp_string.replace("%account_name%", m_query->value(0).toString());
-        tmp_string.replace("%account%", m_query->value(1).toString());
-        tmp_string.replace("%sum%", m_query->value(2).toString() + " €");
-        total_sum += m_query->value(2).toDouble();
-        tmp_string.replace("%date%", QDate::fromJulianDay(m_query->value(3).toInt()).toString("dd.MM.yyyy"));
+        tmp_string.replace("%account_name%", m_query->value(1).toString());
+        tmp_string.replace("%account%", m_query->value(2).toString());
+        if(m_query->value(0).toInt() == 0)
+        {
+            tmp_string.replace("%sum_revenues%", m_query->value(3).toString() + " €");
+            total_sum_revenues += m_query->value(3).toDouble();
+            tmp_string.replace("%sum_expenses%", "");
+        }
+        else {
+            tmp_string.replace("%sum_expenses%", m_query->value(3).toString() + " €");
+            total_sum_expenses += m_query->value(3).toDouble();
+            tmp_string.replace("%sum_revenues%", "");
+        }
+
+        tmp_string.replace("%date%", QDate::fromJulianDay(m_query->value(4).toInt()).toString("dd.MM.yyyy"));
         html_text.insert(position,tmp_string); position += tmp_string.length();
     }
-    html_text.replace("%total_sum%", QString("%1 €").arg(total_sum));
+    html_text.replace("%total_sum_revenues%", QString("%1 €").arg(total_sum_revenues));
+    html_text.replace("%total_sum_expenses%", QString("%1 €").arg(total_sum_expenses));
     ui->m_text_editor->setHtml(html_text);
 
 }
@@ -149,19 +152,22 @@ void WeekReportWidget::exportCVS()
         return;
     QString dirName = fileDialog.selectedFiles().first();
     QString kassa_account = Settings::getString("cash_register_account");
-    QFile file(dirName+"/"+Settings::getString("week_report_revenues_filename"));
-    if (file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+    QFile file_revenues(dirName+"/"+Settings::getString("week_report_revenues_filename"));
+    if (file_revenues.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
     {
-        QTextStream stream(&file);
+        QTextStream stream(&file_revenues);
         bool new_record = m_query->first();
         while(new_record)
         {
-            stream << m_query->value(0).toString() << ";";
-            stream << m_query->value(1).toString() << ";";
-            stream << m_query->value(2).toString() + " €" << ";";
-            stream << QDate::fromJulianDay(m_query->value(3).toInt()).toString("dd.MM.yyyy") << ";";
-            stream << kassa_account << ";";
-            stream << endl;
+            if(m_query->value(0).toInt() == 0)
+            {
+                stream << m_query->value(1).toString() << ";";
+                stream << m_query->value(2).toString() << ";";
+                stream << m_query->value(3).toString() + " €" << ";";
+                stream << QDate::fromJulianDay(m_query->value(4).toInt()).toString("dd.MM.yyyy") << ";";
+                stream << kassa_account << ";";
+                stream << endl;
+            }
             new_record = m_query->next();
         }
     }
@@ -170,5 +176,31 @@ void WeekReportWidget::exportCVS()
         QMessageBox::information(this, QString(), QString(tr("The Revenues file can't be created.")));
         return;
     }
-    file.close();
+    file_revenues.close();
+
+    QFile file_expenses(dirName+"/"+Settings::getString("week_report_costs_filename"));
+    if (file_expenses.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+    {
+        QTextStream stream(&file_expenses);
+        bool new_record = m_query->first();
+        while(new_record)
+        {
+            if(m_query->value(0).toInt() == 1)
+            {
+                stream << m_query->value(1).toString() << ";";
+                stream << kassa_account << ";";
+                stream << m_query->value(3).toString() + " €" << ";";
+                stream << QDate::fromJulianDay(m_query->value(4).toInt()).toString("dd.MM.yyyy") << ";";
+                stream << m_query->value(2).toString() << ";";
+                stream << endl;
+            }
+            new_record = m_query->next();
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, QString(), QString(tr("The Expenses file can't be created.")));
+        return;
+    }
+    file_expenses.close();
 }

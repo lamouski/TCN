@@ -436,6 +436,51 @@ bool DbManager::markBookingAsPaid(const int bookingId)
     return success;
 }
 
+bool DbManager::markBookingAsUnpaid(const int bookingId)
+{
+    bool success = false;
+    QSqlQuery booking_query;
+    booking_query.prepare("SELECT status FROM bookings "
+                          "WHERE  bookings.id=:id;");
+    booking_query.bindValue(":id", bookingId);
+    if(!booking_query.exec())
+    {
+        qDebug() << "markBookingAsUnpaid error:  "
+                 << booking_query.lastError();
+       return false;
+    }
+
+
+    if(booking_query.first())
+    {
+        QSqlQuery query;
+        query.prepare("DELETE FROM cash_register "
+                              "WHERE id = :id;");
+        query.bindValue(":id", booking_query.value(0));
+        if(!query.exec())
+        {
+            qDebug() << "markBookingAsUnpaid (delete from cash register) error:  "
+                     << query.lastError();
+        }
+
+        query.prepare("UPDATE bookings SET "
+                    "status=0 "
+                    "WHERE id=:id;");
+        query.bindValue(":id", bookingId);
+
+        if(query.exec())
+        {
+            success = true;
+        }
+        else
+        {
+             qDebug() << "markBookingAsUnpaid error:  "
+                      << query.lastError();
+        }
+    }
+    return success;
+}
+
 bool DbManager::cancleBooking(const int bookingId)
 {
     bool success = false;

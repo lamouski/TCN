@@ -102,9 +102,30 @@ void WeekViewWidget::markBookingAsPaid(int day, const QModelIndex &index)
 
     DbManager::instance()->markBookingAsPaid(bookingID);
     m_day_booking_models[day]->select();
-    if(Settings::getBool("export_booking_table_html"))
-        exportBookingWeekHtml();
 }
+
+void WeekViewWidget::markBookingAsUnpaid(int day, const QModelIndex &index)
+{
+    if(!m_day_booking_models[day])
+        return;
+
+    QVariant curr_data_var = m_day_booking_models[day]->data(index, Qt::UserRole);
+    BookingIdDataPair curr_data;
+    if(!curr_data_var.isNull())
+        curr_data = curr_data_var.value<BookingIdDataPair>();
+    else
+       return;
+
+    int booking_status = curr_data.second.status;
+    if(booking_status > 0)
+    {
+        int bookingID = m_day_booking_models[day]->bookingId(index);
+
+        DbManager::instance()->markBookingAsUnpaid(bookingID);
+        m_day_booking_models[day]->select();
+    }
+}
+
 
 void WeekViewWidget::processBooking(int day, const QModelIndex &index, ProcessingFlag flag)
 {
@@ -240,7 +261,6 @@ void WeekViewWidget::cancleBooking(int day, const QModelIndex &index, WeekViewWi
 
 void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index, const QPoint& pos)
 {
-
     if(!m_day_booking_models[day])
         return;
 
@@ -254,6 +274,9 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
         connect(m_action_mark_paid, &QAction::triggered,
                 [this] () { markBookingAsPaid(m_selected_day, m_selected_index ); });
 
+        m_action_mark_unpaid = new QAction(tr("Mark as unpaid"), this);
+        connect(m_action_mark_unpaid, &QAction::triggered,
+                [this] () { markBookingAsUnpaid(m_selected_day, m_selected_index ); });
 
         m_action_change_abo_cur = new QAction(tr("Change currient Abo booking"), this);
         connect(m_action_change_abo_cur, &QAction::triggered,
@@ -283,11 +306,13 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
     int abo_id = m_day_booking_models[day]->aboId(index);
 
 
-    QVariant curr_data = m_day_booking_models[day]->data(index, Qt::UserRole);
-    if(!curr_data.isNull())
+    QVariant curr_data_var = m_day_booking_models[day]->data(index, Qt::UserRole);
+    if(!curr_data_var.isNull())
     {
+        BookingIdDataPair curr_data = curr_data_var.value<BookingIdDataPair>();
+
         m_contextMenu->clear();
-        if(abo_id > 0)
+        if(curr_data.second.aboID > 0)
         {
             m_contextMenu->addAction(m_action_change_abo_cur);
             m_contextMenu->addAction(m_action_change_abo_all);
@@ -297,13 +322,19 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
         }
         else
         {
-            m_contextMenu->addAction(m_action_mark_paid);
-            m_contextMenu->addSeparator();
-            m_contextMenu->addAction(m_action_change_booking);
-            m_contextMenu->addSeparator();
-            m_contextMenu->addAction(m_action_cancle_booking);
+            switch (curr_data.second.status) {
+            case -1:
+                break;
+            case 0:
+                m_contextMenu->addAction(m_action_mark_paid);
+                m_contextMenu->addAction(m_action_change_booking);
+                m_contextMenu->addSeparator();
+                m_contextMenu->addAction(m_action_cancle_booking);
+                break;
+            default:
+                m_contextMenu->addAction(m_action_mark_unpaid);
+            }
         }
-
         m_contextMenu->exec(m_booking_tables[day]->mapToGlobal(pos));
     }
 }
@@ -536,7 +567,7 @@ void WeekViewWidget::exportBookingWeekHtml()
     file.setFileName(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
     {
-        QMessageBox::information(this, QString(), QString(tr("The file for export %1 can't be created. Please check the settings.")));
+        QMessageBox::information(this, QString(), QString(tr("The file for export %1 can't be created. Please check the settings.").arg(fileName)));
         return;
     }
     QTextStream stream(&file);

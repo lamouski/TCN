@@ -63,22 +63,37 @@ void DayReportWidget::update()
 {
     const QDate& date = Settings::currentDate();
     QSqlQuery query;
-    query.prepare("SELECT (surname || ' ' || firstname) as name_info, bookings.info, revenues.type, revenues.account, cash_register.sum, fields.name, timeslot, status FROM bookings "
-                  "LEFT OUTER JOIN members ON bookings.memberid = members.id "
-                  "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
-                  "LEFT OUTER JOIN cash_register ON bookings.status = cash_register.id "
+    query.prepare("SELECT cash_register.info, cash_register.operation, revenues.type, revenues.account, cash_register.sum, fields.name, timeslot, status FROM cash_register "
                   "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
-                  "WHERE bookings.date = :day "
+                  "LEFT OUTER JOIN bookings ON cash_register.id = bookings.status "
+                  "LEFT JOIN fields ON bookings.fieldid = fields.id "
+                  "WHERE cash_register.date = :day "
                   "AND (aboid IS NULL OR aboid <= 0)");
+
     query.bindValue(":day", date.toJulianDay());
-//"LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
     if(!query.exec())
+    {
+        qDebug() << "query day " <<date.toString("yyyy-MM-dd") << " cash_register error:  "
+              << query.lastError();
+        return;
+    }
+
+    QSqlQuery query_other;
+    query_other.prepare("SELECT (surname || ' ' || firstname) as name_info, bookings.info, revenues.type, revenues.account, bookings.sum, fields.name, timeslot, status FROM bookings "
+                        "LEFT OUTER JOIN members ON bookings.memberid = members.id "
+                        "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
+                        "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
+                        "LEFT OUTER JOIN revenues ON prices.revenue = revenues.id "
+                        "WHERE bookings.date = :day "
+                        "AND (aboid IS NULL OR aboid <= 0) "
+                        "AND (status IS NULL OR status <= 0)");
+    query_other.bindValue(":day", date.toJulianDay());
+    if(!query_other.exec())
     {
         qDebug() << "query day " <<date.toString("yyyy-MM-dd") << " bookings error:  "
               << query.lastError();
         return;
     }
-
 
     QString html_text = m_template_str;
     html_text.replace("%datum%", date.toString("dd.MM.yyyy"));
@@ -88,12 +103,37 @@ void DayReportWidget::update()
     int end_position = html_text.indexOf(table_row_end_tag);
     QString row_string = html_text.mid(position+table_row_start_tag.length(), end_position - position - table_row_start_tag.length());
     html_text.remove(position, end_position - position + table_row_end_tag.length());
-    double total_sum = 0.0;
+
+    double total_sum_revenues = 0.0;
+    double total_sum_expenses = 0.0;
     while(query.next())
     {
         QString tmp_string = row_string;
-        QString full_name = query.value(0).toString();
-        QString info = query.value(1).toString();
+        QString info = query.value(0).toString();
+        tmp_string.replace("%full_name%", info);
+        tmp_string.replace("%account_name%", query.value(2).toString());
+        tmp_string.replace("%account%", query.value(3).toString());
+        if(query.value(1).toInt() == 0)
+        {
+            tmp_string.replace("%sum_revenues%", query.value(4).toString() + " €");
+            total_sum_revenues += query.value(4).toDouble();
+            tmp_string.replace("%sum_expenses%", "");
+        }
+        else
+        {
+            tmp_string.replace("%sum_expenses%", query.value(4).toString() + " €");
+            total_sum_expenses += query.value(4).toDouble();
+            tmp_string.replace("%sum_revenues%", "");
+        }
+        tmp_string.replace("%field_name%", query.value(5).toString());
+        tmp_string.replace("%time_slot%", query.value(6).toString());
+        html_text.insert(position,tmp_string); position += tmp_string.length();
+    }
+    while(query_other.next())
+    {
+        QString tmp_string = row_string;
+        QString full_name = query_other.value(0).toString();
+        QString info = query_other.value(1).toString();
         if(!info.isEmpty())
         {
             if(full_name.isEmpty())
@@ -102,27 +142,30 @@ void DayReportWidget::update()
                 full_name += "(" + info + ")";
         }
         tmp_string.replace("%full_name%", full_name);
-        tmp_string.replace("%account_name%", query.value(2).toString());
-        tmp_string.replace("%account%", query.value(3).toString());
-        int status = query.value(7).toInt();
+        tmp_string.replace("%account_name%", query_other.value(2).toString());
+        tmp_string.replace("%account%", query_other.value(3).toString());
+        int status = query_other.value(7).toInt();
         switch(status)
         {
         case -1: //canceled
-            tmp_string.replace("%sum%", tr("(Canceled)"));
+            tmp_string.replace("%sum_revenues%", tr("(Canceled)"));
             break;
-        case 0:
-            tmp_string.replace("%sum%", tr("(Not paid)"));
+        case 0: default:
+            tmp_string.replace("%sum_revenues%", tr("(Not paid)"));
             break;
-        default:
-            tmp_string.replace("%sum%", query.value(4).toString() + " €");
-            total_sum += query.value(4).toDouble();
-            break;
+
+//            tmp_string.replace("%sum_revenues%", query_other.value(4).toString() + " €");
+//            total_sum += query_other.value(4).toDouble();
+//            break;
         }
-        tmp_string.replace("%field_name%", query.value(5).toString());
-        tmp_string.replace("%time_slot%", query.value(6).toString());
+        tmp_string.replace("%sum_expenses%", "");
+        tmp_string.replace("%field_name%", query_other.value(5).toString());
+        tmp_string.replace("%time_slot%", query_other.value(6).toString());
         html_text.insert(position,tmp_string); position += tmp_string.length();
     }
-    html_text.replace("%total_sum%", QString("%1 €").arg(total_sum));
+    html_text.replace("%total_sum_revenues%", QString("%1 €").arg(total_sum_revenues));
+    html_text.replace("%total_sum_expenses%", QString("%1 €").arg(total_sum_expenses));
+
     ui->m_text_editor->setHtml(html_text);
 
 }

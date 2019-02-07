@@ -43,6 +43,7 @@ public:
     bool cancleBooking(const int bookingId);
 
     bool markBookingAsPaid(const int bookingId);
+    bool markBookingAsUnpaid(const int bookingId);
 
     int addBlock(const BookingSlot& slot, const BookingData& data);
     int numOfUsedBlocks(int blockID);

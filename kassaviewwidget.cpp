@@ -5,6 +5,7 @@
 
 #include <QSqlError>
 #include <QDebug>
+#include <QMessageBox>
 
 #include "dbmanager.h"
 #include "settings.h"
@@ -71,6 +72,8 @@ void KassaViewWidget::fillCurrentDay() {
             record.setGenerated("date", true);
             record.setValue("operation", QVariant::fromValue<int>(0));
             record.setGenerated("operation", true);
+            record.setValue("sum", QVariant::fromValue<double>(0.0));
+            record.setGenerated("sum", true);
         });
     }
     m_revenue_model->setTable("cash_register");
@@ -117,6 +120,8 @@ void KassaViewWidget::fillCurrentDay() {
             record.setGenerated("date", true);
             record.setValue("operation", static_cast<int>(1));
             record.setGenerated("operation", true);
+            record.setValue("sum", static_cast<double>(0.0));
+            record.setGenerated("sum", true);
         });
     }
 
@@ -182,9 +187,29 @@ void KassaViewWidget::edit_current_revenue()
 
 void KassaViewWidget::delete_current_revenue()
 {
-    const int row = ui->m_revenue_table_view->currentIndex().row();
-    m_revenue_model->removeRows(row, 1);
-    m_revenue_model->select();
+    QModelIndex index = ui->m_revenue_table_view->currentIndex();
+    if(index.isValid())
+    {
+        const int row = index.row();
+        if(QMessageBox::question(this, tr("Delete current revenue"),
+                                 QString(tr("Delete the ""%1"" record?")).arg(m_revenue_model->data(m_revenue_model->index(row, 3)).toString()),
+                              QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Yes)
+        {
+            int cash_register_id = m_revenue_model->data(m_revenue_model->index(row, 0)).toInt();
+            m_revenue_model->removeRows(row, 1);
+            m_revenue_model->select();
+
+            QSqlQuery query(QString("UPDATE bookings "
+                      "SET status=NULL "
+                      "WHERE status=%1").arg(cash_register_id));
+            if(!query.exec())
+            {
+                QMessageBox::warning(this, tr("Delete current revenue"), tr("Corresponding booking can't be marked as paid!"));
+
+            }
+        }
+    }
+
 }
 
 void KassaViewWidget::handleCurrentRevenueChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
@@ -229,8 +254,8 @@ void KassaViewWidget::edit_current_expense()
 
 void KassaViewWidget::delete_current_expense()
 {
-    const int row = ui->m_costs_table_view->currentIndex().row();
-    m_expence_model->removeRows(row, 1);
+    QModelIndex index = ui->m_costs_table_view->currentIndex();
+    m_expence_model->removeRow(index.row());
     m_expence_model->select();
 }
 
