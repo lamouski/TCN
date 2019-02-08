@@ -514,15 +514,21 @@ void WeekViewWidget::fillCurrentWeek() {
     if(!db)
         return;
     QDate day = firstDayOfCurrentWeek();
-    for(qint64 i = 0; i < 7; i ++) {
+    for(int i = 0; i < 7; i ++) {
         DayBookingTableModel* model = m_day_booking_models[i];
         if(!model) {
             model = new DayBookingTableModel(this);
             m_day_booking_models[i] = model;
         }
-        m_booking_tables[i]->setModel(nullptr);
-        model->setDay(day);
-        m_booking_tables[i]->setModel(model);
+        if(day != model->day())
+        {
+            m_booking_tables[i]->setModel(nullptr);
+            model->setDay(day);
+            m_booking_tables[i]->setModel(model);
+        }
+        else {
+            model->select();
+        }
         m_booking_tables[i]->resizeRowsToContents();
         m_booking_tables[i]->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         if(i)

@@ -50,7 +50,11 @@ WeekReportWidget::WeekReportWidget(QWidget *parent) :
     mode_menu->addAction(QString(tr("Export as txt (CVS)")), [this](){ exportCVS();});
     ui->m_button_extended->setMenu(mode_menu);
 
+    connect(ui->m_from_date, &QDateEdit::dateChanged,
+            [this](const QDate &/*date*/) { update(); });
 
+    connect(ui->m_till_date, &QDateEdit::dateChanged,
+            [this](const QDate &/*date*/) { update(); });
 }
 
 WeekReportWidget::~WeekReportWidget()
@@ -67,6 +71,13 @@ QPushButton *WeekReportWidget::getReturnButton() const
 
 void WeekReportWidget::showEvent(QShowEvent */*e*/)
 {
+
+    const QDate& date = Settings::currentDate();
+    //current week handling functions
+    m_do_not_update = true;
+    ui->m_from_date->setDate(date.addDays(Qt::Monday - date.dayOfWeek()));
+    ui->m_till_date->setDate(date.addDays(Qt::Sunday - date.dayOfWeek()));
+    m_do_not_update = false;
     update();
 }
 
@@ -75,40 +86,40 @@ void WeekReportWidget::updateQuery()
 {
     if(!m_query)
          m_query = new QSqlQuery();
-    const QDate& date = Settings::currentDate();
-    //current week handling functions
-    const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
-    const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
+
+    //current period handling functions
+    const QDate from_date = ui->m_from_date->date();
+    const QDate till_date = ui->m_till_date->date();
 
     m_query->prepare("SELECT operation, revenues.type, revenues.account, TOTAL(sum), date FROM cash_register "
                   "INNER JOIN revenues ON cash_register.account = revenues.id "
                   "WHERE (date between :from_day AND :till_day) "
                   "GROUP BY operation, date, revenues.type, revenues.account ");
-    m_query->bindValue(":from_day", firstDayOfCurrientWeek.toJulianDay());
-    m_query->bindValue(":till_day", lastDayOfCurrientWeek.toJulianDay());
+    m_query->bindValue(":from_day", from_date.toJulianDay());
+    m_query->bindValue(":till_day", till_date.toJulianDay());
     if(!m_query->exec())
     {
 
-        qDebug() << "query week " << date.toString("yyyy-MM-dd") << " bookings error:  "
+        qDebug() << "query period from " << from_date.toString("yyyy-MM-dd")
+                 << " till " << till_date.toString("yyyy-MM-dd") << " cash_register error:  "
               << m_query->lastError();
-
-        qDebug() << m_query->lastQuery();
         return;
     }
 }
 
 void WeekReportWidget::update()
 {
+    if(m_do_not_update)
+        return;
     updateQuery();
 
-    const QDate& date = Settings::currentDate();
-    //current week handling functions
-    const QDate firstDayOfCurrientWeek = date.addDays(Qt::Monday - date.dayOfWeek());
-    const QDate lastDayOfCurrientWeek = date.addDays(Qt::Sunday - date.dayOfWeek());
+    //current period handling functions
+    const QDate from_date = ui->m_from_date->date();
+    const QDate till_date = ui->m_till_date->date();
 
     QString html_text = m_template_str;
-    html_text.replace("%from_datum%", firstDayOfCurrientWeek.toString("dd.MM.yyyy"));
-    html_text.replace("%till_datum%", lastDayOfCurrientWeek.toString("dd.MM.yyyy"));
+    html_text.replace("%from_datum%", from_date.toString("dd.MM.yyyy"));
+    html_text.replace("%till_datum%", till_date.toString("dd.MM.yyyy"));
 
     const QString table_row_start_tag("%table_row_start%");
     int position = html_text.indexOf(table_row_start_tag);

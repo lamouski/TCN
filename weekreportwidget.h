@@ -51,6 +51,8 @@ private:
 
     QSqlQuery* m_query = nullptr;
     QString m_template_str;
+
+    bool m_do_not_update = false;
 };
 
 #endif // WEEKREPORTWIDGET_H

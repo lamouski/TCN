@@ -29,6 +29,19 @@
    <property name="spacing">
     <number>4</number>
    </property>
+   <item row="0" column="5">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="0" column="1">
     <spacer name="horizontalSpacer">
      <property name="orientation">
@@ -41,6 +54,30 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="0" column="6">
+    <widget class="QToolButton" name="m_button_extended">
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="popupMode">
+      <enum>QToolButton::InstantPopup</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QDateEdit" name="m_from_date">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QDateEdit" name="m_till_date">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="0" column="0">
     <widget class="QPushButton" name="m_button_back_to_main_menu">
@@ -61,18 +98,15 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="2">
-    <widget class="QToolButton" name="m_button_extended">
+   <item row="1" column="0" colspan="7">
+    <widget class="TextEditor" name="m_text_editor" native="true"/>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>...</string>
-     </property>
-     <property name="popupMode">
-      <enum>QToolButton::InstantPopup</enum>
+      <string> - </string>
      </property>
     </widget>
-   </item>
-   <item row="1" column="0" colspan="3">
-    <widget class="TextEditor" name="m_text_editor" native="true"/>
    </item>
   </layout>
  </widget>

@@ -28,9 +28,9 @@ KassaViewWidget::KassaViewWidget(QWidget *parent) :
     ui->m_revenue_others->setMenu(pop_up_revenue);
 
     QMenu *pop_up_expenses = new QMenu(this);
-    pop_up_expenses->addAction(tr("Edit"), this, &KassaViewWidget::edit_current_revenue);
-    //pop_up_expenses->addAction(tr("Copy"), this, &KassaViewWidget::copy_current_revenue);
-    pop_up_expenses->addAction(tr("Delete"), this, &KassaViewWidget::delete_current_revenue);
+    pop_up_expenses->addAction(tr("Edit"), this, &KassaViewWidget::edit_current_expense);
+    //pop_up_expenses->addAction(tr("Copy"), this, &KassaViewWidget::copy_current_expense);
+    pop_up_expenses->addAction(tr("Delete"), this, &KassaViewWidget::delete_current_expense);
     ui->m_costs_others->setMenu(pop_up_expenses);
 }
 
@@ -45,11 +45,13 @@ QPushButton *KassaViewWidget::getReturnButton() const
     return ui->m_button_back_to_main_menu;
 }
 
+
 void KassaViewWidget::showEvent(QShowEvent */*e*/)
 {
     fillCurrentDay();
     updateGUI();
 }
+
 
 void KassaViewWidget::fillCurrentDay() {
     DbManager* db = DbManager::instance();
@@ -63,10 +65,6 @@ void KassaViewWidget::fillCurrentDay() {
         connect(m_revenue_model, &QSqlTableModel::primeInsert,
                 [](int /*row*/, QSqlRecord &record)
         {
-//            QSqlQuery query("SELECT max(id)+1 FROM cash_register");
-//            query.exec();
-//            query.first();
-//            record.setValue("id", query.value(0).toInt());
             record.setGenerated("id", false);
             record.setValue("date", QVariant::fromValue<long long>(Settings::currentDate().toJulianDay()));
             record.setGenerated("date", true);
@@ -79,8 +77,7 @@ void KassaViewWidget::fillCurrentDay() {
     m_revenue_model->setTable("cash_register");
     QString filter = QString("date = %1 AND operation = %2 ").arg(Settings::currentDate().toJulianDay()).arg(0);
     m_revenue_model->setFilter(filter); //revenue
-//    m_revenue_model->setDay(Settings::currentDate());
-//    m_revenue_model->setOperation(0);
+
 
     m_revenue_model->setJoinMode(QSqlRelationalTableModel::LeftJoin);
     int accountIdx = m_revenue_model->fieldIndex("account");
@@ -102,7 +99,7 @@ void KassaViewWidget::fillCurrentDay() {
     ui->m_revenue_table_view->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
     //ui->m_revenue_table_view->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
     ui->m_revenue_table_view->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Fixed);
-
+    ui->m_revenue_table_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     if(!m_expence_model)
     {
@@ -111,10 +108,6 @@ void KassaViewWidget::fillCurrentDay() {
         connect(m_expence_model, &QSqlTableModel::primeInsert,
                 [](int /*row*/, QSqlRecord &record)
         {
-//            QSqlQuery query("SELECT max(id)+1 FROM cash_register");
-//            query.exec();
-//            query.first();
-//            record.setValue("id", query.value(0).toInt());
             record.setGenerated("id", false);
             record.setValue("date", static_cast<long long>(Settings::currentDate().toJulianDay()));
             record.setGenerated("date", true);
@@ -128,8 +121,6 @@ void KassaViewWidget::fillCurrentDay() {
     m_expence_model->setTable("cash_register");
     filter = QString("date = %1 AND operation = %2 ").arg(Settings::currentDate().toJulianDay()).arg(1);
     m_expence_model->setFilter(filter); //expenses
-//    m_costs_model->setDay(Settings::currentDate());
-//    m_costs_model->setOperation(1);
 
     m_expence_model->setJoinMode(QSqlRelationalTableModel::LeftJoin);
     accountIdx = m_expence_model->fieldIndex("account");
@@ -141,6 +132,7 @@ void KassaViewWidget::fillCurrentDay() {
 
     m_expence_model->select();
 
+
     ui->m_costs_table_view->setModel(m_expence_model);
     ui->m_costs_table_view->setItemDelegate(new QSqlRelationalDelegate(ui->m_costs_table_view));
     ui->m_costs_table_view->resizeRowsToContents();
@@ -151,7 +143,7 @@ void KassaViewWidget::fillCurrentDay() {
     ui->m_costs_table_view->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
     //ui->m_costs_table_view->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
     ui->m_costs_table_view->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Fixed);
-
+    ui->m_costs_table_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(ui->m_revenue_table_view->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &KassaViewWidget::handleCurrentRevenueChanged);
@@ -160,10 +152,12 @@ void KassaViewWidget::fillCurrentDay() {
             this, &KassaViewWidget::handleCurrentExpenseChanged);
 }
 
+
 void KassaViewWidget::updateGUI()
 {
     ui->m_day_label->setText(Settings::currentDate().toString("dd MMMM yyyy"));
 }
+
 
 void KassaViewWidget::on_m_add_revenue_clicked()
 {
@@ -173,6 +167,7 @@ void KassaViewWidget::on_m_add_revenue_clicked()
     ui->m_revenue_table_view->setCurrentIndex(index);
     edit_current_revenue();
 }
+
 
 void KassaViewWidget::edit_current_revenue()
 {
@@ -184,6 +179,7 @@ void KassaViewWidget::edit_current_revenue()
         ui->m_revenue_table_view->setEditTriggers(QAbstractItemView::AllEditTriggers);
     }
 }
+
 
 void KassaViewWidget::delete_current_revenue()
 {
@@ -211,6 +207,7 @@ void KassaViewWidget::delete_current_revenue()
     }
 
 }
+
 
 void KassaViewWidget::handleCurrentRevenueChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
@@ -241,6 +238,7 @@ void KassaViewWidget::on_m_add_cost_clicked()
     edit_current_expense();
 }
 
+
 void KassaViewWidget::edit_current_expense()
 {
     QModelIndex index = ui->m_costs_table_view->currentIndex();
@@ -252,12 +250,24 @@ void KassaViewWidget::edit_current_expense()
     }
 }
 
+
 void KassaViewWidget::delete_current_expense()
 {
     QModelIndex index = ui->m_costs_table_view->currentIndex();
-    m_expence_model->removeRow(index.row());
-    m_expence_model->select();
+    if(index.isValid())
+    {
+        const int row = index.row();
+        if(QMessageBox::question(this, tr("Delete current expense"),
+                                 QString(tr("Delete the ""%1"" record?")).arg(m_expence_model->data(m_expence_model->index(row, 3)).toString()),
+                              QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Yes)
+        {
+            m_expence_model->removeRow(index.row());
+            m_expence_model->select();
+        }
+    }
+
 }
+
 
 void KassaViewWidget::handleCurrentExpenseChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
