@@ -45,6 +45,9 @@ public:
     bool markBookingAsPaid(const int bookingId);
     bool markBookingAsUnpaid(const int bookingId);
 
+    bool changeBookingField(const int bookingID, const int fieldID);
+    bool changeAboBookingField(const int bookingID, const int fieldID);
+
     int addBlock(const BookingSlot& slot, const BookingData& data);
     int numOfUsedBlocks(int blockID);
     bool deleteBlock(const int blockId);
@@ -53,6 +56,7 @@ public:
 
     static DbManager* instance();    
     static QSqlDatabase db();
+
 
 private:
     static DbManager* m_instance;

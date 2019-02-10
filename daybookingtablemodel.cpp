@@ -76,7 +76,8 @@ bool DayBookingTableModel::queryData()
     }
     m_query.prepare("SELECT bookings.id, (surname || ' ' || firstname), info, timeslot, fieldid, memberid, priceid, aboid, blockid, status, sum"
                     " FROM bookings LEFT OUTER JOIN members ON bookings.memberid = members.id "
-                    " WHERE date = :day ");
+                    " WHERE date = :day "
+                    " ORDER by CASE WHEN status IS NULL THEN 0 ELSE status END ");
     m_query.bindValue(":day", m_day.toJulianDay());
     if(!m_query.exec())
     {

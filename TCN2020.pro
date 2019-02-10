@@ -43,7 +43,8 @@ SOURCES += \
     settings.cpp \
     pricestablemodel.cpp \
     kassaviewwidget.cpp \
-    daykassatablemodel.cpp
+    daykassatablemodel.cpp \
+    fieldselectiondialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -65,7 +66,8 @@ HEADERS += \
     pricestablemodel.h \
     bookingdata.h \
     kassaviewwidget.h \
-    daykassatablemodel.h
+    daykassatablemodel.h \
+    fieldselectiondialog.h
 
 FORMS += \
         mainwindow.ui \
@@ -78,7 +80,8 @@ FORMS += \
     texteditor.ui \
     weekreportwidget.ui \
     servicedialog.ui \
-    kassaviewwidget.ui
+    kassaviewwidget.ui \
+    fieldselectiondialog.ui
 
 RESOURCES += \
     tcn2020.qrc

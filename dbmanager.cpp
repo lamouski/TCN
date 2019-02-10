@@ -481,6 +481,140 @@ bool DbManager::markBookingAsUnpaid(const int bookingId)
     return success;
 }
 
+bool DbManager::changeBookingField(const int bookingID, const int fieldID)
+{
+    bool success = false;
+
+    QSqlQuery booking_query;
+    booking_query.prepare("SELECT date, timeslot, fieldid FROM bookings "
+                    "WHERE id=:id;");
+    booking_query.bindValue(":id", bookingID);
+
+    if(!booking_query.exec())
+    {
+         qDebug() << "changeBookingField error:  "
+                  << booking_query.lastError();
+         return false;
+    }
+    if(!booking_query.first())
+        return false;
+
+    //if the selected new field is already booked then we updare it also
+    QSqlQuery other_booking_query;
+    other_booking_query.prepare("UPDATE bookings SET "
+                  "fieldid=:fieldid "
+                  "WHERE date=:date "
+                  "AND timeslot=:timeslot "
+                  "AND fieldid=:old_fieldid "
+                  "AND (status IS NULL OR status>=0)");
+    other_booking_query.bindValue(":fieldid", booking_query.value(2));
+    other_booking_query.bindValue(":date", booking_query.value(0));
+    other_booking_query.bindValue(":timeslot", booking_query.value(1));
+    other_booking_query.bindValue(":old_fieldid", fieldID);
+
+    if(!other_booking_query.exec())
+    {
+         qDebug() << "changeBookingField error (update other booking):  "
+                  << other_booking_query.lastError();
+         return false;
+    }
+
+    //update
+    booking_query.prepare("UPDATE bookings SET "
+                    "fieldid=:fieldid "
+                    "WHERE id=:id;");
+    booking_query.bindValue(":fieldid", fieldID);
+    booking_query.bindValue(":id", bookingID);
+
+    if(booking_query.exec())
+    {
+        success = true;
+    }
+    else
+    {
+         qDebug() << "changeBookingField error (update):  "
+                  << booking_query.lastError();
+    }
+    return success;
+}
+
+bool DbManager::changeAboBookingField(const int bookingID, const int fieldID)
+{
+    bool success = false;
+
+    QSqlQuery booking_query;
+    booking_query.prepare("SELECT aboid FROM bookings "
+                          "WHERE id=:id;");
+    booking_query.bindValue(":id", bookingID);
+    if(!booking_query.exec())
+    {
+         qDebug() << "changeBookingField error:  "
+                  << booking_query.lastError();
+         return false;
+    }
+    if(!booking_query.first())
+        return false;
+    int aboID = booking_query.value(0).toInt();
+
+    booking_query.prepare("SELECT date, timeslot, fieldid FROM bookings "
+                          "WHERE aboid=:id;");
+    booking_query.bindValue(":id", aboID);
+
+    if(!booking_query.exec())
+    {
+         qDebug() << "changeBookingField error:  "
+                  << booking_query.lastError();
+         return false;
+    }
+    if(!booking_query.first())
+        return false;
+
+    //if the selected new field is already booked then we updare it also
+    QSqlDatabase::database().transaction();
+    QSqlQuery other_booking_query;
+    other_booking_query.prepare("UPDATE bookings SET "
+                  "fieldid=:fieldid "
+                  "WHERE date=:date "
+                  "AND timeslot=:timeslot "
+                  "AND fieldid=:old_fieldid "
+                  "AND (status IS NULL OR status>=0)");
+
+    do {
+        other_booking_query.bindValue(":fieldid", booking_query.value(2));
+        other_booking_query.bindValue(":date", booking_query.value(0));
+        other_booking_query.bindValue(":timeslot", booking_query.value(1));
+        other_booking_query.bindValue(":old_fieldid", fieldID);
+
+        if(!other_booking_query.exec())
+        {
+             qDebug() << "changeBookingField error (update other booking):  "
+                      << other_booking_query.lastError();
+             return false;
+        }
+    }
+    while(booking_query.next());
+
+    QSqlDatabase::database().commit();
+
+    //update
+    booking_query.prepare("UPDATE bookings SET "
+                    "fieldid=:fieldid "
+                    "WHERE aboid=:id;");
+    booking_query.bindValue(":fieldid", fieldID);
+    booking_query.bindValue(":id", aboID);
+
+    if(booking_query.exec())
+    {
+        success = true;
+    }
+    else
+    {
+         qDebug() << "changeBookingField error (update):  "
+                  << booking_query.lastError();
+    }
+    return success;
+}
+
 bool DbManager::cancleBooking(const int bookingId)
 {
     bool success = false;

@@ -23,6 +23,7 @@
 #include "bookingdialog.h"
 #include "daybookingtablemodel.h"
 #include "settings.h"
+#include "fieldselectiondialog.h"
 #include "weekviewwidget.h"
 
 #include <QTableWidget>
@@ -286,6 +287,10 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
         connect(m_action_change_abo_all, &QAction::triggered,
                 [this] () { processBooking(m_selected_day, m_selected_index, ALL_BOOKINGS);});
 
+        m_action_change_field_abo_all = new QAction(tr("Change the field for complet Abo"), this);
+        connect(m_action_change_field_abo_all, &QAction::triggered,
+                [this] () { changeField(m_selected_day, m_selected_index, ALL_BOOKINGS);});
+
         m_action_cancle_abo_cur = new QAction(tr("Cancel currient Abo booking"), this);
         connect(m_action_cancle_abo_cur, &QAction::triggered,
                 [this] () { cancleBooking(m_selected_day, m_selected_index, CURRENT_BOOKING);});
@@ -301,10 +306,12 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
         m_action_cancle_booking = new QAction(tr("Cancel booking"), this);
         connect(m_action_cancle_booking, &QAction::triggered,
                 [this] () { cancleBooking(m_selected_day, m_selected_index, CURRENT_BOOKING);});
+
+        m_action_change_field = new QAction(tr("Change the field"), this);
+        connect(m_action_change_field, &QAction::triggered,
+                [this] () { changeField(m_selected_day, m_selected_index, CURRENT_BOOKING);});
+
     }
-
-    int abo_id = m_day_booking_models[day]->aboId(index);
-
 
     QVariant curr_data_var = m_day_booking_models[day]->data(index, Qt::UserRole);
     if(!curr_data_var.isNull())
@@ -316,6 +323,9 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
         {
             m_contextMenu->addAction(m_action_change_abo_cur);
             m_contextMenu->addAction(m_action_change_abo_all);
+            m_contextMenu->addSeparator();
+            m_contextMenu->addAction(m_action_change_field);
+            m_contextMenu->addAction(m_action_change_field_abo_all);
             m_contextMenu->addSeparator();
             m_contextMenu->addAction(m_action_cancle_abo_cur);
             m_contextMenu->addAction(m_action_cancle_abo_all);
@@ -329,6 +339,8 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
                 m_contextMenu->addAction(m_action_mark_paid);
                 m_contextMenu->addAction(m_action_change_booking);
                 m_contextMenu->addSeparator();
+                m_contextMenu->addAction(m_action_change_field);
+                m_contextMenu->addSeparator();
                 m_contextMenu->addAction(m_action_cancle_booking);
                 break;
             default:
@@ -337,6 +349,70 @@ void WeekViewWidget::processBookingContextMenu(int day, const QModelIndex &index
         }
         m_contextMenu->exec(m_booking_tables[day]->mapToGlobal(pos));
     }
+}
+
+void WeekViewWidget::changeField(int day, const QModelIndex &index, ProcessingFlag flag)
+{
+    if(!m_day_booking_models[day])
+        return;
+
+    QVariant curr_data_var = m_day_booking_models[day]->data(index, Qt::UserRole);
+
+    if(curr_data_var.isNull())
+        return;
+
+    BookingIdDataPair curr_data = curr_data_var.value<BookingIdDataPair>();
+
+//    int booking_status = curr_data.second.status;
+
+//    int rest_minutes = (QDateTime(m_day_booking_models[day]->day(),
+//       QTime(m_day_booking_models[day]->timeSlot(index.column()), 0)).toSecsSinceEpoch() -
+//       QDateTime::currentDateTime().toSecsSinceEpoch()) / 60;
+
+//    if(rest_minutes < 0)
+//    {
+//        if(booking_status > 0) //
+//        {
+//            QMessageBox::information(this, QString(), QString(tr("This booking is already entered in the cash register. It can't be changed.")));
+//            return;
+//        }
+//    }
+
+    int bookingID = m_day_booking_models[day]->bookingId(index);
+
+
+    QStringList fields;
+    fields << tr("Please select new field.");
+    for(int i = 0; i < m_day_booking_models[day]->rowCount(); i++)
+    {
+        if(i == index.row())
+            continue;
+        fields << m_day_booking_models[day]->fieldName(i);
+    }
+    FieldSelectionDialog filed_selection_dialog;
+    filed_selection_dialog.setFields(fields);
+    if(filed_selection_dialog.exec() == QDialog::Accepted)
+    {
+        int selected_row = filed_selection_dialog.selectedFieldRow();
+        if(selected_row < 1)
+            return;
+        selected_row--;
+        if(selected_row >= index.row())
+            selected_row++;
+        int new_fieldID = m_day_booking_models[day]->fieldId(selected_row);
+
+        if(flag == CURRENT_BOOKING)
+            DbManager::instance()->changeBookingField(bookingID, new_fieldID);
+        else if (flag == ALL_BOOKINGS) {
+            DbManager::instance()->changeAboBookingField(bookingID, new_fieldID);
+        }
+
+
+        m_day_booking_models[day]->select();
+        if(Settings::getBool("export_booking_table_html"))
+            exportBookingWeekHtml();
+    };
+
 }
 
 bool WeekViewWidget::singleBooking(const BookingSlot& slot, const BookingData& data)
@@ -423,23 +499,11 @@ bool WeekViewWidget::multiBooking(const BookingSlot& slot, const BookingData& da
         }
     }
 
-
-    BookingData data_wiwh_abo_id = data;
-    if(data_wiwh_abo_id.aboID == -1)
+    BookingData data_with_abo_id = data;
+    if(data_with_abo_id.aboID == -1)
         if(query.exec("SELECT MAX(aboid) AS max_aboid FROM bookings"))
             if(query.first())
-                data_wiwh_abo_id.aboID = query.value(0).toInt() + 1;
-
-//    query.prepare("INSERT INTO bookings (info, memberid, date, timeslot, fieldid, priceid, aboid)"
-//                  "VALUES (:info, :memberid, :date, :timeslot, :fieldid, :priceid, :aboid) ;");
-
-//    query.bindValue(":info", info);
-//    query.bindValue(":memberid", member_id);
-
-//    query.bindValue(":timeslot", time_slot);
-//    query.bindValue(":fieldid", field_id);
-//    query.bindValue(":priceid", price_id);
-//    query.bindValue(":aboid", abo_id);
+                data_with_abo_id.aboID = query.value(0).toInt() + 1;
 
     BookingSlot abo_slot = slot;
     for(qint64 julian_day : all_abo_days)
@@ -447,7 +511,7 @@ bool WeekViewWidget::multiBooking(const BookingSlot& slot, const BookingData& da
         //query.bindValue(":date", julian_day);
         abo_slot.date = QDate::fromJulianDay(julian_day);
 
-        if(!singleBooking(abo_slot, data_wiwh_abo_id))
+        if(!singleBooking(abo_slot, data_with_abo_id))
         { QMessageBox::information(this, QString(tr("Booking error")),
                                    QString(tr("Error when try to save the multibooking")));
               return false;

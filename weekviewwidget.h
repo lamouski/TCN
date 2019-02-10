@@ -78,6 +78,7 @@ protected slots:
     void processBooking(int day, const QModelIndex &index, ProcessingFlag flag = NEW_BOOKING);
     void cancleBooking(int day, const QModelIndex &index, ProcessingFlag flag);
     void processBookingContextMenu(int day, const QModelIndex &index, const QPoint &pos);
+    void changeField(int day, const QModelIndex &index, ProcessingFlag flag);
 
     void fillCurrentWeek();
 
@@ -99,6 +100,8 @@ private:
     QMenu* m_contextMenu = nullptr;
     QAction* m_action_mark_paid = nullptr;
     QAction* m_action_mark_unpaid = nullptr;
+    QAction* m_action_change_field = nullptr;
+    QAction* m_action_change_field_abo_all = nullptr;
     QAction* m_action_change_abo_cur = nullptr;
     QAction* m_action_change_abo_all = nullptr;
     QAction* m_action_cancle_abo_cur = nullptr;
