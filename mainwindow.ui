@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>TCN Booking Centre</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="tcn2020.qrc">
+    <normaloff>:/Resources/images/TCN.ico</normaloff>:/Resources/images/TCN.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
@@ -371,7 +375,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>845</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -412,6 +416,8 @@ QPushButton:pressed {
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="tcn2020.qrc"/>
+ </resources>
  <connections/>
 </ui>

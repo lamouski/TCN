@@ -19,4 +19,7 @@
         <file>languages/Translation_de.qm</file>
         <file>languages/Translation_en.qm</file>
     </qresource>
+    <qresource prefix="/">
+        <file>Resources/images/TCN.ico</file>
+    </qresource>
 </RCC>
