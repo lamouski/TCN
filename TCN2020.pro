@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += network core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql printsupport
 
@@ -44,7 +44,9 @@ SOURCES += \
     pricestablemodel.cpp \
     kassaviewwidget.cpp \
     daykassatablemodel.cpp \
-    fieldselectiondialog.cpp
+    fieldselectiondialog.cpp \
+    logindatadialog.cpp \
+    simplecrypt.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -67,7 +69,9 @@ HEADERS += \
     bookingdata.h \
     kassaviewwidget.h \
     daykassatablemodel.h \
-    fieldselectiondialog.h
+    fieldselectiondialog.h \
+    logindatadialog.h \
+    simplecrypt.h
 
 FORMS += \
         mainwindow.ui \
@@ -81,10 +85,13 @@ FORMS += \
     weekreportwidget.ui \
     servicedialog.ui \
     kassaviewwidget.ui \
-    fieldselectiondialog.ui
+    fieldselectiondialog.ui \
+    logindatadialog.ui
 
 RESOURCES += \
     tcn2020.qrc
+
+RC_FILE = TCN2020.rc
 
 TRANSLATIONS = \
     languages/Translation_en.ts  \

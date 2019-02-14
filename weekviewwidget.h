@@ -31,6 +31,8 @@
 class DayBookingTableModel;
 class BookingDialog;
 
+class QNetworkAccessManager;
+
 class QMenu;
 
 namespace Ui {
@@ -111,6 +113,10 @@ private:
     int m_selected_day = -1;
     QModelIndex m_selected_index = QModelIndex();
 
+
+    QNetworkAccessManager* m_qnam = nullptr;
+    QString m_login;
+    QString m_password;
 };
 
 #endif // WEEKVIEWWIDGET_H

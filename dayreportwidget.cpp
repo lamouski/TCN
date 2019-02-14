@@ -63,13 +63,24 @@ void DayReportWidget::update()
 {
     const QDate& date = Settings::currentDate();
     QSqlQuery query;
-    query.prepare("SELECT cash_register.info, cash_register.operation, revenues.type, revenues.account, cash_register.sum, fields.name, timeslot, status FROM cash_register "
+    query.prepare("SELECT cash_register.info, cash_register.operation, "
+                  "       CASE cash_register.operation "
+                  "        WHEN 0 THEN revenues.type "
+                  "        WHEN 1 THEN expenses.type "
+                  "       END AS account_type, "
+                  "       CASE operation "
+                  "        WHEN 0 THEN revenues.account "
+                  "        WHEN 1 THEN expenses.account "
+                  "       END AS account_number, "
+                  "       cash_register.sum, fields.name, timeslot, status FROM cash_register "
                   "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
+                  "LEFT OUTER JOIN expenses ON cash_register.account = expenses.id "
                   "LEFT OUTER JOIN bookings ON cash_register.id = bookings.status "
                   "LEFT JOIN fields ON bookings.fieldid = fields.id "
                   "WHERE cash_register.date = :day "
                   "AND (aboid IS NULL OR aboid <= 0)");
 
+    // "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
     query.bindValue(":day", date.toJulianDay());
     if(!query.exec())
     {

@@ -91,10 +91,20 @@ void WeekReportWidget::updateQuery()
     const QDate from_date = ui->m_from_date->date();
     const QDate till_date = ui->m_till_date->date();
 
-    m_query->prepare("SELECT operation, revenues.type, revenues.account, TOTAL(sum), date FROM cash_register "
-                  "INNER JOIN revenues ON cash_register.account = revenues.id "
-                  "WHERE (date between :from_day AND :till_day) "
-                  "GROUP BY operation, date, revenues.type, revenues.account ");
+    m_query->prepare("SELECT operation, "
+                     "       CASE operation "
+                     "        WHEN 0 THEN revenues.type "
+                     "        WHEN 1 THEN expenses.type "
+                     "       END AS account_type, "
+                     "       CASE operation "
+                     "        WHEN 0 THEN revenues.account "
+                     "        WHEN 1 THEN expenses.account"
+                     "       END AS account_number,"
+                     "       TOTAL(sum), date FROM cash_register "
+                     "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
+                     "LEFT OUTER JOIN expenses ON cash_register.account = expenses.id "
+                     "WHERE (date between :from_day AND :till_day) "
+                     "GROUP BY date, operation, cash_register.account, revenues.type, revenues.account ");
     m_query->bindValue(":from_day", from_date.toJulianDay());
     m_query->bindValue(":till_day", till_date.toJulianDay());
     if(!m_query->exec())
@@ -132,10 +142,13 @@ void WeekReportWidget::update()
     while(m_query->next())
     {
         QString tmp_string = row_string;
+
         tmp_string.replace("%account_name%", m_query->value(1).toString());
         tmp_string.replace("%account%", m_query->value(2).toString());
+
         if(m_query->value(0).toInt() == 0)
         {
+
             tmp_string.replace("%sum_revenues%", m_query->value(3).toString() + " €");
             total_sum_revenues += m_query->value(3).toDouble();
             tmp_string.replace("%sum_expenses%", "");

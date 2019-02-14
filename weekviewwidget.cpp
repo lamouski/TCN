@@ -25,6 +25,9 @@
 #include "settings.h"
 #include "fieldselectiondialog.h"
 #include "weekviewwidget.h"
+#include "logindatadialog.h"
+
+#include "simplecrypt.h"
 
 #include <QTableWidget>
 #include <QDebug>
@@ -32,6 +35,10 @@
 #include <QMenu>
 #include <QTextCodec>
 #include <QDir>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QSettings>
+
 
 WeekViewWidget::WeekViewWidget(QWidget *parent) :
     QWidget(parent),
@@ -633,14 +640,10 @@ void WeekViewWidget::exportBookingWeekHtml()
 
 
     //for result
-    QString fileName = Settings::getString("booking_table_html_path");
-    file.setFileName(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
-    {
-        QMessageBox::information(this, QString(), QString(tr("The file for export %1 can't be created. Please check the settings.").arg(fileName)));
-        return;
-    }
-    QTextStream stream(&file);
+
+    data.clear();
+
+    QTextStream stream(&data);
 
     //
     QDateTime curr_moment = QDateTime::currentDateTime();
@@ -709,6 +712,81 @@ void WeekViewWidget::exportBookingWeekHtml()
     }
 
     stream << doc_end;
+    stream.flush();
 
-    file.close();
+
+    QString export_type = Settings::getString("booking_table_html_typ");
+    if(export_type == "file")
+    {
+        QString fileName = Settings::getString("booking_table_html_path");
+        file.setFileName(fileName);
+        if (!file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+        {
+            QMessageBox::information(this, QString(), QString(tr("The file for export %1 can't be created. Please check the settings.").arg(fileName)));
+            return;
+        }
+        file.write(data);
+        file.close();
+    }
+    else if (export_type == "ftp") {
+
+        if(!m_qnam)
+        {
+            m_qnam = new QNetworkAccessManager(this);
+
+            connect(m_qnam, &QNetworkAccessManager::finished,
+                [this](QNetworkReply* rep)
+                {
+                    if(rep->error() != 0)
+                    {
+                        QMessageBox::information(this, QString(), QString(tr("Upload is finished with error %1.").arg(rep->errorString())));
+                    }
+                    else
+                    {
+                        //m_statusBar->
+                    }
+                });
+
+            SimpleCrypt crypto(Q_UINT64_C(0xd47fc5e668e23524));
+
+            QString fileName = "ftp.conf";
+            file.setFileName(fileName);
+            if (file.open(QFile::ReadOnly | QFile::Text))
+            {
+                QTextStream login_data_stream(&file);
+                m_login = login_data_stream.readLine();
+                m_password = crypto.decryptToString(login_data_stream.readLine());
+                file.close();
+            }
+            if(m_login.isEmpty())
+            {
+                LoginDataDialog dialog;
+                if(dialog.exec() == QDialog::Accepted)
+                {
+                    m_login = dialog.getLogin();
+                    m_password = dialog.getPassword();
+
+                    if (file.open(QFile::WriteOnly | QFile::Text))
+                    {
+                        QTextStream login_data_stream(&file);
+                        login_data_stream << m_login << '\n';
+                        login_data_stream << crypto.encryptToString(m_password) << '\n';
+                        file.close();
+                    }
+                }
+            }
+        }
+
+        QString path = Settings::getString("booking_table_html_path");
+        QUrl url = QUrl(path);
+        url.setUserName(m_login);
+        url.setPassword(m_password);
+        url.setPort(21);
+
+        QNetworkRequest upload(url);
+        m_qnam->put(upload, data);
+
+
+
+
 }
