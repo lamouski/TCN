@@ -49,6 +49,7 @@ public slots:
 //    void setInfo(const QString& info);
 
     void updateMembersQuery(const QString &find_string);
+    void updateNonMembersQuery(const QString &find_string);
     void updateBlocksQuery(const QString &find_string);
     void updatePriceQuery();
 
@@ -71,23 +72,28 @@ public:
     //QDate aboEndDate() const;
 
 protected slots:
+    void handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &previous);
+    void handleCurrentNonMemberChanged(const QModelIndex &current, const QModelIndex &previous);
+    void handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &previous);
+
     void on_m_line_edit_name_textEdited(const QString &arg1);
-    //void on_m_list_view_members_doubleClicked(const QModelIndex &index);
+
     void on_m_list_view_members_clicked(const QModelIndex &index);
     void on_m_list_view_members_activated(const QModelIndex &index);
-    void on_m_combo_price_currentIndexChanged(int index);
-
-    void handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &previous);
-    void handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &previous);
-
-    void on_m_list_view_blocks_activated(const QModelIndex &index);
+    void on_m_list_view_non_members_clicked(const QModelIndex &index);
+    void on_m_list_view_non_members_activated(const QModelIndex &index);
     void on_m_list_view_blocks_clicked(const QModelIndex &index);
+    void on_m_list_view_blocks_activated(const QModelIndex &index);
+    void on_m_combo_price_currentIndexChanged(int index);
 
 private:
     Ui::BookingDialog *ui;
 
     QSqlQueryModel *m_memberlist_model;
     QString m_memberlist_base_query_string;
+
+    QSqlQueryModel *m_nonmemberlist_model;
+    QString m_nonmemberlist_base_query_string;
 
     QSqlQueryModel *m_blockslist_model;
     QString m_blockslist_base_query_string;
@@ -116,6 +122,7 @@ private:
     void setMode(BookingMode mode);
 
     void selectCurrentMemberId();
+    void selectCurrentNonMember();
     void selectCurrentBlockId();
 
 };

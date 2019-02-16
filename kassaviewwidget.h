@@ -25,6 +25,7 @@ protected:
     void updateGUI();
 
     void showEvent(QShowEvent *);
+    void hideEvent(QHideEvent *);
 
     void fillCurrentDay();
 

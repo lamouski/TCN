@@ -17,6 +17,7 @@
  */
 
 #include "bookingdialog.h"
+#include "bookingdialog.h"
 #include "settings.h"
 #include "ui_bookingdialog.h"
 
@@ -42,13 +43,26 @@ BookingDialog::BookingDialog(QWidget *parent) :
     connect(ui->m_list_view_members->selectionModel(),
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentMemberChanged);
 
+
+    m_nonmemberlist_model = new QSqlQueryModel(this);
+    m_nonmemberlist_base_query_string = QString("SELECT TRIM(info) FROM bookings ");
+    m_nonmemberlist_model->setQuery(m_nonmemberlist_base_query_string +
+                                    "WHERE info IS NOT NULL "
+                                    "GROUP BY info");
+    ui->m_list_view_non_members->setModel(m_nonmemberlist_model);
+    ui->m_list_view_non_members->setModelColumn(0);
+
+    connect(ui->m_list_view_non_members->selectionModel(),
+          &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentNonMemberChanged);
+
     m_blockslist_model = new QSqlQueryModel(this);
     m_blockslist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name,"
-    "( firstname || ' ' || surname || ' - " +tr("Block")+ "' || amount || ' - " + tr("Used") + " ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) )) AS info_string, "
-    "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
-    "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) ) AS used_amount "
-    "FROM block_bookings "
-    "LEFT OUTER JOIN members ON block_bookings.memberid = members.id ");
+        "( firstname || ' ' || surname || ' - " +tr("Block ")+ "' || amount || ' - " +
+         tr("Used") + " ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) )) AS info_string, "
+        "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
+        "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) ) AS used_amount "
+        "FROM block_bookings "
+        "LEFT OUTER JOIN members ON block_bookings.memberid = members.id ");
     m_blockslist_model->setQuery(m_blockslist_base_query_string + " WHERE amount > used_amount ");
     ui->m_list_view_blocks->setModel(m_blockslist_model);
     ui->m_list_view_blocks->setModelColumn(1);
@@ -267,11 +281,31 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
         m_selected_member_id = m_memberlist_model->record(current.row()).value(1).toInt();
         m_selected_block_id = -1;
         ui->m_line_edit_name->setText(m_memberlist_model->record(current.row()).value(0).toString());
+        ui->m_list_view_non_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_non_members->clearSelection();
+        ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
         ui->m_list_view_blocks->clearSelection();
         updatePriceQuery();
     }
 }
 
+void BookingDialog::handleCurrentNonMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
+{
+    if(ui->m_line_edit_name->hasFocus())
+        return;
+    if(current.isValid())
+    {
+        ui->m_line_edit_name->setText(m_nonmemberlist_model->record(current.row()).value(0).toString());
+        m_selected_member_id = -1;
+        m_selected_block_id = -1;
+
+        ui->m_list_view_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_members->clearSelection();
+        ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
+        ui->m_list_view_blocks->clearSelection();
+        updatePriceQuery();
+    }
+}
 
 void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
@@ -282,7 +316,10 @@ void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const 
         m_selected_member_id = -1;
         m_selected_block_id = m_blockslist_model->record(current.row()).value(2).toInt();
         ui->m_line_edit_name->setText(m_blockslist_model->record(current.row()).value(0).toString());
+        ui->m_list_view_members->setCurrentIndex(QModelIndex());
         ui->m_list_view_members->clearSelection();
+        ui->m_list_view_non_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_non_members->clearSelection();
         updatePriceQuery();
         ui->m_summ_line_edit->setText("0");
     }
@@ -318,7 +355,7 @@ void BookingDialog::setMode(BookingDialog::BookingMode mode)
 }
 
 
-QString member_name_condition_for_query(const QString &find_string)
+QString member_name_condition_for_query(const QString &find_string, const QString& fieldname)
 {
     QStringList key_words = find_string.split(" ", QString::SkipEmptyParts);
     if(key_words.empty())
@@ -329,7 +366,7 @@ QString member_name_condition_for_query(const QString &find_string)
         QString and_string(" ");
         foreach (QString key_word, key_words)
         {
-            condition_string += and_string + "name LIKE '%"+key_word+"%'";
+            condition_string += and_string + fieldname + " LIKE '%"+key_word+"%'";
             and_string = QString(" AND ");
         }
         return condition_string;
@@ -339,17 +376,32 @@ QString member_name_condition_for_query(const QString &find_string)
 
 void BookingDialog::updateMembersQuery(const QString &find_string)
 {
-    QString condition = member_name_condition_for_query(find_string);
+    QString condition = member_name_condition_for_query(find_string, QString("name"));
     m_memberlist_model->setQuery(m_memberlist_base_query_string +
                                  (condition.isEmpty() ? "" : " WHERE " + condition));
 }
 
 
+void BookingDialog::updateNonMembersQuery(const QString &find_string)
+{
+    QString condition = member_name_condition_for_query(find_string, QString("info"));
+    m_nonmemberlist_model->setQuery(m_nonmemberlist_base_query_string +
+                                    "WHERE info IS NOT NULL " +
+                                    (condition.isEmpty() ? "" : " AND " + condition) +
+                                    "GROUP BY info");
+
+    //qDebug()  << (m_blockslist_base_query_string + condition);
+    if(m_nonmemberlist_model->rowCount() == 0) //one with entered name
+        ui->m_nonmembers_widget->hide();
+    else
+        ui->m_nonmembers_widget->show();
+}
+
+
 void BookingDialog::updateBlocksQuery(const QString &find_string)
 {
-
     QString condition;
-    QString name_condition = member_name_condition_for_query(find_string);
+    QString name_condition = member_name_condition_for_query(find_string, QString("name"));
     condition = QString(" WHERE amount > used_amount ") +
                 (name_condition.isEmpty() ? "" : " AND " + name_condition);
 
@@ -357,9 +409,9 @@ void BookingDialog::updateBlocksQuery(const QString &find_string)
 
     //qDebug()  << (m_blockslist_base_query_string + condition);
     if(m_blockslist_model->rowCount() == 0) //one with entered name
-        ui->m_list_view_blocks->hide();
+        ui->m_blocks_widget->hide();
     else
-        ui->m_list_view_blocks->show();
+        ui->m_blocks_widget->show();
 }
 
 
@@ -404,9 +456,13 @@ void BookingDialog::updatePriceQuery()
 void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
 {
     updateMembersQuery(arg1);
-    selectCurrentMemberId();
     updateBlocksQuery(arg1);
+    updateNonMembersQuery(arg1);
+
+    selectCurrentMemberId();
     selectCurrentBlockId();
+    selectCurrentNonMember();
+
     updatePriceQuery();
 }
 
@@ -423,6 +479,7 @@ void BookingDialog::selectCurrentMemberId()
                 QModelIndex index = m_memberlist_model->index(i, 0);
                 ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
                 found = true;
+                ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
                 ui->m_list_view_blocks->clearSelection();
                 break;
             }
@@ -436,17 +493,55 @@ void BookingDialog::selectCurrentMemberId()
            m_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
            QModelIndex index = m_memberlist_model->index(0, 0);
            ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+           ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
            ui->m_list_view_blocks->clearSelection();
         }
         else if(m_memberlist_model->rowCount() == 0) //no member with entered name
         {
            m_selected_member_id = -1;
+           ui->m_list_view_members->setCurrentIndex(QModelIndex());
            ui->m_list_view_members->clearSelection();
         }
     }
 
 }
 
+
+void BookingDialog::selectCurrentNonMember()
+{
+//    bool found = false;
+//    if(m_selected_member_id >= 0)
+//    {
+//        for (int i = 0; i < m_memberlist_model->rowCount(); ++i)
+//        {
+//            if (m_memberlist_model->record(i).value(1).toInt() == m_selected_member_id)
+//            {
+//                QModelIndex index = m_memberlist_model->index(i, 0);
+//                ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+//                found = true;
+//                ui->m_list_view_blocks->clearSelection();
+//                break;
+//            }
+//        }
+//    }
+
+//    if(!found && m_selected_block_id == -1)
+//    {
+//        if(m_memberlist_model->rowCount() == 1) //one with entered name
+//        {
+//           m_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
+//           QModelIndex index = m_memberlist_model->index(0, 0);
+//           ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+//           ui->m_list_view_blocks->clearSelection();
+//        }
+//        else if(m_memberlist_model->rowCount() == 0) //no member with entered name
+//        {
+//           m_selected_member_id = -1;
+//           ui->m_list_view_members->clearSelection();
+//        }
+//    }
+
+}
 
 void BookingDialog::selectCurrentBlockId()
 {
@@ -458,6 +553,7 @@ void BookingDialog::selectCurrentBlockId()
             {
                 QModelIndex index = m_blockslist_model->index(i, 1);
                 ui->m_list_view_blocks->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+                ui->m_list_view_members->setCurrentIndex(QModelIndex());
                 ui->m_list_view_members->clearSelection();
                 break;
             }
@@ -478,6 +574,18 @@ void BookingDialog::on_m_list_view_members_activated(const QModelIndex &index)
     accept();
 }
 
+
+void BookingDialog::on_m_list_view_non_members_clicked(const QModelIndex &index)
+{
+   handleCurrentNonMemberChanged(index, QModelIndex());
+}
+
+
+void BookingDialog::on_m_list_view_non_members_activated(const QModelIndex &index)
+{
+    handleCurrentNonMemberChanged(index, QModelIndex());
+    accept();
+}
 
 void BookingDialog::on_m_list_view_blocks_clicked(const QModelIndex &index)
 {

@@ -9,62 +9,77 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="44"/>
+        <location filename="../bookingdialog.ui" line="228"/>
         <source>Abo From date:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="58"/>
+        <location filename="../bookingdialog.ui" line="245"/>
         <source>Till date:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="95"/>
+        <location filename="../bookingdialog.ui" line="52"/>
         <source>Field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="107"/>
+        <location filename="../bookingdialog.ui" line="64"/>
         <source>Day</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="122"/>
+        <location filename="../bookingdialog.ui" line="79"/>
         <source>Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="218"/>
+        <location filename="../bookingdialog.ui" line="184"/>
         <source>Number of blocks:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="251"/>
+        <location filename="../bookingdialog.ui" line="283"/>
+        <source>Members</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="318"/>
+        <source>Nonmembers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="353"/>
+        <source>Block-bookings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="147"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="47"/>
-        <source>Block</source>
+        <location filename="../bookingdialog.cpp" line="60"/>
+        <source>Block </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="47"/>
+        <location filename="../bookingdialog.cpp" line="61"/>
         <source>Used</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="67"/>
+        <location filename="../bookingdialog.cpp" line="81"/>
         <source>Single booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="68"/>
+        <location filename="../bookingdialog.cpp" line="82"/>
         <source>Block booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="69"/>
+        <location filename="../bookingdialog.cpp" line="83"/>
         <source>Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
@@ -82,12 +97,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dayreportwidget.cpp" line="151"/>
+        <location filename="../dayreportwidget.cpp" line="162"/>
         <source>(Canceled)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dayreportwidget.cpp" line="154"/>
+        <location filename="../dayreportwidget.cpp" line="165"/>
         <source>(Not paid)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -226,43 +241,61 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="86"/>
-        <location filename="../kassaviewwidget.cpp" line="129"/>
+        <location filename="../kassaviewwidget.cpp" line="91"/>
+        <location filename="../kassaviewwidget.cpp" line="134"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="87"/>
-        <location filename="../kassaviewwidget.cpp" line="130"/>
+        <location filename="../kassaviewwidget.cpp" line="92"/>
+        <location filename="../kassaviewwidget.cpp" line="135"/>
         <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="88"/>
-        <location filename="../kassaviewwidget.cpp" line="131"/>
+        <location filename="../kassaviewwidget.cpp" line="93"/>
+        <location filename="../kassaviewwidget.cpp" line="136"/>
         <source>Sum</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="190"/>
-        <location filename="../kassaviewwidget.cpp" line="203"/>
+        <location filename="../kassaviewwidget.cpp" line="195"/>
+        <location filename="../kassaviewwidget.cpp" line="208"/>
         <source>Delete current revenue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="191"/>
-        <location filename="../kassaviewwidget.cpp" line="261"/>
+        <location filename="../kassaviewwidget.cpp" line="196"/>
+        <location filename="../kassaviewwidget.cpp" line="266"/>
         <source>Delete the %1 record?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="203"/>
+        <location filename="../kassaviewwidget.cpp" line="208"/>
         <source>Corresponding booking can&apos;t be marked as paid!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="260"/>
+        <location filename="../kassaviewwidget.cpp" line="265"/>
         <source>Delete current expense</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LoginDataDialog</name>
+    <message>
+        <location filename="../logindatadialog.ui" line="14"/>
+        <source>Login data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../logindatadialog.ui" line="20"/>
+        <source>Username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../logindatadialog.ui" line="30"/>
+        <source>Password</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -274,53 +307,58 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="77"/>
+        <location filename="../mainwindow.ui" line="81"/>
         <source>Week report</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="109"/>
+        <location filename="../mainwindow.ui" line="113"/>
         <source>Day report</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="141"/>
+        <location filename="../mainwindow.ui" line="145"/>
         <source>Members</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="173"/>
+        <location filename="../mainwindow.ui" line="177"/>
         <source>Prices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="205"/>
+        <location filename="../mainwindow.ui" line="209"/>
         <source>Fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="237"/>
+        <location filename="../mainwindow.ui" line="241"/>
         <source>Bokkings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="269"/>
+        <location filename="../mainwindow.ui" line="273"/>
         <source>Kassa</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="319"/>
+        <location filename="../mainwindow.ui" line="323"/>
         <source>Service</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="351"/>
+        <location filename="../mainwindow.ui" line="355"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MembersListDialog</name>
+    <message>
+        <location filename="../memberslistdialog.cpp" line="32"/>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <location filename="../memberslistdialog.cpp" line="41"/>
         <source>Member number</source>
@@ -550,17 +588,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekreportwidget.cpp" line="160"/>
+        <location filename="../weekreportwidget.cpp" line="173"/>
         <source>Export TXT Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekreportwidget.cpp" line="187"/>
+        <location filename="../weekreportwidget.cpp" line="200"/>
         <source>The Revenues file can&apos;t be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekreportwidget.cpp" line="213"/>
+        <location filename="../weekreportwidget.cpp" line="226"/>
         <source>The Expenses file can&apos;t be created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -633,123 +671,128 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="98"/>
+        <location filename="../weekviewwidget.cpp" line="105"/>
         <source>This booking is already entered in the cash register.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="154"/>
-        <location filename="../weekviewwidget.cpp" line="250"/>
+        <location filename="../weekviewwidget.cpp" line="161"/>
+        <location filename="../weekviewwidget.cpp" line="257"/>
         <source>This booking is already entered in the cash register. It can&apos;t be changed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="194"/>
+        <location filename="../weekviewwidget.cpp" line="201"/>
         <source>The Abo Booking can&apos;t be direct rebooked. Please uses special funktions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="201"/>
+        <location filename="../weekviewwidget.cpp" line="208"/>
         <source>The information about bookin is not filled. The booking can&apos;t be saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="221"/>
+        <location filename="../weekviewwidget.cpp" line="228"/>
         <source>The booking can&apos;t be saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="272"/>
+        <location filename="../weekviewwidget.cpp" line="279"/>
         <source>Context menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="274"/>
+        <location filename="../weekviewwidget.cpp" line="281"/>
         <source>Mark as paid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="278"/>
+        <location filename="../weekviewwidget.cpp" line="285"/>
         <source>Mark as unpaid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="282"/>
+        <location filename="../weekviewwidget.cpp" line="289"/>
         <source>Change currient Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="286"/>
+        <location filename="../weekviewwidget.cpp" line="293"/>
         <source>Change complet Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="290"/>
+        <location filename="../weekviewwidget.cpp" line="297"/>
         <source>Change the field for complet Abo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="294"/>
+        <location filename="../weekviewwidget.cpp" line="301"/>
         <source>Cancel currient Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="298"/>
+        <location filename="../weekviewwidget.cpp" line="305"/>
         <source>Cancel complet Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="302"/>
+        <location filename="../weekviewwidget.cpp" line="309"/>
         <source>Change booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="306"/>
+        <location filename="../weekviewwidget.cpp" line="313"/>
         <source>Cancel booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="310"/>
+        <location filename="../weekviewwidget.cpp" line="317"/>
         <source>Change the field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="385"/>
+        <location filename="../weekviewwidget.cpp" line="392"/>
         <source>Please select new field.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="496"/>
+        <location filename="../weekviewwidget.cpp" line="503"/>
         <source>Booking conflict</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="497"/>
+        <location filename="../weekviewwidget.cpp" line="504"/>
         <source>The selected time slot is already booked: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="515"/>
+        <location filename="../weekviewwidget.cpp" line="522"/>
         <source>Booking error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="516"/>
+        <location filename="../weekviewwidget.cpp" line="523"/>
         <source>Error when try to save the multibooking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="625"/>
+        <location filename="../weekviewwidget.cpp" line="632"/>
         <source>The file fields_availability.htm template is not found. Please check the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="640"/>
+        <location filename="../weekviewwidget.cpp" line="725"/>
         <source>The file for export %1 can&apos;t be created. Please check the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekviewwidget.cpp" line="699"/>
+        <location filename="../weekviewwidget.cpp" line="742"/>
+        <source>Upload is finished with error %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../weekviewwidget.cpp" line="702"/>
         <source>Booked</source>
         <translation type="unfinished"></translation>
     </message>

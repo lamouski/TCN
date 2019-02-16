@@ -699,7 +699,7 @@ void WeekViewWidget::exportBookingWeekHtml()
                 int booking_status = day_booking_model.bookingStatus(index);
                 QString col_key = QString("\%data%1\%").arg(time_slot);
                 if(booking_id > 0 && booking_status >= 0)
-                    tmp_string.replace(col_key, tr("Booked"));
+                    tmp_string.replace(col_key, tr("Booked")); //"Belegt"
                 else
                     tmp_string.replace(col_key, "");
             }
@@ -785,8 +785,5 @@ void WeekViewWidget::exportBookingWeekHtml()
 
         QNetworkRequest upload(url);
         m_qnam->put(upload, data);
-
-
-
-
+    }
 }

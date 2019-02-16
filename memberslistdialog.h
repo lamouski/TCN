@@ -34,8 +34,10 @@ public:
     explicit MembersListDialog(QWidget *parent = 0);
     ~MembersListDialog();
 
+
 private slots:
     void copy_current();
+    void edit_current();
 
     void on_m_add_button_clicked();
 

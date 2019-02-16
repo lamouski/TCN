@@ -52,6 +52,11 @@ void KassaViewWidget::showEvent(QShowEvent */*e*/)
     updateGUI();
 }
 
+void KassaViewWidget::hideEvent(QHideEvent */*e*/)
+{
+    ui->m_revenue_table_view->setCurrentIndex(QModelIndex());
+    ui->m_costs_table_view->setCurrentIndex(QModelIndex());
+}
 
 void KassaViewWidget::fillCurrentDay() {
     DbManager* db = DbManager::instance();

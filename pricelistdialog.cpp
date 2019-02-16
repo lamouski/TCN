@@ -120,7 +120,7 @@ void PriceListDialog::on_m_add_button_clicked()
     edit_current();
 }
 
-void PriceListDialog::handleCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void PriceListDialog::handleCurrentChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
     if(current.row() != m_edited_index.row())
     {
