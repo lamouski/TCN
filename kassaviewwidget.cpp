@@ -83,10 +83,9 @@ void KassaViewWidget::fillCurrentDay() {
     QString filter = QString("date = %1 AND operation = %2 ").arg(Settings::currentDate().toJulianDay()).arg(0);
     m_revenue_model->setFilter(filter); //revenue
 
-
     m_revenue_model->setJoinMode(QSqlRelationalTableModel::LeftJoin);
     int accountIdx = m_revenue_model->fieldIndex("account");
-    m_revenue_model->setRelation(accountIdx, QSqlRelation("revenues", "id", "type"));
+    m_revenue_model->setRelation(accountIdx, QSqlRelation("revenues", "id", "representation"));
 
     m_revenue_model->setHeaderData(3, Qt::Horizontal, tr("Info"));
     m_revenue_model->setHeaderData(4, Qt::Horizontal, tr("Type"));
@@ -129,7 +128,7 @@ void KassaViewWidget::fillCurrentDay() {
 
     m_expence_model->setJoinMode(QSqlRelationalTableModel::LeftJoin);
     accountIdx = m_expence_model->fieldIndex("account");
-    m_expence_model->setRelation(accountIdx, QSqlRelation("expenses", "id", "type"));
+    m_expence_model->setRelation(accountIdx, QSqlRelation("expenses", "id", "representation"));
 
     m_expence_model->setHeaderData(3, Qt::Horizontal, tr("Info"));
     m_expence_model->setHeaderData(4, Qt::Horizontal, tr("Type"));

@@ -20,6 +20,7 @@
 #include "ui_memberslistdialog.h"
 
 #include <QMenu>
+#include <QSqlRecord>
 #include <QSqlTableModel>
 
 MembersListDialog::MembersListDialog(QWidget *parent) :
@@ -35,12 +36,22 @@ MembersListDialog::MembersListDialog(QWidget *parent) :
     ui->m_other_button->setMenu(pop_up);
 
     m_model = new QSqlTableModel(this);
+    m_model->setEditStrategy(QSqlTableModel::OnRowChange);
+    connect(m_model, &QSqlTableModel::primeInsert,
+            [](int /*row*/, QSqlRecord &record)
+    {
+        record.setGenerated("id", false);
+        record.setValue("membernumber", -1);
+        record.setGenerated("membernumber", true);
+        record.setValue("status", QVariant::fromValue<int>(0)); //active
+        record.setGenerated("status", true);
+    });
     m_model->setTable("members");
     m_model->select();
 
-    m_model->setHeaderData(0, Qt::Horizontal, tr("Member number"));
-    m_model->setHeaderData(1, Qt::Horizontal, tr("First name"));
-    m_model->setHeaderData(2, Qt::Horizontal, tr("Last name"));
+    m_model->setHeaderData(1, Qt::Horizontal, tr("Member number"));
+    m_model->setHeaderData(2, Qt::Horizontal, tr("First name"));
+    m_model->setHeaderData(3, Qt::Horizontal, tr("Last name"));
 
     ui->m_view_members->setModel(m_model);
     //ui->m_view_members->hideColumn(0);

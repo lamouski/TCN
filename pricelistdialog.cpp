@@ -45,7 +45,7 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     int revenueIdx = m_model->fieldIndex("revenue");
 
     //m_revenue_relation = QSqlRelation("revenues", "id", "type, account");
-    m_model->setRelation(revenueIdx, QSqlRelation("revenues", "id", "type"));/*, account*/
+    m_model->setRelation(revenueIdx, QSqlRelation("revenues", "id", "representation"));
 
     //m_model->setHeaderData(0, Qt::Horizontal, tr("ID"));
     m_model->setHeaderData(1, Qt::Horizontal, tr("Name"));

@@ -72,7 +72,7 @@ void DayReportWidget::update()
                   "        WHEN 0 THEN revenues.account "
                   "        WHEN 1 THEN expenses.account "
                   "       END AS account_number, "
-                  "       cash_register.sum, fields.name, timeslot, status FROM cash_register "
+                  "       cash_register.sum, fields.name, timeslot, bookings.status FROM cash_register "
                   "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
                   "LEFT OUTER JOIN expenses ON cash_register.account = expenses.id "
                   "LEFT OUTER JOIN bookings ON cash_register.id = bookings.status "
@@ -97,7 +97,7 @@ void DayReportWidget::update()
                         "LEFT OUTER JOIN revenues ON prices.revenue = revenues.id "
                         "WHERE bookings.date = :day "
                         "AND (aboid IS NULL OR aboid <= 0) "
-                        "AND (status IS NULL OR status <= 0)");
+                        "AND (bookings.status IS NULL OR bookings.status <= 0)");
     query_other.bindValue(":day", date.toJulianDay());
     if(!query_other.exec())
     {
