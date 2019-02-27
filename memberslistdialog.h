@@ -35,9 +35,11 @@ public:
     ~MembersListDialog();
 
 
+
 private slots:
-    void copy_current();
+    //void copy_current();
     void edit_current();
+    void mark_as_inactive();
 
     void on_m_add_button_clicked();
 

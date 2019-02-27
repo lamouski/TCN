@@ -377,8 +377,9 @@ QString member_name_condition_for_query(const QString &find_string, const QStrin
 void BookingDialog::updateMembersQuery(const QString &find_string)
 {
     QString condition = member_name_condition_for_query(find_string, QString("name"));
-    m_memberlist_model->setQuery(m_memberlist_base_query_string +
-                                 (condition.isEmpty() ? "" : " WHERE " + condition));
+    m_memberlist_model->setQuery(m_memberlist_base_query_string + " WHERE " +
+                                 (condition.isEmpty() ? "" : condition + " AND ") +
+                                 "status IS NOT -1");
 }
 
 

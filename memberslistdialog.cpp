@@ -32,7 +32,7 @@ MembersListDialog::MembersListDialog(QWidget *parent) :
     QMenu *pop_up = new QMenu(this);
     pop_up->addAction(tr("Edit"), this, &MembersListDialog::edit_current);
     //pop_up->addAction(tr("Copy"), this, &MembersListDialog::copy_current);
-    //pop_up->addAction(tr("Delete"), this, &MembersListDialog::delete_current);
+    pop_up->addAction(tr("Mark as inactive"), this, &MembersListDialog::mark_as_inactive);
     ui->m_other_button->setMenu(pop_up);
 
     m_model = new QSqlTableModel(this);
@@ -64,16 +64,16 @@ MembersListDialog::~MembersListDialog()
     delete m_model;
 }
 
-//void MembersListDialog::delete_current()
-//{
-//    const int row = ui->m_view_members->currentIndex().row();
-//    m_model->removeRows(row, 1);
-//    m_model->select();
-//}
-
-void MembersListDialog::copy_current()
+void MembersListDialog::mark_as_inactive()
 {
-
+    const int row = ui->m_view_members->currentIndex().row();
+    if(row >= 0)
+    {
+        QModelIndex index = m_model->index(row, 6); // status column
+        m_model->setData(index, -1);
+        m_model->submit();
+        m_model->select();
+    }
 }
 
 void MembersListDialog::edit_current()

@@ -371,7 +371,7 @@ bool DbManager::markBookingAsPaid(const int bookingId)
 {
     bool success = false;
     QSqlQuery booking_query;
-    booking_query.prepare("SELECT date, info, (surname || ' ' || firstname) as name_info, revenue, bookings.sum, status FROM bookings "
+    booking_query.prepare("SELECT date, info, (surname || ' ' || firstname) as name_info, revenue, bookings.sum, bookings.status FROM bookings "
                           "LEFT OUTER JOIN members ON bookings.memberid = members.id "
                           "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
                           "WHERE  bookings.id=:id;");

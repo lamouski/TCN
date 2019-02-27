@@ -80,7 +80,6 @@ void DayReportWidget::update()
                   "WHERE cash_register.date = :day "
                   "AND (aboid IS NULL OR aboid <= 0)");
 
-    // "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
     query.bindValue(":day", date.toJulianDay());
     if(!query.exec())
     {
@@ -90,7 +89,7 @@ void DayReportWidget::update()
     }
 
     QSqlQuery query_other;
-    query_other.prepare("SELECT (surname || ' ' || firstname) as name_info, bookings.info, revenues.type, revenues.account, bookings.sum, fields.name, timeslot, status FROM bookings "
+    query_other.prepare("SELECT (surname || ' ' || firstname) as name_info, bookings.info, revenues.type, revenues.account, bookings.sum, fields.name, timeslot, bookings.status FROM bookings "
                         "LEFT OUTER JOIN members ON bookings.memberid = members.id "
                         "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
                         "LEFT OUTER JOIN prices ON bookings.priceid = prices.id "
@@ -164,10 +163,6 @@ void DayReportWidget::update()
         case 0: default:
             tmp_string.replace("%sum_revenues%", tr("(Not paid)"));
             break;
-
-//            tmp_string.replace("%sum_revenues%", query_other.value(4).toString() + " €");
-//            total_sum += query_other.value(4).toDouble();
-//            break;
         }
         tmp_string.replace("%sum_expenses%", "");
         tmp_string.replace("%field_name%", query_other.value(5).toString());

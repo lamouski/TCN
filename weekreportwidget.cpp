@@ -82,7 +82,7 @@ void WeekReportWidget::showEvent(QShowEvent */*e*/)
 }
 
 
-void WeekReportWidget::updateQuery()
+void WeekReportWidget::updateQuery(bool group_by_date)
 {
     if(!m_query)
          m_query = new QSqlQuery();
@@ -91,7 +91,7 @@ void WeekReportWidget::updateQuery()
     const QDate from_date = ui->m_from_date->date();
     const QDate till_date = ui->m_till_date->date();
 
-    m_query->prepare("SELECT operation, "
+    m_query->prepare(QString("SELECT operation, "
                      "       CASE operation "
                      "        WHEN 0 THEN revenues.type "
                      "        WHEN 1 THEN expenses.type "
@@ -104,7 +104,8 @@ void WeekReportWidget::updateQuery()
                      "LEFT OUTER JOIN revenues ON cash_register.account = revenues.id "
                      "LEFT OUTER JOIN expenses ON cash_register.account = expenses.id "
                      "WHERE (date between :from_day AND :till_day) "
-                     "GROUP BY date, operation, cash_register.account, revenues.type, revenues.account ");
+                     "GROUP BY ") + (group_by_date ? QString("date, ") : "") +
+                     QString("operation, cash_register.account, revenues.type, revenues.account "));
     m_query->bindValue(":from_day", from_date.toJulianDay());
     m_query->bindValue(":till_day", till_date.toJulianDay());
     if(!m_query->exec())
@@ -117,59 +118,90 @@ void WeekReportWidget::updateQuery()
     }
 }
 
+QString extract_tag(const QString& tag, const QString& html_template)
+{
+    const QString start_tag = QString("%") + tag + QString("_start%");
+    int position = html_template.indexOf(start_tag);
+    const QString end_tag = QString("%") + tag + QString("_end%");
+    int end_position = html_template.indexOf(end_tag);
+    QString tag_string = html_template.mid(position + start_tag.length(),
+                                           end_position - position - start_tag.length());
+    //html_template.remove(position, end_position - position + end_tag.length());
+    return tag_string;
+}
+
 void WeekReportWidget::update()
 {
     if(m_do_not_update)
         return;
-    updateQuery();
 
     //current period handling functions
     const QDate from_date = ui->m_from_date->date();
     const QDate till_date = ui->m_till_date->date();
 
-    QString html_text = m_template_str;
-    html_text.replace("%from_datum%", from_date.toString("dd.MM.yyyy"));
-    html_text.replace("%till_datum%", till_date.toString("dd.MM.yyyy"));
+    QString html_text;
+    QTextStream html_stream(&html_text);
 
-    const QString table_row_start_tag("%table_row_start%");
-    int position = html_text.indexOf(table_row_start_tag);
-    const QString table_row_end_tag("%table_row_end%");
-    int end_position = html_text.indexOf(table_row_end_tag);
-    QString row_string = html_text.mid(position+table_row_start_tag.length(), end_position - position - table_row_start_tag.length());
-    html_text.remove(position, end_position - position + table_row_end_tag.length());
-    double total_sum_revenues = 0.0;
-    double total_sum_expenses = 0.0;
-    while(m_query->next())
+    QString doc_header = extract_tag("doc_header", m_template_str);
+    doc_header.replace("%from_datum%", from_date.toString("dd.MM.yyyy"));
+    doc_header.replace("%till_datum%", till_date.toString("dd.MM.yyyy"));
+    html_stream << doc_header;
+
+    for(int i = 0; i < 2; i++)
     {
-        QString tmp_string = row_string;
-
-        tmp_string.replace("%account_name%", m_query->value(1).toString());
-        tmp_string.replace("%account%", m_query->value(2).toString());
-
-        if(m_query->value(0).toInt() == 0)
+        QString table_name("table");
+        if(i == 0)
         {
-
-            tmp_string.replace("%sum_revenues%", m_query->value(3).toString() + " €");
-            total_sum_revenues += m_query->value(3).toDouble();
-            tmp_string.replace("%sum_expenses%", "");
+            updateQuery(true);
         }
         else {
-            tmp_string.replace("%sum_expenses%", m_query->value(3).toString() + " €");
-            total_sum_expenses += m_query->value(3).toDouble();
-            tmp_string.replace("%sum_revenues%", "");
+            table_name = "second_table";
+            updateQuery(false);
         }
+        QString header_string = extract_tag(table_name + "_header", m_template_str);
+        QString row_string = extract_tag(table_name + "_row", m_template_str);
+        QString footer_string = extract_tag(table_name + "_footer", m_template_str);
 
-        tmp_string.replace("%date%", QDate::fromJulianDay(m_query->value(4).toInt()).toString("dd.MM.yyyy"));
-        html_text.insert(position,tmp_string); position += tmp_string.length();
+        html_stream << header_string;
+        double total_sum_revenues = 0.0;
+        double total_sum_expenses = 0.0;
+        while(m_query->next())
+        {
+            QString tmp_string = row_string;
+            tmp_string.replace("%account_name%", m_query->value(1).toString());
+            tmp_string.replace("%account%", m_query->value(2).toString());
+
+            if(m_query->value(0).toInt() == 0)
+            {
+                tmp_string.replace("%sum_revenues%", m_query->value(3).toString() + " €");
+                total_sum_revenues += m_query->value(3).toDouble();
+                tmp_string.replace("%sum_expenses%", "");
+            }
+            else {
+                tmp_string.replace("%sum_expenses%", m_query->value(3).toString() + " €");
+                total_sum_expenses += m_query->value(3).toDouble();
+                tmp_string.replace("%sum_revenues%", "");
+            }
+
+            tmp_string.replace("%date%", QDate::fromJulianDay(m_query->value(4).toInt()).toString("dd.MM.yyyy"));
+            html_stream << tmp_string;
+        }
+        footer_string.replace("%total_sum_revenues%", QString("%1 €").arg(total_sum_revenues));
+        footer_string.replace("%total_sum_expenses%", QString("%1 €").arg(total_sum_expenses));
+        html_stream << footer_string;
+
     }
-    html_text.replace("%total_sum_revenues%", QString("%1 €").arg(total_sum_revenues));
-    html_text.replace("%total_sum_expenses%", QString("%1 €").arg(total_sum_expenses));
+
+    QString doc_footer = extract_tag("doc_footer", m_template_str);
+    html_stream << doc_footer;
+    html_stream.flush();
     ui->m_text_editor->setHtml(html_text);
 
 }
 
 void WeekReportWidget::exportCVS()
 {
+
     QFileDialog fileDialog(this, tr("Export TXT Directory"));
     fileDialog.setFileMode(QFileDialog::Directory);
     if (fileDialog.exec() != QDialog::Accepted)
@@ -180,6 +212,7 @@ void WeekReportWidget::exportCVS()
     if (file_revenues.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
     {
         QTextStream stream(&file_revenues);
+        updateQuery(true);
         bool new_record = m_query->first();
         while(new_record)
         {

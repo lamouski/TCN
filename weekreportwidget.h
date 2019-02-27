@@ -39,7 +39,7 @@ public:
     QPushButton *getReturnButton() const;
 
 protected:
-    void updateQuery();
+    void updateQuery(bool group_by_date = true);
     void update();    
     void showEvent(QShowEvent *);
 
