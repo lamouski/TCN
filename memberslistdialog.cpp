@@ -86,7 +86,7 @@ void MembersListDialog::on_m_add_button_clicked()
 {
     const int row = m_model->rowCount();
     m_model->insertRow(row);
-    QModelIndex index = m_model->index(row, 0);
+    QModelIndex index = m_model->index(row, 1);
     ui->m_view_members->setCurrentIndex(index);
     edit_current();
     //

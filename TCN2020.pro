@@ -46,7 +46,8 @@ SOURCES += \
     daykassatablemodel.cpp \
     fieldselectiondialog.cpp \
     logindatadialog.cpp \
-    simplecrypt.cpp
+    simplecrypt.cpp \
+    blockbookingsview.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -71,7 +72,8 @@ HEADERS += \
     daykassatablemodel.h \
     fieldselectiondialog.h \
     logindatadialog.h \
-    simplecrypt.h
+    simplecrypt.h \
+    blockbookingsview.h
 
 FORMS += \
         mainwindow.ui \
@@ -86,7 +88,8 @@ FORMS += \
     servicedialog.ui \
     kassaviewwidget.ui \
     fieldselectiondialog.ui \
-    logindatadialog.ui
+    logindatadialog.ui \
+    blockbookingsview.ui
 
 RESOURCES += \
     tcn2020.qrc
