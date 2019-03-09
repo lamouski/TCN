@@ -2,6 +2,87 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>BlockBookingsModel</name>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="20"/>
+        <source>Date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="21"/>
+        <source>Block ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="22"/>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="23"/>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="23"/>
+        <source>Sum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="24"/>
+        <source>Field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="25"/>
+        <source>Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="26"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="89"/>
+        <source>Canceled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="91"/>
+        <source>Payed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="92"/>
+        <source>Not payed</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BlockBookingsView</name>
+    <message>
+        <location filename="../blockbookingsview.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsview.ui" line="46"/>
+        <source>Blocks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsview.ui" line="61"/>
+        <source>Bookings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsview.ui" line="101"/>
+        <source>&lt;--</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BookingDialog</name>
     <message>
         <location filename="../bookingdialog.ui" line="14"/>
@@ -97,12 +178,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dayreportwidget.cpp" line="162"/>
+        <location filename="../dayreportwidget.cpp" line="161"/>
         <source>(Canceled)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dayreportwidget.cpp" line="165"/>
+        <location filename="../dayreportwidget.cpp" line="164"/>
         <source>(Not paid)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -241,42 +322,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../kassaviewwidget.cpp" line="90"/>
+        <location filename="../kassaviewwidget.cpp" line="133"/>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../kassaviewwidget.cpp" line="91"/>
         <location filename="../kassaviewwidget.cpp" line="134"/>
-        <source>Info</source>
+        <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../kassaviewwidget.cpp" line="92"/>
         <location filename="../kassaviewwidget.cpp" line="135"/>
-        <source>Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../kassaviewwidget.cpp" line="93"/>
-        <location filename="../kassaviewwidget.cpp" line="136"/>
         <source>Sum</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="195"/>
-        <location filename="../kassaviewwidget.cpp" line="208"/>
+        <location filename="../kassaviewwidget.cpp" line="194"/>
+        <location filename="../kassaviewwidget.cpp" line="207"/>
         <source>Delete current revenue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="196"/>
-        <location filename="../kassaviewwidget.cpp" line="266"/>
+        <location filename="../kassaviewwidget.cpp" line="195"/>
+        <location filename="../kassaviewwidget.cpp" line="265"/>
         <source>Delete the %1 record?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="208"/>
+        <location filename="../kassaviewwidget.cpp" line="207"/>
         <source>Corresponding booking can&apos;t be marked as paid!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kassaviewwidget.cpp" line="265"/>
+        <location filename="../kassaviewwidget.cpp" line="264"/>
         <source>Delete current expense</source>
         <translation type="unfinished"></translation>
     </message>
@@ -307,47 +388,52 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="81"/>
+        <location filename="../mainwindow.ui" line="177"/>
         <source>Week report</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="113"/>
+        <location filename="../mainwindow.ui" line="294"/>
         <source>Day report</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="145"/>
+        <location filename="../mainwindow.ui" line="81"/>
         <source>Members</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="177"/>
+        <location filename="../mainwindow.ui" line="113"/>
         <source>Prices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="209"/>
+        <location filename="../mainwindow.ui" line="145"/>
         <source>Fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="241"/>
+        <location filename="../mainwindow.ui" line="227"/>
+        <source>Block bookings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="411"/>
         <source>Bokkings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="273"/>
+        <location filename="../mainwindow.ui" line="259"/>
         <source>Kassa</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="323"/>
+        <location filename="../mainwindow.ui" line="344"/>
         <source>Service</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="355"/>
+        <location filename="../mainwindow.ui" line="376"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
@@ -355,22 +441,27 @@
 <context>
     <name>MembersListDialog</name>
     <message>
-        <location filename="../memberslistdialog.cpp" line="32"/>
+        <location filename="../memberslistdialog.cpp" line="33"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../memberslistdialog.cpp" line="41"/>
+        <location filename="../memberslistdialog.cpp" line="35"/>
+        <source>Mark as inactive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../memberslistdialog.cpp" line="52"/>
         <source>Member number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../memberslistdialog.cpp" line="42"/>
+        <location filename="../memberslistdialog.cpp" line="53"/>
         <source>First name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../memberslistdialog.cpp" line="43"/>
+        <location filename="../memberslistdialog.cpp" line="54"/>
         <source>Last name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -588,17 +679,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekreportwidget.cpp" line="173"/>
+        <location filename="../weekreportwidget.cpp" line="205"/>
         <source>Export TXT Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekreportwidget.cpp" line="200"/>
+        <location filename="../weekreportwidget.cpp" line="233"/>
         <source>The Revenues file can&apos;t be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../weekreportwidget.cpp" line="226"/>
+        <location filename="../weekreportwidget.cpp" line="259"/>
         <source>The Expenses file can&apos;t be created.</source>
         <translation type="unfinished"></translation>
     </message>
