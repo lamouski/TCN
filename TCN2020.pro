@@ -47,7 +47,8 @@ SOURCES += \
     fieldselectiondialog.cpp \
     logindatadialog.cpp \
     simplecrypt.cpp \
-    blockbookingsview.cpp
+    blockbookingsview.cpp \
+    blockbookingsmodel.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -73,7 +74,8 @@ HEADERS += \
     fieldselectiondialog.h \
     logindatadialog.h \
     simplecrypt.h \
-    blockbookingsview.h
+    blockbookingsview.h \
+    blockbookingsmodel.h
 
 FORMS += \
         mainwindow.ui \

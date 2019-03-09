@@ -418,7 +418,8 @@ void BookingDialog::updateBlocksQuery(const QString &find_string)
 
 void BookingDialog::updatePriceQuery()
 {
-    bool not_member = (m_memberlist_model->rowCount() == 0 || !ui->m_list_view_members->currentIndex().isValid());
+    bool not_member = !ui->m_list_view_members->currentIndex().isValid() &&
+            !ui->m_list_view_blocks->currentIndex().isValid();
 
     QString current_price = ui->m_combo_price->currentText();
     int curr_index = ui->m_combo_price->currentIndex();

@@ -9,6 +9,8 @@ namespace Ui {
 class BlockBookingsView;
 }
 
+class BlockBookingsModel;
+
 class BlockBookingsView : public QWidget
 {
     Q_OBJECT
@@ -27,10 +29,14 @@ protected:
     void showEvent(QShowEvent *);
     void hideEvent(QHideEvent *);
 
+protected slots:
+    void handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &previous);
+
 private:
     Ui::BlockBookingsView *ui;
 
-    QSqlQueryModel *m_model = nullptr;
+    BlockBookingsModel *m_model_blocks = nullptr;
+    BlockBookingsModel *m_model_bookings = nullptr;
 };
 
 #endif // BLOCKBOOKINGSVIEW_H

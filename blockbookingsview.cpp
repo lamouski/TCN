@@ -1,8 +1,12 @@
+#include "blockbookingsmodel.h"
+#include "blockbookingsview.h"
 #include "blockbookingsview.h"
 #include "dbmanager.h"
 #include "ui_blockbookingsview.h"
 
 #include <QSqlQueryModel>
+#include <QSqlError>
+#include <QDebug>
 
 BlockBookingsView::BlockBookingsView(QWidget *parent) :
     QWidget(parent),
@@ -38,36 +42,54 @@ void BlockBookingsView::fillData() {
     if(!db)
         return;
 
-    if(!m_model)
+    if(!m_model_blocks)
     {
-        m_model = new QSqlQueryModel (this);
+        m_model_blocks = new BlockBookingsModel(this);
+        m_model_blocks->setMode(BlockBookingsModel::MODE_BLOCKS);
     }
-    m_model->setQuery("SELECT block_bookings.date, bookings.date, bookings.blockid, amount, (surname || ' ' || firstname) as name_info, bookings.info, bookings.sum, fields.name, timeslot, bookings.status from  block_bookings "
-                      "LEFT OUTER JOIN members ON bookings.memberid = members.id "
-                      "LEFT OUTER JOIN fields ON bookings.fieldid = fields.id "
-                      "JOIN bookings where bookings.blockid=block_bookings.id "
-                      "ORDER BY bookings.blockid, CASE WHEN sum>0.0 THEN 0 ELSE 1 END,bookings.date");
+    if(!m_model_bookings)
+    {
+        m_model_bookings = new BlockBookingsModel(this);
+        m_model_bookings->setMode(BlockBookingsModel::MODE_BOOKINGS);
+    }
+    m_model_blocks->updateQuery();
+    m_model_bookings->updateQuery();
 
-//    m_model->setHeaderData(3, Qt::Horizontal, tr("Info"));
-//    m_model->setHeaderData(4, Qt::Horizontal, tr("Type"));
-//    m_model->setHeaderData(5, Qt::Horizontal, tr("Sum"));
+    ui->m_blocks_table_view->setModel(m_model_blocks);
+    ui->m_blocks_table_view->resizeRowsToContents();
+    ui->m_blocks_table_view->verticalHeader()->hide();
+    ui->m_blocks_table_view->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->m_blocks_table_view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    ui->m_blocks_table_view->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->m_blocks_table_view->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+    connect(ui->m_blocks_table_view->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &BlockBookingsView::handleCurrentBlockChanged);
 
-    ui->m_table_view->setModel(m_model);
-    ui->m_table_view->resizeRowsToContents();
-//    ui->m_table_view->hideColumn(0);
-//    ui->m_table_view->hideColumn(1);
-//    ui->m_table_view->hideColumn(2);
-//    //ui//->m_table_view->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-//    //ui->m_table_view->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
-//    //ui->m_table_view->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
-//    ui->m_table_view->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Fixed);
-//    //ui->m_table_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->m_bookings_table_view->setModel(m_model_bookings);
+    ui->m_bookings_table_view->resizeRowsToContents();
+    ui->m_bookings_table_view->verticalHeader()->hide();
+    ui->m_bookings_table_view->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->m_bookings_table_view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    ui->m_bookings_table_view->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->m_bookings_table_view->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+    ui->m_bookings_table_view->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Fixed);
+    ui->m_bookings_table_view->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Fixed);
+    ui->m_bookings_table_view->horizontalHeader()->setSectionResizeMode(6, QHeaderView::ResizeToContents);
+    //ui->m_table_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-
-//    connect(ui->m_costs_table_view->selectionModel(), &QItemSelectionModel::currentChanged,
-//            this, &KassaViewWidget::handleCurrentExpenseChanged);
 }
 
+void BlockBookingsView::handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    if(current.isValid())
+    {
+        QModelIndex block_id_index = m_model_blocks->index(current.row(), 1);
+        m_model_bookings->setBlockId(m_model_blocks->data(block_id_index).toInt());
+    }
+    else {
+        m_model_bookings->setBlockId(-1);
+    }
+}
 
 void BlockBookingsView::updateGUI()
 {
