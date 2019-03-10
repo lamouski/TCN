@@ -1,3 +1,4 @@
+#include <QFont>
 #include <QSqlRecord>
 
 #include "blockbookingsmodel.h"
@@ -94,13 +95,29 @@ QVariant BlockBookingsModel::data(const QModelIndex &index, int role) const
             default:
                 return QVariant();
             }
+        case Qt::FontRole:
+            {
+                QFont standart_font;
+                int status = m_query.record().value(7).toInt();
+                if(status < 0)
+                {
+                    standart_font.setStrikeOut(true);
+                    standart_font.setWeight(QFont::ExtraLight);
+                }
+                else if(status == 0 && col == 6)
+                {
+                    standart_font.setBold(true);
+                }
+                return QVariant::fromValue<QFont>(standart_font);
+
+            }
+
     }
     return QVariant();
 }
 
 void BlockBookingsModel::setMode(BlockBookingsModel::Mode mode)
 {
-
     if(m_mode != mode)
     {
         m_mode = mode;
