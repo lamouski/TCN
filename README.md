@@ -1,5 +1,4 @@
-# TCN is an flexible booking system for tennis clubs and other institution that provide their services or facilities for 
-  members and guests.
+# TCN is an flexible booking system for tennis clubs and other institution that provide their services or facilities for members and guests.
   
   TCN is a standalone application based on Qt. It uses simple SQLite engine for database handling. 
   
