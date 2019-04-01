@@ -69,9 +69,9 @@ bool DayBookingTableModel::queryData()
         int time_mask = field_query.value(2).toInt() & 33554431; // we mask the 25-th bit
         m_fields_time_masks.push_back(time_mask);
         int strange_number = time_mask & (~time_mask + 1);
-        int first_time_slot = (int) std::log2( (float) strange_number);
+        int first_time_slot = (int) log2( (float) strange_number);
         m_first_time_slot = std::min(m_first_time_slot, first_time_slot);
-        int last_time_slot = (int) std::log2( (float) time_mask);
+        int last_time_slot = (int) log2( (float) time_mask);
         m_nr_time_slots = std::max(m_first_time_slot + m_nr_time_slots, last_time_slot) - m_first_time_slot;
     }
     m_query.prepare("SELECT bookings.id, (surname || ' ' || firstname), info, timeslot, fieldid, memberid, priceid, aboid, blockid, bookings.status, sum "

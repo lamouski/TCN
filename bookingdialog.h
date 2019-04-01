@@ -28,6 +28,8 @@ namespace Ui {
 class BookingDialog;
 }
 
+class BlockBookingsModel;
+
 class BookingDialog : public QDialog
 {
     Q_OBJECT
@@ -95,8 +97,7 @@ private:
     QSqlQueryModel *m_nonmemberlist_model;
     QString m_nonmemberlist_base_query_string;
 
-    QSqlQueryModel *m_blockslist_model;
-    QString m_blockslist_base_query_string;
+    BlockBookingsModel *m_blockslist_model;
 
     QSqlQueryModel *m_prices_model;
     QString m_prices_base_query_string;

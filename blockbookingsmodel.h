@@ -13,7 +13,8 @@ public:
     typedef enum
     {
         MODE_BLOCKS,
-        MODE_BOOKINGS
+        MODE_BOOKINGS,
+        MODE_INFO
     } Mode;
 
     BlockBookingsModel(QObject *parent = nullptr);
@@ -27,13 +28,11 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    //Qt::ItemFlags flags(const QModelIndex& index) const override;
-
-    //Date day() const;
-    //void setDay(const QDate &day);
     void setMode(Mode mode);
     void setBlockId(int id);
+    void setConditions(const QString& conditions);
 
+    QVariant plainData(int row, int col) const;
 public slots:
     void updateQuery();
 
@@ -43,6 +42,7 @@ public slots:
 
         Mode m_mode = MODE_BLOCKS;
         int m_blockid = -1;
+        QString m_additional_condition;
         int m_count = 0;
 
 };

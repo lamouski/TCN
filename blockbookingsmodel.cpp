@@ -36,14 +36,22 @@ QVariant BlockBookingsModel::headerData(int section, Qt::Orientation orientation
 
 }
 
-int BlockBookingsModel::rowCount(const QModelIndex &parent) const
+int BlockBookingsModel::rowCount(const QModelIndex &/*parent*/) const
 {
     return m_count;
 }
 
-int BlockBookingsModel::columnCount(const QModelIndex &parent) const
+int BlockBookingsModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    return m_mode==MODE_BLOCKS ? 4 : 7;
+    switch (m_mode)
+    {
+    case MODE_BLOCKS:
+        return 4;
+    case MODE_INFO:
+        return 3;
+    case MODE_BOOKINGS:
+        return 7;
+    }
 }
 
 QVariant BlockBookingsModel::data(const QModelIndex &index, int role) const
@@ -74,7 +82,14 @@ QVariant BlockBookingsModel::data(const QModelIndex &index, int role) const
                 if(!m_query.value(3).isNull())
                 {
                     info += " (" + m_query.value(3).toString() + ")";
-                }                
+                }
+                if(m_mode == MODE_INFO)
+                {
+                   info += " (" +
+                           tr("booked ") + m_query.record().value(4).toString() + ", " +
+                           tr("at ") + QDate::fromJulianDay(m_query.value(0).toInt()).toString() + ", " +
+                           tr("used ") + m_query.record().value(5).toString() + " )";
+                }
                 return info;
             }
             case 3: // amount or sum
@@ -116,6 +131,14 @@ QVariant BlockBookingsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+
+QVariant BlockBookingsModel::plainData(int row, int col) const
+{
+    const_cast<QSqlQuery&>(m_query).seek(row);
+    return m_query.value(col);
+}
+
+
 void BlockBookingsModel::setMode(BlockBookingsModel::Mode mode)
 {
     if(m_mode != mode)
@@ -138,24 +161,50 @@ void BlockBookingsModel::setBlockId(int id)
     }
 }
 
+void BlockBookingsModel::setConditions(const QString &conditions)
+{
+//    if(m_additional_condition != conditions)
+//    {
+        m_additional_condition = conditions;
+        int old_row_count = rowCount();
+        updateQuery();
+        emit dataChanged(index(0, 0), index(old_row_count-1, columnCount()-1));
+//   }
+}
+
 void BlockBookingsModel::updateQuery()
 {
-//    m_query.exec("SELECT block_bookings.date, bookings.date, bookings.blockid, amount, (surname || ' ' || firstname) as name_info, bookings.info, bookings.sum, fields.name, timeslot, bookings.status from  block_bookings "
-//                 "LEFT OUTER JOIN members ON members.id=block_bookings.memberid "
-//                 "LEFT JOIN bookings ON bookings.blockid=block_bookings.id "
-//                 "LEFT OUTER JOIN fields ON fields.id=bookings.fieldid "
-//                 "ORDER BY block_bookings.date, CASE WHEN sum>0.0 THEN 0 ELSE 1 END, bookings.date ");
     if(m_mode == MODE_BLOCKS)
-        m_query.exec(QString("SELECT block_bookings.date, block_bookings.id, (surname || ' ' || firstname) as name_info, block_bookings.info, block_bookings.amount from block_bookings "
+        m_query.exec(QString("SELECT block_bookings.date, block_bookings.id, (surname || ' ' || firstname) as name_info, "
+                     "block_bookings.info, block_bookings.amount from block_bookings "
                      "LEFT OUTER JOIN members ON members.id=block_bookings.memberid "
                      "ORDER BY block_bookings.date"));
-    else
+    else if(m_mode == MODE_BOOKINGS)
         m_query.exec(QString("SELECT bookings.date, bookings.blockid, (surname || ' ' || firstname) as name_info, bookings.info, bookings.sum, fields.name, timeslot, bookings.status from bookings "
                      "LEFT OUTER JOIN members ON members.id=bookings.memberid "
                      "LEFT OUTER JOIN fields ON fields.id=bookings.fieldid "
                      "WHERE bookings.blockid IS NOT NULL ") +
                      (m_blockid > 0 ? QString("AND bookings.blockid=%1 ").arg(m_blockid) : "") +
                      QString("ORDER BY bookings.date "));
+    else if(m_mode == MODE_INFO)
+    {
+         m_query.exec(QString("SELECT block_bookings.date, block_bookings.id, (surname || ' ' || firstname) as name_info,"
+                      "block_bookings.info, block_bookings.amount, "
+                      "(SELECT count(id) FROM bookings "
+                              "WHERE bookings.blockid=block_bookings.id "
+                              "AND (bookings.status IS NULL OR bookings.status!=-1) ) AS used_amount, "
+                      "block_bookings.priceid, block_bookings.memberid "
+                      "FROM block_bookings "
+                      "LEFT OUTER JOIN members ON block_bookings.memberid = members.id ") +
+                      (!m_additional_condition.isEmpty() ? QString("WHERE %1 ").arg(m_additional_condition) : "") +
+                      QString("ORDER BY block_bookings.date "));
+
+    }
+    else
+    {
+        m_count = 0;
+        return;
+    }
     int count = 0;
     while(m_query.next())
         count++;

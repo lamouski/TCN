@@ -4,57 +4,72 @@
 <context>
     <name>BlockBookingsModel</name>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="20"/>
+        <location filename="../blockbookingsmodel.cpp" line="21"/>
         <source>Date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="21"/>
+        <location filename="../blockbookingsmodel.cpp" line="22"/>
         <source>Block ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="22"/>
+        <location filename="../blockbookingsmodel.cpp" line="23"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="23"/>
+        <location filename="../blockbookingsmodel.cpp" line="24"/>
         <source>Amount</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="23"/>
+        <location filename="../blockbookingsmodel.cpp" line="24"/>
         <source>Sum</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="24"/>
+        <location filename="../blockbookingsmodel.cpp" line="25"/>
         <source>Field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="25"/>
+        <location filename="../blockbookingsmodel.cpp" line="26"/>
         <source>Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="26"/>
+        <location filename="../blockbookingsmodel.cpp" line="27"/>
         <source>Status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../blockbookingsmodel.cpp" line="89"/>
-        <source>Canceled</source>
+        <source>booked </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="90"/>
+        <source>at </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../blockbookingsmodel.cpp" line="91"/>
+        <source>used </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="105"/>
+        <source>Canceled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../blockbookingsmodel.cpp" line="107"/>
         <source>Payed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../blockbookingsmodel.cpp" line="92"/>
+        <location filename="../blockbookingsmodel.cpp" line="108"/>
         <source>Not payed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -140,27 +155,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="60"/>
-        <source>Block </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../bookingdialog.cpp" line="61"/>
-        <source>Used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../bookingdialog.cpp" line="81"/>
+        <location filename="../bookingdialog.cpp" line="83"/>
         <source>Single booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="82"/>
+        <location filename="../bookingdialog.cpp" line="84"/>
         <source>Block booking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="83"/>
+        <location filename="../bookingdialog.cpp" line="85"/>
         <source>Abo booking</source>
         <translation type="unfinished"></translation>
     </message>
