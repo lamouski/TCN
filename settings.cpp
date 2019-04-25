@@ -79,7 +79,6 @@ void Settings::readDataFromDb()
             }
                 break;
             }
-
             m_settings_map[id] = vr_value;
         }
     }
@@ -87,29 +86,13 @@ void Settings::readDataFromDb()
     settingsPreprocessing();
 }
 
-
 void Settings::settingsPreprocessing()
 {
     m_sommer_begin = m_settings_map["sommer_start"].toDate();
     m_winter_begin = m_settings_map["winter_start"].toDate();
 
-    if(m_current_date < m_sommer_begin)
-    {
-        m_sommer_end = m_winter_begin.addDays(-1);
-        m_winter_begin = m_winter_begin.addYears(-1);
-        m_winter_end = m_sommer_begin.addDays(-1);
-    }
-    else if (m_current_date < m_winter_begin)
-    {
-        m_sommer_end = m_winter_begin.addDays(-1);
-        m_winter_end = m_sommer_begin.addYears(1).addDays(-1);
-    }
-    else
-    {
-        m_sommer_begin = m_sommer_begin.addYears(1);
-        m_winter_end = m_sommer_begin.addDays(-1);
-        m_sommer_end = m_winter_begin.addYears(1).addDays(-1);
-    }
+    m_sommer_end = m_winter_begin.addDays(-1);
+    m_winter_end = m_sommer_begin.addDays(-1);
 
     if(m_settings_map["season_starts_from_monday"].toBool())
     {
@@ -144,7 +127,10 @@ void Settings::settingsPreprocessing()
 void Settings::setCurrentDate(const QDate& date)
 {
     m_current_date = date;
-    setSeason();
+    if(m_current_date.year() != m_sommer_begin.year())
+        readDataFromDb();
+    else
+        setSeason();
 }
 
 void Settings::setSeason()

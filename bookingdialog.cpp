@@ -57,13 +57,6 @@ BookingDialog::BookingDialog(QWidget *parent) :
           &QItemSelectionModel::currentChanged, this, &BookingDialog::handleCurrentNonMemberChanged);
 
     m_blockslist_model = new BlockBookingsModel(this);
-//    m_blockslist_base_query_string = QString("SELECT (firstname || ' ' || surname) AS name,"
-//        "( firstname || ' ' || surname || ' - " +tr("Block ")+ "' || amount || ' - " + tr("From ") + "' || data || '" +
-//         tr("Used") + " ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) )) AS info_string, "
-//        "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
-//        "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) ) AS used_amount "
-//        "FROM block_bookings "
-//        "LEFT OUTER JOIN members ON block_bookings.memberid = members.id ");
     m_blockslist_model->setMode(BlockBookingsModel::MODE_INFO);
     m_blockslist_model->setConditions("amount > used_amount");
     ui->m_list_view_blocks->setModel(m_blockslist_model);
@@ -157,13 +150,6 @@ void BookingDialog::setData(const BookingData& data)
     bool name_is_found = false;
     if(data.blockID > 0)
     {
-    //    m_blockslist_base_query_string = QString(""
-    //        "( firstname || ' ' || surname || ' - " +tr("Block ")+ "' || amount || ' - " + tr("From ") + "' || data || '" +
-    //         tr("Used") + " ' || (SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) )) AS info_string, "
-    //        "block_bookings.id, block_bookings.priceid, block_bookings.memberid, "
-    //        "(SELECT count(id) FROM bookings WHERE bookings.blockid = block_bookings.id AND (bookings.status IS NULL OR bookings.status!=-1) ) AS used_amount "
-    //        ""
-    //        );
         QSqlQuery query(QString("SELECT (firstname || ' ' || surname) AS name FROM block_bookings "
                                 "LEFT OUTER JOIN members ON block_bookings.memberid = members.id "
                                 "WHERE block_bookings.id = %0").arg(data.blockID));
@@ -299,6 +285,7 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
     }
 }
 
+
 void BookingDialog::handleCurrentNonMemberChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
     if(ui->m_line_edit_name->hasFocus())
@@ -316,6 +303,7 @@ void BookingDialog::handleCurrentNonMemberChanged(const QModelIndex &current, co
         updatePriceQuery();
     }
 }
+
 
 void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
