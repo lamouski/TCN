@@ -19,9 +19,12 @@
 #include "pricelistdialog.h"
 #include "ui_pricelistdialog.h"
 
+#include "settings.h"
+
 #include <QMenu>
 #include <QMessageBox>
 #include <QSqlError>
+#include <QSqlRecord>
 #include <QSqlRelationalDelegate>
 #include <QSqlRelationalTableModel>
 #include <QSqlTableModel>
@@ -60,6 +63,28 @@ PriceListDialog::PriceListDialog(QWidget *parent) :
     m_model->setHeaderData(10, Qt::Horizontal, tr("Revenue type"));
     m_model->setHeaderData(11, Qt::Horizontal, tr("Account"));
 
+    m_model->setEditStrategy(QSqlTableModel::OnRowChange);
+    connect(m_model, &QSqlTableModel::primeInsert,
+            [](int /*row*/, QSqlRecord &record)
+    {
+        record.setGenerated("id", false);
+        record.setGenerated("price_name", false);
+        record.setGenerated("member", false);
+        record.setValue("winter", QVariant::fromValue<QString>(Settings::winterSeason() ? "true" : "false"));
+        record.setGenerated("winter", true);
+        record.setValue("abo", QVariant::fromValue<QString>("false"));
+        record.setGenerated("abo", true);
+        record.setValue("guest", QVariant::fromValue<QString>("false"));
+        record.setGenerated("guest", true);
+        record.setValue("days", QVariant::fromValue<int>(127));
+        record.setGenerated("days", true);
+        record.setValue("start_time_slot", QVariant::fromValue<int>(9));
+        record.setGenerated("start_time_slot", true);
+        record.setValue("end_time_slot", QVariant::fromValue<int>(21));
+        record.setGenerated("end_time_slot", true);
+        record.setGenerated("sum", false);
+        record.setGenerated("revenue", false);
+    });
 
     // Populate the model:
     if (!m_model->select())
