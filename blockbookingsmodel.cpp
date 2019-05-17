@@ -144,9 +144,7 @@ void BlockBookingsModel::setMode(BlockBookingsModel::Mode mode)
     if(m_mode != mode)
     {
         m_mode = mode;
-        int old_row_count = rowCount();
-        updateQuery();
-        emit dataChanged(index(0, 0), index(old_row_count-1, columnCount()-1));
+        updateQuery();        
     }
 }
 
@@ -155,9 +153,7 @@ void BlockBookingsModel::setBlockId(int id)
     if(m_blockid != id)
     {
         m_blockid = id;
-        int old_row_count = rowCount();
         updateQuery();
-        emit dataChanged(index(0, 0), index(old_row_count-1, columnCount()-1));
     }
 }
 
@@ -166,9 +162,7 @@ void BlockBookingsModel::setConditions(const QString &conditions)
 //    if(m_additional_condition != conditions)
 //    {
         m_additional_condition = conditions;
-        int old_row_count = rowCount();
         updateQuery();
-        emit dataChanged(index(0, 0), index(old_row_count-1, columnCount()-1));
 //   }
 }
 
@@ -203,10 +197,14 @@ void BlockBookingsModel::updateQuery()
     else
     {
         m_count = 0;
+        emit dataChanged(index(0, 0), index(rowCount()-1, columnCount()-1));
         return;
     }
     int count = 0;
     while(m_query.next())
         count++;
     m_count = count;
+
+    emit dataChanged(index(0, 0), index(rowCount()-1, columnCount()-1));
+    emit layoutChanged();
 }

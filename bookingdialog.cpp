@@ -49,6 +49,7 @@ BookingDialog::BookingDialog(QWidget *parent) :
     m_nonmemberlist_base_query_string = QString("SELECT TRIM(info) FROM bookings ");
     m_nonmemberlist_model->setQuery(m_nonmemberlist_base_query_string +
                                     "WHERE info IS NOT NULL "
+                                    "AND status IS NOT -1 "
                                     "GROUP BY info");
     ui->m_list_view_non_members->setModel(m_nonmemberlist_model);
     ui->m_list_view_non_members->setModelColumn(0);
@@ -509,37 +510,7 @@ void BookingDialog::selectCurrentMemberId()
 
 void BookingDialog::selectCurrentNonMember()
 {
-//    bool found = false;
-//    if(m_selected_member_id >= 0)
-//    {
-//        for (int i = 0; i < m_memberlist_model->rowCount(); ++i)
-//        {
-//            if (m_memberlist_model->record(i).value(1).toInt() == m_selected_member_id)
-//            {
-//                QModelIndex index = m_memberlist_model->index(i, 0);
-//                ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
-//                found = true;
-//                ui->m_list_view_blocks->clearSelection();
-//                break;
-//            }
-//        }
-//    }
 
-//    if(!found && m_selected_block_id == -1)
-//    {
-//        if(m_memberlist_model->rowCount() == 1) //one with entered name
-//        {
-//           m_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
-//           QModelIndex index = m_memberlist_model->index(0, 0);
-//           ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
-//           ui->m_list_view_blocks->clearSelection();
-//        }
-//        else if(m_memberlist_model->rowCount() == 0) //no member with entered name
-//        {
-//           m_selected_member_id = -1;
-//           ui->m_list_view_members->clearSelection();
-//        }
-//    }
 
 }
 

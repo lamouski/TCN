@@ -84,11 +84,12 @@ void BlockBookingsView::handleCurrentBlockChanged(const QModelIndex &current, co
     if(current.isValid())
     {
         QModelIndex block_id_index = m_model_blocks->index(current.row(), 1);
-        m_model_bookings->setBlockId(m_model_blocks->data(block_id_index).toInt());
+        m_model_bookings->setBlockId(m_model_blocks->data(block_id_index).toInt());        
     }
     else {
         m_model_bookings->setBlockId(-1);
     }
+    //ui->m_bookings_table_view->setModel(m_model_bookings);
 }
 
 void BlockBookingsView::updateGUI()
