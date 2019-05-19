@@ -46,9 +46,6 @@ public slots:
     void setDay(const QDate& date);
 
     void setData(const BookingData &data);
-//    void setMemberId(int id);
-//    void setPriceId(int id);
-//    void setInfo(const QString& info);
 
     void updateMembersQuery(const QString &find_string);
     void updateNonMembersQuery(const QString &find_string);
@@ -58,20 +55,10 @@ public slots:
 public:
     BookingData getSelectedData() const;
 
-//    int selectedId() const;
-//    QString info() const;
-
     bool isSingleBooking() const;
-//    int selectedPrice() const;
-//    int selectedBlock() const;
-//    float sum() const;
-
     bool isBlockBooking() const;
-    //int numOfBlocks() const;
 
     bool isMultyBooking();
-    //QDate aboStartDate() const;
-    //QDate aboEndDate() const;
 
 protected slots:
     void handleCurrentMemberChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -87,6 +74,11 @@ protected slots:
     void on_m_list_view_blocks_clicked(const QModelIndex &index);
     void on_m_list_view_blocks_activated(const QModelIndex &index);
     void on_m_combo_price_currentIndexChanged(int index);
+
+    void updateGUI();
+
+private slots:
+    void on_m_add_new_nonmember_toggled(bool checked);
 
 private:
     Ui::BookingDialog *ui;
@@ -122,8 +114,8 @@ private:
     BookingMode m_mode = MODE_SINGLE;
     void setMode(BookingMode mode);
 
-    void selectCurrentMemberId();
-    void selectCurrentNonMember();
+    void selectCurrentMemberId(bool auto_selection_of_single_member);
+    void selectCurrentNonMember(const QString& info);
     void selectCurrentBlockId();
 
 };

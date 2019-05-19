@@ -109,47 +109,62 @@
         <translation type="obsolete">Ab:</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="228"/>
+        <location filename="../bookingdialog.ui" line="328"/>
         <source>Abo From date:</source>
         <translation>Abo Ab:</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="245"/>
+        <location filename="../bookingdialog.ui" line="345"/>
         <source>Till date:</source>
         <translation>Bis:</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="52"/>
+        <location filename="../bookingdialog.ui" line="68"/>
         <source>Field</source>
         <translation>Feld</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="64"/>
+        <location filename="../bookingdialog.ui" line="80"/>
         <source>Day</source>
         <translation>Tag</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="79"/>
+        <location filename="../bookingdialog.ui" line="95"/>
         <source>Time</source>
         <translation>Zeit</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="184"/>
+        <location filename="../bookingdialog.ui" line="177"/>
         <source>Number of blocks:</source>
         <translation>Anzahl der Blöcke:</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="283"/>
+        <location filename="../bookingdialog.ui" line="242"/>
+        <source>Add previously unlisted nonmember</source>
+        <translation>Ein zuvor nicht aufgeführtes Nichtmitglied hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="290"/>
+        <source>Euro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="297"/>
+        <source>Price</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../bookingdialog.ui" line="383"/>
         <source>Members</source>
         <translation>Mitglieder</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="318"/>
+        <location filename="../bookingdialog.ui" line="228"/>
         <source>Nonmembers</source>
         <translation>Nichtmitglieder</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="353"/>
+        <location filename="../bookingdialog.ui" line="136"/>
         <source>Block-bookings</source>
         <translation>Block-buchungen</translation>
     </message>
@@ -166,7 +181,7 @@
         <translation type="obsolete">Summe:</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.ui" line="147"/>
+        <location filename="../bookingdialog.ui" line="32"/>
         <source>...</source>
         <translation></translation>
     </message>
@@ -183,17 +198,17 @@
         <translation type="vanished">Verbraucht</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="83"/>
+        <location filename="../bookingdialog.cpp" line="79"/>
         <source>Single booking</source>
         <translation>Einzelbuchung</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="84"/>
+        <location filename="../bookingdialog.cpp" line="80"/>
         <source>Block booking</source>
         <translation>Blockbuchung</translation>
     </message>
     <message>
-        <location filename="../bookingdialog.cpp" line="85"/>
+        <location filename="../bookingdialog.cpp" line="81"/>
         <source>Abo booking</source>
         <translation>Abo Buchung</translation>
     </message>
@@ -544,72 +559,72 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="36"/>
+        <location filename="../pricelistdialog.cpp" line="39"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="37"/>
+        <location filename="../pricelistdialog.cpp" line="40"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="38"/>
+        <location filename="../pricelistdialog.cpp" line="41"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="51"/>
+        <location filename="../pricelistdialog.cpp" line="54"/>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="52"/>
+        <location filename="../pricelistdialog.cpp" line="55"/>
         <source>Member</source>
         <translation>Mitglied</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="53"/>
+        <location filename="../pricelistdialog.cpp" line="56"/>
         <source>Season</source>
         <translation>Saison</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="54"/>
+        <location filename="../pricelistdialog.cpp" line="57"/>
         <source>Abo</source>
         <translation>Abo</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="55"/>
+        <location filename="../pricelistdialog.cpp" line="58"/>
         <source>Guest</source>
         <translation>Gast</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="56"/>
+        <location filename="../pricelistdialog.cpp" line="59"/>
         <source>Days</source>
         <translation>Tags</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="57"/>
+        <location filename="../pricelistdialog.cpp" line="60"/>
         <source>From</source>
         <translation>Von</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="58"/>
+        <location filename="../pricelistdialog.cpp" line="61"/>
         <source>Till</source>
         <translation>Bis</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="59"/>
+        <location filename="../pricelistdialog.cpp" line="62"/>
         <source>Summe</source>
         <translation>Summe</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="60"/>
+        <location filename="../pricelistdialog.cpp" line="63"/>
         <source>Revenue type</source>
         <translation>Erlösart</translation>
     </message>
     <message>
-        <location filename="../pricelistdialog.cpp" line="61"/>
+        <location filename="../pricelistdialog.cpp" line="64"/>
         <source>Account</source>
         <translation>Konto</translation>
     </message>

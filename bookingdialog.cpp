@@ -26,6 +26,7 @@
 #include <QMenu>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QPushButton>
 
 #include <QDebug>
 
@@ -50,6 +51,7 @@ BookingDialog::BookingDialog(QWidget *parent) :
     m_nonmemberlist_model->setQuery(m_nonmemberlist_base_query_string +
                                     "WHERE info IS NOT NULL "
                                     "AND status IS NOT -1 "
+                                    "AND date >= " + QString("%1 ").arg(Settings::getDate("list_nonmembers_from_date").toJulianDay()) +
                                     "GROUP BY info");
     ui->m_list_view_non_members->setModel(m_nonmemberlist_model);
     ui->m_list_view_non_members->setModelColumn(0);
@@ -115,12 +117,23 @@ void BookingDialog::reset()
     m_selected_member_id = -1;
     m_selected_price_id = -1;
     ui->m_line_edit_name->clear();
+
     updateMembersQuery(ui->m_line_edit_name->text());
     updateBlocksQuery(ui->m_line_edit_name->text());
+    updateNonMembersQuery(ui->m_line_edit_name->text());
+
+    ui->m_list_view_members->setCurrentIndex(QModelIndex());
+    ui->m_list_view_members->clearSelection();
+    ui->m_list_view_non_members->setCurrentIndex(QModelIndex());
+    ui->m_list_view_non_members->clearSelection();
+    ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
+    ui->m_list_view_blocks->clearSelection();
+
     updatePriceQuery();
     setMode(MODE_SINGLE);
     ui->m_line_edit_name->setFocus();
 
+    updateGUI();
 }
 
 
@@ -187,9 +200,15 @@ void BookingDialog::setData(const BookingData& data)
     }
 
     updateMembersQuery(ui->m_line_edit_name->text());
-    selectCurrentMemberId();
     updateBlocksQuery(ui->m_line_edit_name->text());
+    updateNonMembersQuery(ui->m_line_edit_name->text());
+
+    selectCurrentMemberId(false);
     selectCurrentBlockId();
+    selectCurrentNonMember(ui->m_line_edit_name->text());
+
+    ui->m_add_new_nonmember->setChecked(false);
+
     updatePriceQuery();
     if(data.priceID > 0)
     {
@@ -208,7 +227,7 @@ void BookingDialog::setData(const BookingData& data)
 
     ui->m_summ_line_edit->setText(QString("%1").arg(static_cast<double>(data.sum)));
 
-
+    updateGUI();
 }
 
 BookingData BookingDialog::getSelectedData() const
@@ -282,7 +301,11 @@ void BookingDialog::handleCurrentMemberChanged(const QModelIndex &current, const
         ui->m_list_view_non_members->clearSelection();
         ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
         ui->m_list_view_blocks->clearSelection();
+
+        ui->m_add_new_nonmember->setChecked(false);
+
         updatePriceQuery();
+        updateGUI();
     }
 }
 
@@ -301,7 +324,11 @@ void BookingDialog::handleCurrentNonMemberChanged(const QModelIndex &current, co
         ui->m_list_view_members->clearSelection();
         ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
         ui->m_list_view_blocks->clearSelection();
+        ui->m_add_new_nonmember->setChecked(false);
+
         updatePriceQuery();
+
+        updateGUI();
     }
 }
 
@@ -319,9 +346,11 @@ void BookingDialog::handleCurrentBlockChanged(const QModelIndex &current, const 
         ui->m_list_view_members->setCurrentIndex(QModelIndex());
         ui->m_list_view_members->clearSelection();
         ui->m_list_view_non_members->setCurrentIndex(QModelIndex());
-        ui->m_list_view_non_members->clearSelection();
+        ui->m_list_view_non_members->clearSelection();        
         updatePriceQuery();
         ui->m_summ_line_edit->setText("0");
+        ui->m_add_new_nonmember->setChecked(false);
+        updateGUI();
     }
 }
 
@@ -336,6 +365,21 @@ void BookingDialog::on_m_combo_price_currentIndexChanged(int row)
             m_selected_price_id = new_selected_price_id;
             ui->m_summ_line_edit->setText(m_prices_model->data(m_prices_model->index(row, 1)).toString());
         }
+    }
+}
+
+void BookingDialog::updateGUI()
+{
+    if(ui->m_list_view_members->selectionModel()->hasSelection() ||
+       ui->m_list_view_non_members->selectionModel()->hasSelection() ||
+       ui->m_list_view_blocks->selectionModel()->hasSelection() ||
+       ui->m_add_new_nonmember->isChecked())
+    {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    }
+    else
+    {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
 }
 
@@ -388,13 +432,18 @@ void BookingDialog::updateNonMembersQuery(const QString &find_string)
     QString condition = member_name_condition_for_query(find_string, QString("info"));
     m_nonmemberlist_model->setQuery(m_nonmemberlist_base_query_string +
                                     "WHERE info IS NOT NULL " +
-                                    (condition.isEmpty() ? "" : " AND " + condition) +
+                                    (condition.isEmpty() ? "" : " AND " + condition + " ") +
+                                    "AND date >= " + QString("%1 ").arg(Settings::getDate("list_nonmembers_from_date").toJulianDay()) +
                                     "GROUP BY info");
 
-    if(m_nonmemberlist_model->rowCount() == 0) //one with entered name
-        ui->m_nonmembers_widget->hide();
+    if(m_nonmemberlist_model->rowCount() == 0) //no one with entered name
+    {
+        ui->m_list_view_non_members->hide();
+    }
     else
-        ui->m_nonmembers_widget->show();
+    {
+        ui->m_list_view_non_members->show();
+    }
 }
 
 
@@ -460,15 +509,19 @@ void BookingDialog::on_m_line_edit_name_textEdited(const QString &arg1)
     updateBlocksQuery(arg1);
     updateNonMembersQuery(arg1);
 
-    selectCurrentMemberId();
-    selectCurrentBlockId();
-    selectCurrentNonMember();
+    if(!ui->m_add_new_nonmember->isChecked())
+    {
+        selectCurrentMemberId(true);
+        selectCurrentBlockId();
+        selectCurrentNonMember(arg1);
+    }
 
     updatePriceQuery();
+    updateGUI();
 }
 
 
-void BookingDialog::selectCurrentMemberId()
+void BookingDialog::selectCurrentMemberId(bool auto_select_single_member)
 {
     bool found = false;
     if(m_selected_member_id >= 0)
@@ -480,8 +533,6 @@ void BookingDialog::selectCurrentMemberId()
                 QModelIndex index = m_memberlist_model->index(i, 0);
                 ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
                 found = true;
-                ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
-                ui->m_list_view_blocks->clearSelection();
                 break;
             }
         }
@@ -489,15 +540,14 @@ void BookingDialog::selectCurrentMemberId()
 
     if(!found && m_selected_block_id == -1)
     {
-        if(m_memberlist_model->rowCount() == 1) //one with entered name
+        if(m_memberlist_model->rowCount() == 1 && auto_select_single_member) //one with entered name
         {
            m_selected_member_id = m_memberlist_model->record(0).value(1).toInt();
            QModelIndex index = m_memberlist_model->index(0, 0);
            ui->m_list_view_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
-           ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
-           ui->m_list_view_blocks->clearSelection();
+           found = true;
         }
-        else if(m_memberlist_model->rowCount() == 0) //no member with entered name
+        else
         {
            m_selected_member_id = -1;
            ui->m_list_view_members->setCurrentIndex(QModelIndex());
@@ -505,17 +555,48 @@ void BookingDialog::selectCurrentMemberId()
         }
     }
 
+    if(found)
+    {
+        ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
+        ui->m_list_view_blocks->clearSelection();
+        ui->m_list_view_non_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_non_members->clearSelection();
+    }
+
+    updateGUI();
 }
 
 
-void BookingDialog::selectCurrentNonMember()
+void BookingDialog::selectCurrentNonMember(const QString& info)
 {
+    bool found = false;
+    if(!info.isEmpty() && m_selected_member_id == -1 && m_selected_block_id == -1)
+    {
+        for (int i = 0; i < m_nonmemberlist_model->rowCount(); ++i)
+        {
+            if (m_nonmemberlist_model->record(i).value(0).toString() == info)
+            {
+                QModelIndex index = m_nonmemberlist_model->index(i, 0);
+                ui->m_list_view_non_members->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+                found = true;
+                break;
+            }
+        }
+    }
+    if(found)
+    {
+        ui->m_list_view_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_members->clearSelection();
+        ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
+        ui->m_list_view_blocks->clearSelection();
+    }
 
-
+    updateGUI();
 }
 
 void BookingDialog::selectCurrentBlockId()
 {
+    bool found = false;
     if(m_selected_block_id >= 0)
     {
         for (int i = 0; i < m_blockslist_model->rowCount(); ++i)
@@ -524,12 +605,19 @@ void BookingDialog::selectCurrentBlockId()
             {
                 QModelIndex index = m_blockslist_model->index(i, 1);
                 ui->m_list_view_blocks->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
-                ui->m_list_view_members->setCurrentIndex(QModelIndex());
-                ui->m_list_view_members->clearSelection();
+                found = true;
                 break;
             }
         }
     }
+    if(found)
+    {
+        ui->m_list_view_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_members->clearSelection();
+        ui->m_list_view_non_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_non_members->clearSelection();
+    }
+    updateGUI();
 }
 
 
@@ -568,4 +656,24 @@ void BookingDialog::on_m_list_view_blocks_activated(const QModelIndex &index)
 {
     handleCurrentBlockChanged(index, QModelIndex());
     accept();
+}
+
+
+void BookingDialog::on_m_add_new_nonmember_toggled(bool checked)
+{
+
+    if(checked)
+    {
+        m_selected_member_id = -1;
+        m_selected_block_id = -1;
+
+        ui->m_list_view_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_members->clearSelection();
+        ui->m_list_view_non_members->setCurrentIndex(QModelIndex());
+        ui->m_list_view_non_members->clearSelection();
+        ui->m_list_view_blocks->setCurrentIndex(QModelIndex());
+        ui->m_list_view_blocks->clearSelection();
+        updatePriceQuery();
+    }
+    updateGUI();
 }
